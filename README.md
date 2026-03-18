@@ -42,8 +42,17 @@ bun run dev
 ## CLI
 
 ```bash
-bun run cli <rockumentation-url> [--output <dir>] [--username <user> --password <pass>]
+bun run cli <rockumentation-url> [options]
 ```
+
+### Options
+
+| Flag                        | Short | Description                                                                                               |
+| --------------------------- | ----- | --------------------------------------------------------------------------------------------------------- |
+| `--output <dir>`            | `-o`  | Output directory (default: `./output`)                                                                    |
+| `--username <user>`         | `-u`  | Rock RMS username for private docs                                                                        |
+| `--password <pass>`         | `-p`  | Rock RMS password                                                                                         |
+| `--merge-threshold <lines>` | `-m`  | Merge leaf articles shorter than this many lines into their parent reference file (default: 0 = disabled) |
 
 ### Examples
 
@@ -51,8 +60,8 @@ bun run cli <rockumentation-url> [--output <dir>] [--username <user> --password 
 # Developer Codex (103 articles)
 bun run cli https://community.rockrms.com/developer/developer-codex
 
-# Mobile Docs (259 articles)
-bun run cli https://community.rockrms.com/developer/mobile-docs
+# Mobile Docs with merging (reduces 258 files to ~133)
+bun run cli https://community.rockrms.com/developer/mobile-docs -m 50
 
 # Custom output directory
 bun run cli https://community.rockrms.com/lava -o ./skills
@@ -89,3 +98,36 @@ The following rules have been agreed to by all those who "Code for Core"...
 ## Using the Generated Skill
 
 Copy the generated skill directory into your AI agent's skills folder. The `SKILL.md` frontmatter and hierarchical TOC give the agent structured access to the full documentation.
+
+## Staying Under File Limits
+
+Some platforms (e.g. Claude.ai) limit skills to 200 files. For large documentation sites, there are two strategies:
+
+### Merge Small Articles
+
+Use `--merge-threshold` (CLI) or the "Merge Threshold" field (UI) to automatically merge short leaf articles into their parent reference file. Merged articles appear as `## Title {#slug}` subsections within the parent file, and the TOC links to the anchor.
+
+```bash
+# Merge articles under 50 lines into their parents
+bun run cli https://community.rockrms.com/developer/mobile-docs -m 50
+```
+
+On rebuild, stale reference files from previously-separate articles are automatically cleaned up.
+
+### Split Into Multiple Skills
+
+If merging alone isn't enough, use the **Split Skill** panel in the web UI to extract top-level categories into separate skills. After a build, the UI shows each category with its file count — check the ones you want to extract and click "Split Selected." Each extracted category becomes its own skill directory alongside the original, with its own SKILL.md and references.
+
+## AI Descriptions
+
+Reference files can have AI-generated descriptions that tell the agent when to use each file. These are stored as YAML frontmatter in each reference file and appear in the SKILL.md table of contents.
+
+To generate descriptions:
+
+1. Set `ANTHROPIC_API_KEY` in a `.env` file, or enter it in the UI's "AI Settings" section
+2. After a build, use the "Reference Descriptions" panel to generate missing descriptions or regenerate all
+3. Descriptions are preserved across rebuilds
+
+## ZIP Export
+
+After building a skill, click "Download ZIP" in the result card to get a ready-to-upload archive containing `SKILL.md` and the `references/` directory.

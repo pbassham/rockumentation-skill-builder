@@ -12,11 +12,13 @@ function parseArgs(args: string[]): {
   outputDir: string;
   username?: string;
   password?: string;
+  mergeThreshold: number;
 } {
   const positional: string[] = [];
   let outputDir = "./output";
   let username: string | undefined;
   let password: string | undefined;
+  let mergeThreshold = 0;
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i]!;
@@ -32,6 +34,10 @@ function parseArgs(args: string[]): {
       password = args[++i];
     } else if (arg.startsWith("--password=")) {
       password = arg.split("=").slice(1).join("=");
+    } else if (arg === "--merge-threshold" || arg === "-m") {
+      mergeThreshold = parseInt(args[++i] ?? "0", 10) || 0;
+    } else if (arg.startsWith("--merge-threshold=")) {
+      mergeThreshold = parseInt(arg.split("=")[1] ?? "0", 10) || 0;
     } else if (!arg.startsWith("-")) {
       positional.push(arg);
     }
@@ -39,10 +45,17 @@ function parseArgs(args: string[]): {
 
   if (positional.length === 0) {
     console.error(
-      "Usage: bun run src/index.ts <rockumentation-url> [--output <dir>] [--username <user> --password <pass>]",
+      "Usage: bun run src/index.ts <rockumentation-url> [--output <dir>] [--username <user> --password <pass>] [--merge-threshold <lines>]",
     );
     console.error(
       "\nExample: bun run src/index.ts https://community.rockrms.com/developer/developer-codex",
+    );
+    console.error(
+      "\nOptions:",
+      "\n  -o, --output <dir>            Output directory (default: ./output)",
+      "\n  -u, --username <user>         Rock RMS username for private docs",
+      "\n  -p, --password <pass>         Rock RMS password",
+      "\n  -m, --merge-threshold <lines> Merge leaf articles under this line count into parent (0 = disabled)",
     );
     process.exit(1);
   }
@@ -52,11 +65,12 @@ function parseArgs(args: string[]): {
     outputDir: resolve(outputDir),
     username,
     password,
+    mergeThreshold,
   };
 }
 
 async function main() {
-  const { url, outputDir, username, password } = parseArgs(
+  const { url, outputDir, username, password, mergeThreshold } = parseArgs(
     process.argv.slice(2),
   );
 
@@ -113,6 +127,7 @@ async function main() {
     sourceUrl: url,
     articles,
     outputDir,
+    mergeThreshold,
   });
 
   console.log(`\n✓ Skill generated at: ${skillDir}`);

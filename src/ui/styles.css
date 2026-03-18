@@ -47,6 +47,7 @@ label {
 
 input[type="text"],
 input[type="url"],
+input[type="password"],
 textarea {
   width: 100%;
   padding: 0.6rem 0.75rem;
@@ -174,6 +175,12 @@ button:disabled {
   font-size: 0.85rem;
 }
 
+.result-actions {
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #30363d;
+}
+
 .error-banner {
   margin-top: 1.5rem;
   padding: 1rem;
@@ -218,4 +225,227 @@ details#auth-section .auth-fields {
   background: #161b22;
   border: 1px solid #30363d;
   border-radius: 6px;
+}
+
+details#ai-section {
+  margin-bottom: 1.25rem;
+}
+
+details#ai-section summary {
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #8b949e;
+  padding: 0.5rem 0;
+  user-select: none;
+  transition: color 0.15s;
+}
+
+details#ai-section summary:hover {
+  color: #c9d1d9;
+}
+
+details#ai-section .ai-fields {
+  margin-top: 0.75rem;
+  padding: 1rem;
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+}
+
+.ai-key-active {
+  color: #3fb950 !important;
+}
+
+/* Description Panel */
+.desc-panel {
+  margin-top: 1.5rem;
+  padding: 1.25rem;
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+}
+
+.desc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 1rem;
+}
+
+.desc-header h3 {
+  font-size: 1.1rem;
+  color: #58a6ff;
+  margin: 0;
+}
+
+.desc-count {
+  font-size: 0.8rem;
+  color: #8b949e;
+}
+
+.desc-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.btn-sm {
+  padding: 0.4rem 0.9rem;
+  font-size: 0.8rem;
+  border-radius: 5px;
+  margin-top: 0;
+}
+
+.btn-secondary {
+  background: #30363d;
+  color: #c9d1d9;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: #3d444d;
+}
+
+.desc-progress {
+  padding: 0.5rem 0;
+  font-size: 0.85rem;
+  color: #d29922;
+  margin-bottom: 0.75rem;
+}
+
+.desc-progress.desc-error {
+  color: #f85149;
+}
+
+.desc-list {
+  max-height: 500px;
+  overflow-y: auto;
+  border-top: 1px solid #21262d;
+}
+
+.desc-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.desc-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.desc-list::-webkit-scrollbar-thumb {
+  background: #30363d;
+  border-radius: 3px;
+}
+
+.desc-list::-webkit-scrollbar-thumb:hover {
+  background: #484f58;
+}
+
+.desc-item {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #21262d;
+}
+
+.desc-item:last-child {
+  border-bottom: none;
+}
+
+.desc-item-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.desc-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.desc-title {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #e1e4e8;
+  display: block;
+}
+
+.desc-breadcrumb {
+  font-size: 0.75rem;
+  color: #6e7681;
+  margin-top: 0.15rem;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.desc-text {
+  font-size: 0.8rem;
+  color: #8b949e;
+  margin-top: 0.35rem;
+  line-height: 1.4;
+}
+
+.desc-missing {
+  color: #6e7681;
+  font-style: italic;
+}
+
+.desc-regen-btn {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.85rem;
+  background: transparent;
+  color: #8b949e;
+  border: 1px solid #30363d;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 0;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+
+.desc-regen-btn:hover:not(:disabled) {
+  color: #58a6ff;
+  border-color: #58a6ff;
+  background: transparent;
+}
+
+.desc-generating {
+  opacity: 0.7;
+}
+
+.desc-generating .desc-text {
+  color: #d29922;
+}
+
+.desc-error-item .desc-text {
+  color: #f85149;
+}
+
+/* Split panel */
+.split-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid #21262d;
+  cursor: pointer;
+}
+
+.split-item:hover {
+  background: #161b22;
+}
+
+.split-item input[type="checkbox"] {
+  accent-color: #58a6ff;
+}
+
+.split-title {
+  flex: 1;
+  font-size: 0.9rem;
+  color: #e1e4e8;
+}
+
+.split-count {
+  font-size: 0.8rem;
+  color: #8b949e;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
 }
