@@ -1,0 +1,46 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "UI",
+      "type": "bun",
+      "request": "launch",
+      "runtime": "/Users/philipb/.bun/bin/bun",
+      "program": "${workspaceFolder}/src/server.ts",
+      "cwd": "${workspaceFolder}",
+      "stopOnEntry": false
+    },
+    {
+      "name": "CLI",
+      "type": "bun",
+      "request": "launch",
+      "program": "${workspaceFolder}/src/index.ts",
+      "args": ["${input:rockumentationUrl}"],
+      "cwd": "${workspaceFolder}",
+      "stopOnEntry": false
+    },
+    {
+      "name": "CLI (with output dir)",
+      "type": "bun",
+      "request": "launch",
+      "program": "${workspaceFolder}/src/index.ts",
+      "args": ["${input:rockumentationUrl}", "--output", "${input:outputDir}"],
+      "cwd": "${workspaceFolder}",
+      "stopOnEntry": false
+    }
+  ],
+  "inputs": [
+    {
+      "id": "rockumentationUrl",
+      "description": "Rockumentation URL to convert",
+      "default": "https://community.rockrms.com/developer/developer-codex",
+      "type": "promptString"
+    },
+    {
+      "id": "outputDir",
+      "description": "Output directory",
+      "default": "./output",
+      "type": "promptString"
+    }
+  ]
+}

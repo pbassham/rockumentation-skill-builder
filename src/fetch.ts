@@ -4,16 +4,22 @@ import { buildPrintUrl } from "./utils";
  * Fetch a Rockumentation page in print mode, returning raw HTML.
  * Automatically appends the print query parameters to get all content on one page.
  */
-export async function fetchPage(baseUrl: string): Promise<string> {
+export async function fetchPage(
+  baseUrl: string,
+  cookie?: string,
+): Promise<string> {
   const printUrl = buildPrintUrl(baseUrl);
   console.log(`Fetching: ${printUrl}`);
 
-  const response = await fetch(printUrl, {
-    headers: {
-      "User-Agent":
-        "RockumentationSkillBuilder/1.0 (https://github.com/rockumentation-skill-builder)",
-    },
-  });
+  const headers: Record<string, string> = {
+    "User-Agent":
+      "RockumentationSkillBuilder/1.0 (https://github.com/rockumentation-skill-builder)",
+  };
+  if (cookie) {
+    headers["Cookie"] = cookie;
+  }
+
+  const response = await fetch(printUrl, { headers });
 
   if (!response.ok) {
     throw new Error(

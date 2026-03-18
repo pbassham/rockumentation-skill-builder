@@ -1,6 +1,6 @@
 # Rockumentation Skill Builder
 
-A CLI tool that converts [Rock RMS](https://www.rockrms.com/) Rockumentation pages into [Agent Skills](https://agentskills.io/) directories — structured markdown that AI coding agents can use as reference documentation.
+A tool that converts [Rock RMS](https://www.rockrms.com/) Rockumentation pages into [Agent Skills](https://agentskills.io/) directories — structured markdown that AI coding agents can use as reference documentation. Available as a web UI or CLI.
 
 ## What It Does
 
@@ -23,23 +23,37 @@ cd rockumentation-skill-builder
 bun install
 ```
 
-## Usage
+## Web UI
 
 ```bash
-bun run src/index.ts <rockumentation-url> [--output <dir>]
+bun run ui
+```
+
+Opens at [http://localhost:3456](http://localhost:3456). Enter a Rockumentation URL, choose an output directory, and optionally add custom instructions to include in the generated skill. Progress streams in real time.
+
+For development with hot reload:
+
+```bash
+bun run dev
+```
+
+## CLI
+
+```bash
+bun run cli <rockumentation-url> [--output <dir>]
 ```
 
 ### Examples
 
 ```bash
 # Developer Codex (103 articles)
-bun run src/index.ts https://community.rockrms.com/developer/developer-codex
+bun run cli https://community.rockrms.com/developer/developer-codex
 
 # Mobile Docs (259 articles)
-bun run src/index.ts https://community.rockrms.com/developer/mobile-docs
+bun run cli https://community.rockrms.com/developer/mobile-docs
 
 # Custom output directory
-bun run src/index.ts https://community.rockrms.com/lava -o ./skills
+bun run cli https://community.rockrms.com/lava -o ./skills
 ```
 
 Output lands in `./output/<skill-name>/` by default.

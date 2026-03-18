@@ -10,6 +10,7 @@ interface GenerateOptions {
   sourceUrl: string;
   articles: ArticleSection[];
   outputDir: string;
+  customInstructions?: string;
 }
 
 /**
@@ -46,9 +47,11 @@ export async function generateSkill(opts: GenerateOptions): Promise<string> {
     const filename = `${article.slug}.md`;
     const filepath = join(refsDir, filename);
 
-    // Add breadcrumb context at top of each reference file
+    // Add breadcrumb + description at top of each reference file
     const breadcrumb = article.toc.breadcrumb.join(" > ");
-    const content = `> **Path:** ${breadcrumb}\n\n${article.content}\n`;
+    const summary = extractSummary(article.content);
+    const descLine = summary ? `\n> ${summary}\n` : "";
+    const content = `> **Path:** ${breadcrumb}${descLine}\n${article.content}\n`;
 
     await writeFile(filepath, content, "utf-8");
     console.log(
@@ -67,7 +70,7 @@ function buildSkillMd(
 ): string {
   const { skillName, pageTitle, sourceUrl } = opts;
 
-  const description = buildDescription(pageTitle, sourceUrl);
+  const description = buildDescription(pageTitle, sourceUrl, opts.articles);
 
   // YAML frontmatter
   const frontmatter = [
@@ -94,16 +97,24 @@ function buildSkillMd(
     bodyParts.push(truncated);
   }
 
-  // Build a map of articleId → actual slug for TOC links
-  const slugMap = new Map<string, string>();
-  for (const article of opts.articles) {
-    slugMap.set(article.articleId, article.slug);
+  // Add custom instructions if provided
+  if (opts.customInstructions) {
+    bodyParts.push("\n## Additional Instructions\n");
+    bodyParts.push(opts.customInstructions);
   }
 
-  // Add hierarchical table of contents
+  // Build maps of articleId → slug and articleId → summary for TOC
+  const slugMap = new Map<string, string>();
+  const summaryMap = new Map<string, string>();
+  for (const article of opts.articles) {
+    slugMap.set(article.articleId, article.slug);
+    summaryMap.set(article.articleId, extractSummary(article.content));
+  }
+
+  // Add hierarchical table of contents with descriptions
   if (tree && tree.children.length > 0) {
     bodyParts.push("\n## Topics\n");
-    bodyParts.push(renderTreeToc(tree.children, 0, slugMap));
+    bodyParts.push(renderTreeToc(tree.children, 0, slugMap, summaryMap));
   }
 
   const body = bodyParts.join("\n");
@@ -117,6 +128,7 @@ function renderTreeToc(
   nodes: HierarchyNode[],
   indent: number,
   slugMap: Map<string, string>,
+  summaryMap: Map<string, string>,
 ): string {
   const lines: string[] = [];
   const prefix = "  ".repeat(indent);
@@ -129,29 +141,83 @@ function renderTreeToc(
         .filter((s) => s.length > 0)
         .pop() ||
       "unknown";
-    lines.push(`${prefix}- [${node.entry.title}](references/${slug}.md)`);
+    const summary = summaryMap.get(node.entry.articleId) || "";
+    const desc = summary ? ` — ${summary}` : "";
+    lines.push(
+      `${prefix}- [${node.entry.title}](references/${slug}.md)${desc}`,
+    );
 
     if (node.children.length > 0) {
-      lines.push(renderTreeToc(node.children, indent + 1, slugMap));
+      lines.push(renderTreeToc(node.children, indent + 1, slugMap, summaryMap));
     }
   }
 
   return lines.join("\n");
 }
 
-function buildDescription(pageTitle: string, sourceUrl: string): string {
-  const base = `Rock RMS documentation: ${pageTitle}.`;
-  const usage = ` Use when working with Rock RMS and need reference information about ${pageTitle.toLowerCase()}.`;
-  const source = ` Source: ${sourceUrl}`;
+function buildDescription(
+  pageTitle: string,
+  sourceUrl: string,
+  articles: ArticleSection[],
+): string {
+  // Collect top-level category titles for breadth
+  const topLevel = articles
+    .filter((a) => a.toc.depth === 1)
+    .map((a) => a.title);
+  const topicList =
+    topLevel.length > 0 ? ` Covers: ${topLevel.join(", ")}.` : "";
 
-  let desc = base + usage;
-  if (desc.length + source.length <= 1024) {
-    desc += source;
+  // Imperative phrasing focused on user intent (per Agent Skills guide)
+  const desc =
+    `Use when working with Rock RMS ${pageTitle.toLowerCase()} — ` +
+    `building, configuring, or troubleshooting features described in the ${pageTitle} documentation.` +
+    topicList +
+    ` Use this skill even if the user doesn't mention "Rock" explicitly but is asking about concepts covered here.` +
+    ` Source: ${sourceUrl}`;
+
+  if (desc.length <= 1024) return desc;
+
+  // Trim topics list if too long
+  const short =
+    `Use when working with Rock RMS ${pageTitle.toLowerCase()} — ` +
+    `building, configuring, or troubleshooting features described in the ${pageTitle} documentation.` +
+    ` Use this skill even if the user doesn't mention "Rock" explicitly but is asking about concepts covered here.` +
+    ` Source: ${sourceUrl}`;
+  return short.length > 1024 ? short.slice(0, 1021) + "..." : short;
+}
+
+/**
+ * Extract a short summary from an article's markdown content.
+ * Takes the first meaningful paragraph (not a heading, not empty).
+ */
+function extractSummary(markdown: string): string {
+  const lines = markdown.split("\n");
+  for (const line of lines) {
+    const trimmed = line.trim();
+    // Skip headings, empty lines, images, blockquotes, lists, tables, code fences
+    if (
+      !trimmed ||
+      trimmed.startsWith("#") ||
+      trimmed.startsWith("!") ||
+      trimmed.startsWith(">") ||
+      trimmed.startsWith("-") ||
+      trimmed.startsWith("|") ||
+      trimmed.startsWith("```")
+    ) {
+      continue;
+    }
+    // Strip markdown formatting for a clean summary
+    let summary = trimmed
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1") // links → text
+      .replace(/\*{1,2}([^*]+)\*{1,2}/g, "$1") // bold/italic → text
+      .replace(/`([^`]+)`/g, "$1"); // inline code → text
+    // Truncate to ~120 chars at a word boundary
+    if (summary.length > 120) {
+      summary = summary.slice(0, 117).replace(/\s+\S*$/, "") + "...";
+    }
+    return summary;
   }
-  if (desc.length > 1024) {
-    desc = desc.slice(0, 1021) + "...";
-  }
-  return desc;
+  return "";
 }
 
 function yamlEscape(value: string): string {

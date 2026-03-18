@@ -5,10 +5,18 @@ import { fetchPage } from "./fetch";
 import { extractArticles } from "./convert";
 import { generateSkill } from "./generate";
 import { deriveSkillName } from "./utils";
+import { rockLogin } from "./auth";
 
-function parseArgs(args: string[]): { url: string; outputDir: string } {
+function parseArgs(args: string[]): {
+  url: string;
+  outputDir: string;
+  username?: string;
+  password?: string;
+} {
   const positional: string[] = [];
   let outputDir = "./output";
+  let username: string | undefined;
+  let password: string | undefined;
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i]!;
@@ -16,6 +24,14 @@ function parseArgs(args: string[]): { url: string; outputDir: string } {
       outputDir = args[++i] ?? outputDir;
     } else if (arg.startsWith("--output=")) {
       outputDir = arg.split("=")[1] ?? outputDir;
+    } else if (arg === "--username" || arg === "-u") {
+      username = args[++i];
+    } else if (arg.startsWith("--username=")) {
+      username = arg.split("=").slice(1).join("=");
+    } else if (arg === "--password" || arg === "-p") {
+      password = args[++i];
+    } else if (arg.startsWith("--password=")) {
+      password = arg.split("=").slice(1).join("=");
     } else if (!arg.startsWith("-")) {
       positional.push(arg);
     }
@@ -23,7 +39,7 @@ function parseArgs(args: string[]): { url: string; outputDir: string } {
 
   if (positional.length === 0) {
     console.error(
-      "Usage: bun run src/index.ts <rockumentation-url> [--output <dir>]",
+      "Usage: bun run src/index.ts <rockumentation-url> [--output <dir>] [--username <user> --password <pass>]",
     );
     console.error(
       "\nExample: bun run src/index.ts https://community.rockrms.com/developer/developer-codex",
@@ -31,17 +47,32 @@ function parseArgs(args: string[]): { url: string; outputDir: string } {
     process.exit(1);
   }
 
-  return { url: positional[0]!, outputDir: resolve(outputDir) };
+  return {
+    url: positional[0]!,
+    outputDir: resolve(outputDir),
+    username,
+    password,
+  };
 }
 
 async function main() {
-  const { url, outputDir } = parseArgs(process.argv.slice(2));
+  const { url, outputDir, username, password } = parseArgs(
+    process.argv.slice(2),
+  );
 
   console.log("=== Rockumentation Skill Builder ===\n");
 
+  // 0. Authenticate if credentials provided
+  let cookie: string | undefined;
+  if (username && password) {
+    console.log("Step 0: Logging in...");
+    cookie = await rockLogin(url, username, password);
+    console.log("  Authenticated\n");
+  }
+
   // 1. Fetch
   console.log("Step 1: Fetching page...");
-  const html = await fetchPage(url);
+  const html = await fetchPage(url, cookie);
 
   // 2. Extract articles with hierarchy
   console.log("\nStep 2: Extracting articles with hierarchy...");
