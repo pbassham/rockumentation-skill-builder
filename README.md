@@ -31,6 +31,8 @@ bun run ui
 
 Opens at [http://localhost:3456](http://localhost:3456). Enter a Rockumentation URL, choose an output directory, and optionally add custom instructions to include in the generated skill. Progress streams in real time.
 
+For private docs behind a login, expand the "Login for Private Docs" section and enter your Rock RMS username and password. Credentials are sent directly to the Rock site and are never stored.
+
 For development with hot reload:
 
 ```bash
@@ -40,7 +42,7 @@ bun run dev
 ## CLI
 
 ```bash
-bun run cli <rockumentation-url> [--output <dir>]
+bun run cli <rockumentation-url> [--output <dir>] [--username <user> --password <pass>]
 ```
 
 ### Examples
@@ -54,6 +56,9 @@ bun run cli https://community.rockrms.com/developer/mobile-docs
 
 # Custom output directory
 bun run cli https://community.rockrms.com/lava -o ./skills
+
+# Private docs (requires login)
+bun run cli https://rock.example.com/rockumentation/internal-docs -u myuser -p 'mypassword'
 ```
 
 Output lands in `./output/<skill-name>/` by default.
