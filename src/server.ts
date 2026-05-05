@@ -3,6 +3,8 @@
 import { resolve, join } from "node:path";
 import { readdir } from "node:fs/promises";
 import index from "./ui/index.html";
+import gallery from "./ui/gallery.html";
+import galleryDetail from "./ui/gallery-detail.html";
 import { fetchPage } from "./fetch";
 import { extractArticles } from "./convert";
 import { generateSkill, updateSkillMdDescriptions } from "./generate";
@@ -11,11 +13,295 @@ import { rockLogin } from "./auth";
 import { parseFrontmatter, setDescription } from "./frontmatter";
 import { generateDescription } from "./describe";
 import { listCategories, splitSkill } from "./split-skill";
+import {
+  isStorageConfigured,
+  newSkillId,
+  uploadSkill,
+  uploadSkillFile,
+  listSkillFiles,
+  getSkillFileText,
+  listPublicSkills,
+  getSkillMeta,
+  getSkillZipFile,
+} from "./storage";
+
+async function zipSkillDir(skillDir: string): Promise<Uint8Array> {
+  const proc = Bun.spawn(["zip", "-r", "-q", "-", "SKILL.md", "references"], {
+    cwd: skillDir,
+    stdout: "pipe",
+    stderr: "pipe",
+  });
+  const bytes = new Uint8Array(await new Response(proc.stdout).arrayBuffer());
+  const exitCode = await proc.exited;
+  if (exitCode !== 0) {
+    const stderr = await new Response(proc.stderr).text();
+    throw new Error(`zip failed: ${stderr}`);
+  }
+  return bytes;
+}
+
+/**
+ * Read SKILL.md + every references/*.md from disk and return them as a
+ * relative-path → content map suitable for uploading to the public gallery.
+ */
+async function collectSkillFiles(
+  skillDir: string,
+): Promise<{ path: string; content: string }[]> {
+  const files: { path: string; content: string }[] = [];
+  try {
+    const skillMd = await Bun.file(join(skillDir, "SKILL.md")).text();
+    files.push({ path: "SKILL.md", content: skillMd });
+  } catch {}
+  const refsDir = join(skillDir, "references");
+  const names = await readdir(refsDir).catch(() => [] as string[]);
+  for (const name of names.filter((n) => n.endsWith(".md")).sort()) {
+    try {
+      const content = await Bun.file(join(refsDir, name)).text();
+      files.push({ path: `references/${name}`, content });
+    } catch {}
+  }
+  return files;
+}
+
+/**
+ * Generate AI descriptions for every reference file in `skillDir` that
+ * doesn't already have one in its frontmatter, then update SKILL.md's TOC.
+ */
+async function generateMissingDescriptions(
+  skillDir: string,
+  apiKey: string,
+  send: (data: Record<string, unknown>) => void,
+): Promise<{ generated: number; errors: number }> {
+  const refsDir = join(skillDir, "references");
+
+  let skillName = "";
+  let pageTitle = "";
+  try {
+    const skillMd = await Bun.file(join(skillDir, "SKILL.md")).text();
+    const nameMatch = skillMd.match(/^name:\s*"?(.+?)"?\s*$/m);
+    skillName = nameMatch?.[1]?.trim() || "";
+    const headingMatch = skillMd.match(/^#\s+(.+)$/m);
+    pageTitle = headingMatch?.[1]?.trim() || skillName;
+  } catch {
+    return { generated: 0, errors: 0 };
+  }
+
+  const allFiles = await readdir(refsDir).catch(() => [] as string[]);
+  const mdFiles = allFiles.filter((f) => f.endsWith(".md"));
+  const updatedDescs = new Map<string, string>();
+  let generated = 0;
+  let errors = 0;
+
+  for (let i = 0; i < mdFiles.length; i++) {
+    const filename = mdFiles[i]!;
+    const slug = filename.replace(".md", "");
+    const filepath = join(refsDir, filename);
+    const content = await Bun.file(filepath).text();
+    const { description, body } = parseFrontmatter(content);
+    if (description) continue; // already has one, skip
+
+    send({
+      step: 5,
+      status: "running",
+      message: `Describing ${i + 1}/${mdFiles.length}: ${slug}`,
+    });
+
+    try {
+      const refTitleMatch = body.match(/^#\s+(.+)$/m);
+      const title = refTitleMatch?.[1]?.trim() || slug;
+      const bcMatch = body.match(/^>\s*\*\*Path:\*\*\s*(.+)$/m);
+      const breadcrumb = bcMatch?.[1]?.trim() || "";
+
+      const desc = await generateDescription(
+        { slug, title, breadcrumb, content: body },
+        { skillName, pageTitle },
+        apiKey,
+      );
+      const updated = setDescription(content, desc);
+      await Bun.write(filepath, updated);
+      updatedDescs.set(slug, desc);
+      generated++;
+    } catch (err: any) {
+      errors++;
+      send({
+        step: 5,
+        status: "running",
+        message: `Failed to describe ${slug}: ${err.message || err}`,
+      });
+    }
+  }
+
+  if (updatedDescs.size > 0) {
+    try {
+      await updateSkillMdDescriptions(skillDir, updatedDescs);
+    } catch {}
+  }
+
+  return { generated, errors };
+}
 
 const server = Bun.serve({
-  port: 3456,
+  port: Number(process.env.PORT) || 3456,
   routes: {
     "/": index,
+    "/gallery": gallery,
+
+    "/api/storage-status": {
+      GET: () => Response.json({ enabled: isStorageConfigured() }),
+    },
+
+    "/api/public-skills": {
+      GET: async () => {
+        if (!isStorageConfigured()) {
+          return Response.json({ enabled: false, skills: [] });
+        }
+        try {
+          const skills = await listPublicSkills();
+          return Response.json({ enabled: true, skills });
+        } catch (err: any) {
+          return Response.json(
+            { error: err.message || "Failed to list skills" },
+            { status: 500 },
+          );
+        }
+      },
+    },
+
+    "/s/:id": {
+      GET: async (req) => {
+        const id = (req.params as { id: string }).id;
+        if (!isStorageConfigured()) {
+          return new Response("Public storage is not configured.", {
+            status: 404,
+          });
+        }
+        const meta = await getSkillMeta(id);
+        if (!meta) {
+          return new Response("Skill not found.", { status: 404 });
+        }
+        const file = getSkillZipFile(id);
+        return new Response(file.stream(), {
+          headers: {
+            "Content-Type": "application/zip",
+            "Content-Disposition": `attachment; filename="${meta.skillName}.zip"`,
+          },
+        });
+      },
+    },
+
+    "/g/:id": galleryDetail,
+
+    "/api/public-skill/:id": {
+      GET: async (req) => {
+        const id = (req.params as { id: string }).id;
+        if (!isStorageConfigured()) {
+          return Response.json(
+            { error: "Public storage is not configured." },
+            { status: 404 },
+          );
+        }
+        const meta = await getSkillMeta(id);
+        if (!meta) {
+          return Response.json({ error: "Skill not found" }, { status: 404 });
+        }
+        const files = await listSkillFiles(id);
+        return Response.json({ meta, files });
+      },
+    },
+
+    "/api/public-skill/:id/file": {
+      GET: async (req) => {
+        const id = (req.params as { id: string }).id;
+        const path = new URL(req.url).searchParams.get("path");
+        if (!path) {
+          return new Response("path query param required", { status: 400 });
+        }
+        if (!isStorageConfigured()) {
+          return new Response("Public storage is not configured.", {
+            status: 404,
+          });
+        }
+        const text = await getSkillFileText(id, path);
+        if (text === null) {
+          return new Response("File not found", { status: 404 });
+        }
+        return new Response(text, {
+          headers: { "Content-Type": "text/markdown; charset=utf-8" },
+        });
+      },
+    },
+
+    "/api/publish": {
+      POST: async (req) => {
+        if (!isStorageConfigured()) {
+          return Response.json(
+            { error: "Public storage is not configured on this server." },
+            { status: 400 },
+          );
+        }
+        const body = await req.json().catch(() => ({}));
+        const { skillDir } = body as { skillDir?: string };
+        if (!skillDir) {
+          return Response.json(
+            { error: "skillDir is required" },
+            { status: 400 },
+          );
+        }
+
+        // Read meta from SKILL.md.
+        let skillName = "";
+        let pageTitle = "";
+        let sourceUrl = "";
+        try {
+          const skillMd = await Bun.file(join(skillDir, "SKILL.md")).text();
+          const nameMatch = skillMd.match(/^name:\s*"?(.+?)"?\s*$/m);
+          skillName = nameMatch?.[1]?.trim() || "";
+          const headingMatch = skillMd.match(/^#\s+(.+)$/m);
+          pageTitle = headingMatch?.[1]?.trim() || skillName;
+          const sourceMatch =
+            skillMd.match(/\*\*Source:\*\*\s*(\S+)/i) ||
+            skillMd.match(/^\s*source:\s*(.+)$/m);
+          sourceUrl = sourceMatch?.[1]?.trim() || "";
+        } catch {
+          return Response.json(
+            { error: "Invalid skill directory" },
+            { status: 400 },
+          );
+        }
+
+        try {
+          const refsDir = join(skillDir, "references");
+          const refNames = (await readdir(refsDir).catch(() => [])).filter(
+            (n) => n.endsWith(".md"),
+          );
+          const zipBytes = await zipSkillDir(skillDir);
+          const id = newSkillId(skillName || "skill");
+          await uploadSkill(id, zipBytes, {
+            id,
+            skillName,
+            pageTitle,
+            sourceUrl,
+            articleCount: refNames.length + 1,
+            refCount: refNames.length,
+            createdAt: new Date().toISOString(),
+          });
+          const files = await collectSkillFiles(skillDir);
+          for (const f of files) {
+            await uploadSkillFile(id, f.path, f.content);
+          }
+          return Response.json({
+            id,
+            publicUrl: `/g/${id}`,
+            fileCount: files.length,
+          });
+        } catch (err: any) {
+          return Response.json(
+            { error: err.message || "Publish failed" },
+            { status: 500 },
+          );
+        }
+      },
+    },
 
     "/api/build": {
       POST: async (req) => {
@@ -27,6 +313,8 @@ const server = Bun.serve({
           username,
           password,
           mergeThreshold,
+          generateDescriptions: doGenerateDescriptions,
+          apiKey: reqApiKey,
         } = body as {
           url: string;
           outputDir: string;
@@ -34,6 +322,8 @@ const server = Bun.serve({
           username?: string;
           password?: string;
           mergeThreshold?: number;
+          generateDescriptions?: boolean;
+          apiKey?: string;
         };
 
         if (!url) {
@@ -131,8 +421,33 @@ const server = Bun.serve({
                 message: `Generated ${childArticles.length} reference files`,
               });
 
+              const apiKey = reqApiKey?.trim() || process.env.ANTHROPIC_API_KEY;
+              if (doGenerateDescriptions) {
+                if (!apiKey) {
+                  send({
+                    step: 5,
+                    status: "error",
+                    message:
+                      "AI description generation requested but no API key configured. Skipping.",
+                  });
+                } else {
+                  send({
+                    step: 5,
+                    status: "running",
+                    message: "Generating AI descriptions for references...",
+                  });
+                  const { generated, errors } =
+                    await generateMissingDescriptions(skillDir, apiKey, send);
+                  send({
+                    step: 5,
+                    status: "done",
+                    message: `Generated ${generated} description${generated !== 1 ? "s" : ""}${errors > 0 ? ` (${errors} error${errors !== 1 ? "s" : ""})` : ""}`,
+                  });
+                }
+              }
+
               send({
-                step: 5,
+                step: 6,
                 status: "complete",
                 message: "Build complete!",
                 skillDir,
