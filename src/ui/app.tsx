@@ -23,56 +23,47 @@ let currentSkillDir: string | null = null;
 const app = document.getElementById("app")!;
 
 app.innerHTML = `
-  <h1>Rockumentation Skill Builder</h1>
-  <p class="subtitle">Convert Rock RMS documentation into Agent Skills</p>
+  <header class="page-header">
+    <div>
+      <h1>Rockumentation Skill Builder</h1>
+      <p class="subtitle">Convert Rock RMS documentation into Agent Skills</p>
+    </div>
+    <nav class="page-nav">
+      <a href="/gallery">Browse Gallery \u2192</a>
+    </nav>
+  </header>
 
-  <form id="build-form">
+  <form id="build-form" class="card">
     <div class="form-group">
       <label for="url">Rockumentation URL</label>
       <input type="url" id="url" name="url" placeholder="https://community.rockrms.com/developer/developer-codex" required />
       <p class="hint">The root URL of the Rockumentation page you want to convert</p>
     </div>
 
-    <div class="form-group">
-      <label for="outputDir">Output Directory</label>
-      <input type="text" id="outputDir" name="outputDir" value="./output" />
-      <p class="hint">Relative or absolute path where the skill directory will be created</p>
-    </div>
-
-    <div class="form-group">
-      <label for="customInstructions">Custom Instructions (optional)</label>
-      <textarea id="customInstructions" name="customInstructions" placeholder="Add any custom instructions to include in the generated SKILL.md..."></textarea>
-      <p class="hint">Extra context or instructions that will be appended to the skill's overview</p>
-    </div>
-
-    <div class="form-group">
-      <label for="mergeThreshold">Merge Threshold (lines)</label>
-      <input type="number" id="mergeThreshold" name="mergeThreshold" value="50" min="0" step="10" />
-      <p class="hint">Merge leaf articles shorter than this many lines into their parent file. Set to 0 to disable merging.</p>
-    </div>
-
-    <details id="auth-section">
-      <summary>Login for Private Docs</summary>
-      <div class="auth-fields">
+    <details id="advanced-section">
+      <summary>Advanced options</summary>
+      <div class="advanced-fields">
         <div class="form-group">
-          <label for="username">Username</label>
-          <input type="text" id="username" name="username" placeholder="Your Rock RMS username" autocomplete="username" />
+          <label for="customInstructions">Custom Instructions</label>
+          <textarea id="customInstructions" name="customInstructions" placeholder="Add any custom instructions to include in the generated SKILL.md..."></textarea>
+          <p class="hint">Extra context appended to the skill's overview. You can also edit SKILL.md directly after the build.</p>
         </div>
-        <div class="form-group">
-          <label for="password">Password</label>
-          <input type="password" id="password" name="password" placeholder="Your Rock RMS password" autocomplete="current-password" />
-        </div>
-        <p class="hint">Credentials are sent directly to the Rock site and are never stored.</p>
-      </div>
-    </details>
 
-    <details id="ai-section">
-      <summary>AI Settings</summary>
-      <div class="ai-fields">
         <div class="form-group">
-          <label for="apiKey">Anthropic API Key</label>
-          <input type="password" id="apiKey" name="apiKey" placeholder="sk-ant-..." autocomplete="off" />
-          <p class="hint" id="api-key-hint">Checking...</p>
+          <label for="mergeThreshold">Merge Threshold (lines)</label>
+          <input type="number" id="mergeThreshold" name="mergeThreshold" value="50" min="0" step="10" />
+          <p class="hint">Merge leaf articles shorter than this many lines into their parent file. Set to 0 to disable.</p>
+        </div>
+
+        <div class="form-group">
+          <label for="username">Rock Username (for private docs)</label>
+          <input type="text" id="username" name="username" placeholder="Optional" autocomplete="username" />
+        </div>
+
+        <div class="form-group">
+          <label for="password">Rock Password</label>
+          <input type="password" id="password" name="password" placeholder="Optional" autocomplete="current-password" />
+          <p class="hint">Credentials are sent directly to the Rock site and never stored.</p>
         </div>
       </div>
     </details>
@@ -80,11 +71,30 @@ app.innerHTML = `
     <button type="submit" id="submit-btn">Build Skill</button>
   </form>
 
+  <section class="info-card">
+    <h2>What's an Agent Skill?</h2>
+    <p>
+      An <strong>Agent Skill</strong> is a packaged folder of Markdown that teaches an AI
+      coding agent (like Claude Code) about a specific topic. The agent loads the
+      <code>SKILL.md</code> manifest, sees a short "use when" description, and pulls in the
+      <code>references/</code> files only when relevant \u2014 so it gains expertise without
+      bloating its context window.
+    </p>
+    <p>
+      This builder turns a Rockumentation page into that folder structure, ready to drop
+      into your <code>.claude/skills/</code> or any agent's skills directory.
+    </p>
+    <p class="info-links">
+      <a href="https://agentskills.io/home" target="_blank" rel="noopener">Learn more at agentskills.io \u2192</a>
+    </p>
+  </section>
+
   <div id="progress" class="progress" style="display:none"></div>
-  <div id="result" style="display:none"></div>
   <div id="error" style="display:none"></div>
-  <div id="split-panel" style="display:none"></div>
+  <div id="result" style="display:none"></div>
   <div id="descriptions" style="display:none"></div>
+  <div id="split-panel" style="display:none"></div>
+  <div id="finalize" style="display:none"></div>
 `;
 
 const form = document.getElementById("build-form") as HTMLFormElement;
@@ -97,9 +107,7 @@ form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const url = (document.getElementById("url") as HTMLInputElement).value.trim();
-  const outputDir = (
-    document.getElementById("outputDir") as HTMLInputElement
-  ).value.trim();
+  const outputDir = "./output";
   const customInstructions = (
     document.getElementById("customInstructions") as HTMLTextAreaElement
   ).value.trim();
@@ -211,7 +219,7 @@ function handleEvent(event: ProgressEvent) {
     resultDiv.style.display = "block";
     resultDiv.innerHTML = `
       <div class="result-card">
-        <h3>Skill Generated</h3>
+        <h3>Step 1 &middot; Skill Generated</h3>
         <div class="result-row">
           <span class="result-label">Skill Name</span>
           <span class="result-value">${escapeHtml(event.skillName || "")}</span>
@@ -232,9 +240,22 @@ function handleEvent(event: ProgressEvent) {
           <span class="result-label">Output</span>
           <span class="result-value">${escapeHtml(event.skillDir)}</span>
         </div>
+        <p class="hint result-next-hint">Next: refine the skill using the optional steps below, then download or publish at the bottom.</p>
+      </div>
+    `;
+
+    const finalizeDiv = document.getElementById("finalize")!;
+    finalizeDiv.style.display = "block";
+    finalizeDiv.innerHTML = `
+      <div class="result-card">
+        <h3>Final Step &middot; Download or Publish</h3>
+        <p class="hint">When you're happy with the descriptions and structure above, grab a local copy or publish to the public gallery.</p>
         <div class="result-actions">
           <button class="btn btn-sm" id="download-zip-btn">Download ZIP</button>
+          <button class="btn btn-sm btn-secondary" id="publish-btn">Publish to Gallery</button>
         </div>
+        <p class="hint" id="publish-hint">Publishing uploads the current state of the skill files to the public gallery.</p>
+        <div id="publish-status" class="publish-status" style="display:none"></div>
       </div>
     `;
 
@@ -244,8 +265,14 @@ function handleEvent(event: ProgressEvent) {
         downloadZip(event.skillDir!);
       });
 
-    loadCategories(event.skillDir);
+    document.getElementById("publish-btn")?.addEventListener("click", () => {
+      publishSkill(event.skillDir!);
+    });
+
+    setupPublishButton();
+
     loadReferences(event.skillDir);
+    loadCategories(event.skillDir);
   }
 }
 
@@ -269,7 +296,7 @@ async function loadCategories(skillDir: string) {
     splitPanel.innerHTML = `
       <div class="desc-panel">
         <div class="desc-header">
-          <h3>Split Skill</h3>
+          <h3>Step 3 &middot; Split Skill <span class="step-optional">(optional)</span></h3>
           <span class="desc-count">Select categories to extract into separate skills</span>
         </div>
         <div class="desc-list">
@@ -377,28 +404,89 @@ async function downloadZip(skillDir: string) {
   URL.revokeObjectURL(a.href);
 }
 
+let storageEnabled: boolean | null = null;
+
+function setupPublishButton() {
+  const btn = document.getElementById(
+    "publish-btn",
+  ) as HTMLButtonElement | null;
+  const hint = document.getElementById("publish-hint");
+  if (!btn) return;
+  if (storageEnabled === false) {
+    btn.disabled = true;
+    if (hint) {
+      hint.textContent = "Public sharing is not configured on this server.";
+    }
+  }
+}
+
+async function publishSkill(skillDir: string) {
+  const btn = document.getElementById(
+    "publish-btn",
+  ) as HTMLButtonElement | null;
+  const status = document.getElementById("publish-status");
+  if (!btn || !status) return;
+  if (
+    !confirm(
+      "Publish the current state of this skill to the public gallery? Anyone with the link will be able to view and download it.",
+    )
+  ) {
+    return;
+  }
+  btn.disabled = true;
+  btn.textContent = "Publishing...";
+  status.style.display = "block";
+  status.className = "publish-status publish-status-running";
+  status.textContent = "Uploading skill files...";
+
+  try {
+    const res = await fetch("/api/publish", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ skillDir }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+    status.className = "publish-status publish-status-done";
+    const url = window.location.origin + data.publicUrl;
+    status.innerHTML = `Published! <a href="${escapeHtml(data.publicUrl)}" target="_blank">${escapeHtml(url)}</a>`;
+    btn.textContent = "Published";
+  } catch (err: any) {
+    status.className = "publish-status publish-status-error";
+    status.textContent = err.message || "Publish failed";
+    btn.disabled = false;
+    btn.textContent = "Publish to Gallery";
+  }
+}
+
 function escapeHtml(str: string): string {
   const div = document.createElement("div");
   div.textContent = str;
   return div.innerHTML;
 }
 
-// Check API key status on load
+// Check API key status on load (used to hide the inline key input when one is already configured server-side).
+let serverHasApiKey: boolean | null = null;
 (async () => {
   try {
     const res = await fetch("/api/settings");
     const data = await res.json();
-    const hint = document.getElementById("api-key-hint");
-    if (hint) {
-      if (data.hasApiKey) {
-        hint.textContent = "\u2713 Key loaded from .env";
-        hint.className = "hint ai-key-active";
-      } else {
-        hint.textContent =
-          "Required for AI description generation. Set ANTHROPIC_API_KEY in .env or enter above.";
-      }
-    }
-  } catch {}
+    serverHasApiKey = !!data.hasApiKey;
+  } catch {
+    serverHasApiKey = false;
+  }
+})();
+
+// Check public storage status; disable publish button if not configured.
+(async () => {
+  try {
+    const res = await fetch("/api/storage-status");
+    const data = await res.json();
+    storageEnabled = !!data.enabled;
+  } catch {
+    storageEnabled = false;
+  }
+  setupPublishButton();
 })();
 
 async function loadReferences(skillDir: string) {
@@ -425,13 +513,22 @@ function renderDescriptionsPanel(refs: RefEntry[]) {
   const withDesc = refs.filter((r) => r.hasDescription).length;
   const missingCount = refs.length - withDesc;
 
+  const apiKeyBlock = serverHasApiKey
+    ? `<p class="hint ai-key-active">\u2713 Anthropic API key loaded from server environment.</p>`
+    : `<div class="form-group desc-key">
+        <label for="desc-api-key">Anthropic API Key</label>
+        <input type="password" id="desc-api-key" placeholder="sk-ant-..." autocomplete="off" />
+        <p class="hint">Required to generate descriptions. Used only for this request \u2014 not stored.</p>
+      </div>`;
+
   panel.style.display = "block";
   panel.innerHTML = `
     <div class="desc-panel">
       <div class="desc-header">
-        <h3>Reference Descriptions</h3>
+          <h3>Step 2 &middot; Reference Descriptions <span class="step-optional">(optional)</span></h3>
         <span class="desc-count">${withDesc} of ${refs.length} have AI descriptions</span>
       </div>
+      ${apiKeyBlock}
       <div class="desc-actions">
         <button id="gen-missing-btn" class="btn-sm"${missingCount === 0 ? " disabled" : ""}>Generate Missing (${missingCount})</button>
         <button id="gen-all-btn" class="btn-sm btn-secondary">Regenerate All (${refs.length})</button>
@@ -477,7 +574,9 @@ function renderDescriptionsPanel(refs: RefEntry[]) {
 async function generateDescriptions(slugs?: string[]) {
   if (!currentSkillDir) return;
 
-  const apiKeyInput = document.getElementById("apiKey") as HTMLInputElement;
+  const apiKeyInput = document.getElementById(
+    "desc-api-key",
+  ) as HTMLInputElement | null;
   const apiKey = apiKeyInput?.value.trim() || undefined;
 
   const genMissingBtn = document.getElementById(

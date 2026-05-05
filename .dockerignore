@@ -1,0 +1,16 @@
+node_modules
+output
+.git
+.gitignore
+.env
+.env.*
+*.log
+dist
+.DS_Store
+.vscode
+.idea
+README.md
+CLAUDE.md
+fly.toml
+Dockerfile
+.dockerignore
