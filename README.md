@@ -1,6 +1,10 @@
 # Rockumentation Skill Builder
 
-A tool that converts [Rock RMS](https://www.rockrms.com/) Rockumentation pages into [Agent Skills](https://agentskills.io/) directories — structured markdown that AI coding agents can use as reference documentation. Available as a web UI or CLI.
+A tool that converts [Rock RMS](https://www.rockrms.com/) Rockumentation pages into [Agent Skills](https://agentskills.io/) directories — structured markdown that AI coding agents can use as reference documentation.
+
+**🌐 Live at [rockumentation-skill-builder.fly.dev](https://rockumentation-skill-builder.fly.dev/)** — use the hosted version to build skills, browse the public gallery of community-shared skills, and publish your own.
+
+Also available as a local web UI or CLI — see below.
 
 ## What It Does
 
@@ -131,3 +135,26 @@ To generate descriptions:
 ## ZIP Export
 
 After building a skill, click "Download ZIP" in the result card to get a ready-to-upload archive containing `SKILL.md` and the `references/` directory.
+
+## Public Gallery (hosted version)
+
+The hosted instance at [rockumentation-skill-builder.fly.dev](https://rockumentation-skill-builder.fly.dev/) lets you publish your generated skill so others can browse and download it. After building a skill, click **Publish to Gallery** — the skill (zip + individual files) is uploaded to object storage and a permanent shareable link is returned.
+
+Browse the public gallery at [/gallery](https://rockumentation-skill-builder.fly.dev/gallery).
+
+## Deploying Your Own
+
+The project ships with a `Dockerfile` and `fly.toml` for [Fly.io](https://fly.io/). To deploy your own:
+
+```bash
+fly launch --no-deploy   # accept the existing fly.toml
+fly deploy
+```
+
+For the public gallery feature, provision Tigris object storage (free tier) and set the Anthropic key:
+
+```bash
+fly storage create               # auto-injects AWS_* + BUCKET_NAME secrets
+fly secrets set ANTHROPIC_API_KEY=sk-ant-...
+fly deploy
+```

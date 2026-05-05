@@ -1041,3 +1041,33 @@ a:hover {
     grid-template-columns: 1fr;
   }
 }
+
+/* Allow multiple items in page-nav (e.g. gallery link + github icon) */
+.page-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.page-nav .icon-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-muted);
+  transition:
+    border-color 0.15s,
+    color 0.15s,
+    background 0.15s;
+}
+
+.page-nav .icon-link:hover {
+  color: var(--text-strong);
+  border-color: var(--accent);
+  background: rgba(88, 166, 255, 0.08);
+  text-decoration: none;
+}
