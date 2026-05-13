@@ -106,9 +106,10 @@ export async function generateSkill(opts: GenerateOptions): Promise<string> {
     );
   }
 
-  // Write reference files (only for non-merged articles)
+  // Write reference files (only for non-merged, non-section articles)
   for (const article of childArticles) {
     if (mergedIds.has(article.articleId)) continue;
+    if (article.toc.isSection) continue;
 
     const filename = `${article.slug}.md`;
     const filepath = join(refsDir, filename);
@@ -272,7 +273,7 @@ function buildSkillMd(
     const truncated =
       overviewLines.length > 30
         ? overviewLines.slice(0, 30).join("\n") +
-          "\n\n*See reference files for full content.*"
+          `\n\n*See [${sourceUrl}](${sourceUrl}) for the full overview.*`
         : rootArticle.content;
     bodyParts.push(truncated);
   }
@@ -338,7 +339,10 @@ function renderTreeToc(
     const desc = summary ? ` — ${summary}` : "";
 
     const mergedIntoId = mergeMap.get(node.entry.articleId);
-    if (mergedIntoId) {
+    if (node.entry.isSection) {
+      // Render synthetic section grouping as a non-link bold label.
+      lines.push(`${prefix}- **${node.entry.title}**${desc}`);
+    } else if (mergedIntoId) {
       // This article was merged into its parent — link to anchor within parent file
       const parentSlug = slugMap.get(mergedIntoId) || "unknown";
       lines.push(

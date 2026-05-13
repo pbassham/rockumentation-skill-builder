@@ -6,7 +6,9 @@ import index from "./ui/index.html";
 import gallery from "./ui/gallery.html";
 import galleryDetail from "./ui/gallery-detail.html";
 import { fetchPage } from "./fetch";
-import { extractArticles } from "./convert";
+import { extractWithTemplate } from "./extract";
+import { allTemplates } from "../templates";
+import { getSettings, saveSettings } from "./interpreter";
 import { generateSkill, updateSkillMdDescriptions } from "./generate";
 import { deriveSkillName } from "./utils";
 import { rockLogin } from "./auth";
@@ -148,6 +150,37 @@ const server = Bun.serve({
 
     "/api/storage-status": {
       GET: () => Response.json({ enabled: isStorageConfigured() }),
+    },
+
+    "/api/templates": {
+      GET: () =>
+        Response.json({
+          templates: allTemplates().map((t) => ({
+            id: t.id,
+            name: t.name,
+            description: t.description,
+            triggers: t.triggers,
+            splitter: t.splitter?.id ?? "single",
+            hasInterpreterPipeline: (t.interpreterPipeline?.length ?? 0) > 0,
+          })),
+        }),
+    },
+
+    "/api/interpreter": {
+      GET: async () => Response.json(await getSettings()),
+      POST: async (req) => {
+        const body = (await req.json().catch(() => null)) as Awaited<
+          ReturnType<typeof getSettings>
+        > | null;
+        if (!body || typeof body !== "object") {
+          return Response.json(
+            { error: "Body must be an InterpreterSettings JSON object." },
+            { status: 400 },
+          );
+        }
+        await saveSettings(body);
+        return Response.json({ ok: true });
+      },
     },
 
     "/api/public-skills": {
@@ -315,6 +348,7 @@ const server = Bun.serve({
           mergeThreshold,
           generateDescriptions: doGenerateDescriptions,
           apiKey: reqApiKey,
+          templateId,
         } = body as {
           url: string;
           outputDir: string;
@@ -324,6 +358,7 @@ const server = Bun.serve({
           mergeThreshold?: number;
           generateDescriptions?: boolean;
           apiKey?: string;
+          templateId?: string;
         };
 
         if (!url) {
@@ -367,7 +402,17 @@ const server = Bun.serve({
                 status: "running",
                 message: "Extracting articles with hierarchy...",
               });
-              const { articles, pageTitle } = extractArticles(html, url);
+              const {
+                articles,
+                pageTitle,
+                template: chosenTemplate,
+              } = await extractWithTemplate(html, url, templateId, cookie);
+              send({
+                step: 3,
+                status: "running",
+                message: `Using template: ${chosenTemplate.name}`,
+                template: chosenTemplate.id,
+              });
 
               if (articles.length === 0) {
                 send({
@@ -396,7 +441,7 @@ const server = Bun.serve({
                 articleCount: articles.length,
               });
 
-              const skillName = deriveSkillName(url);
+              const skillName = deriveSkillName(url, pageTitle);
               send({
                 step: 4,
                 status: "running",

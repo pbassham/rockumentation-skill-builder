@@ -43,6 +43,14 @@ app.innerHTML = `
       <p class="hint">The root URL of the Rockumentation page you want to convert</p>
     </div>
 
+    <div class="form-group">
+      <label for="templateId">Template</label>
+      <select id="templateId" name="templateId">
+        <option value="">Auto-detect (recommended)</option>
+      </select>
+      <p class="hint" id="template-hint">Pick a template to override auto-detection. Templates control how the page is split and processed.</p>
+    </div>
+
     <details id="advanced-section">
       <summary>Advanced options</summary>
       <div class="advanced-fields">
@@ -125,6 +133,9 @@ form.addEventListener("submit", async (e) => {
         "0",
       10,
     ) || 0;
+  const templateId = (
+    document.getElementById("templateId") as HTMLSelectElement
+  ).value.trim();
 
   if (!url) return;
 
@@ -149,6 +160,7 @@ form.addEventListener("submit", async (e) => {
         username: username || undefined,
         password: password || undefined,
         mergeThreshold,
+        templateId: templateId || undefined,
       }),
     });
 
@@ -687,3 +699,35 @@ function handleDescribeEvent(event: Record<string, unknown>) {
     }, 3000);
   }
 }
+
+// Populate Template dropdown from /api/templates
+(async function loadTemplates() {
+  try {
+    const res = await fetch("/api/templates");
+    if (!res.ok) return;
+    const { templates } = (await res.json()) as {
+      templates: Array<{
+        id: string;
+        name: string;
+        description?: string;
+        splitter: string;
+        hasInterpreterPipeline: boolean;
+      }>;
+    };
+    const select = document.getElementById(
+      "templateId",
+    ) as HTMLSelectElement | null;
+    if (!select) return;
+    for (const t of templates) {
+      const opt = document.createElement("option");
+      opt.value = t.id;
+      const flags: string[] = [t.splitter];
+      if (t.hasInterpreterPipeline) flags.push("interpreter");
+      opt.textContent = `${t.name} (${flags.join(", ")})`;
+      if (t.description) opt.title = t.description;
+      select.appendChild(opt);
+    }
+  } catch {
+    // Silent — auto-detect still works with empty dropdown.
+  }
+})();
