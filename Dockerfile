@@ -13,6 +13,9 @@ RUN bun install --frozen-lockfile
 COPY tsconfig.json ./
 COPY src ./src
 COPY templates ./templates
+# Curated description cache — read by generate.ts to seed reference frontmatter
+# on every build, written to by /api/describe on each generation.
+COPY data ./data
 
 ENV PORT=8080
 EXPOSE 8080
