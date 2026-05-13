@@ -132,7 +132,66 @@ async function main() {
   console.log("Step 1: Fetching page...");
   const html = await fetchPage(url, cookie);
 
-  console.log("\nStep 2: Extracting articles...");
+  // If this is the Rock documentation index, enumerate every manual on the
+  // bookshelf and process each one as a separate skill.
+  const indexBookUrls = enumerateDocumentationIndex(html, url);
+  if (indexBookUrls.length > 0) {
+    console.log(
+      `\nDocumentation index detected — found ${indexBookUrls.length} manual(s) to process.\n`,
+    );
+    let successes = 0;
+    const failures: Array<{ url: string; error: string }> = [];
+    for (let i = 0; i < indexBookUrls.length; i++) {
+      const bookUrl = indexBookUrls[i]!;
+      console.log(`\n--- [${i + 1}/${indexBookUrls.length}] ${bookUrl} ---`);
+      try {
+        await processSingleUrl({
+          url: bookUrl,
+          outputDir,
+          cookie,
+          templateId,
+          mergeThreshold,
+        });
+        successes++;
+      } catch (err) {
+        const msg = (err as Error).message;
+        console.error(`  ✗ Failed: ${msg}`);
+        failures.push({ url: bookUrl, error: msg });
+      }
+    }
+    console.log(
+      `\n=== Batch complete: ${successes} succeeded, ${failures.length} failed ===`,
+    );
+    for (const f of failures) console.error(`  ✗ ${f.url}: ${f.error}`);
+    if (failures.length > 0) process.exit(1);
+    return;
+  }
+
+  await processSingleUrl({
+    url,
+    outputDir,
+    cookie,
+    templateId,
+    mergeThreshold,
+    prefetchedHtml: html,
+  });
+}
+
+interface SingleUrlOptions {
+  url: string;
+  outputDir: string;
+  cookie?: string;
+  templateId?: string;
+  mergeThreshold: number;
+  /** Reuse already-fetched HTML when available. */
+  prefetchedHtml?: string;
+}
+
+async function processSingleUrl(opts: SingleUrlOptions): Promise<void> {
+  const { url, outputDir, cookie, templateId, mergeThreshold } = opts;
+  const html = opts.prefetchedHtml ?? (await fetchPage(url, cookie));
+
+  console.log("Extracting articles...");
   const { articles, pageTitle, template } = await extractWithTemplate(
     html,
     url,
@@ -143,10 +202,9 @@ async function main() {
   console.log(`  Found ${articles.length} articles`);
 
   if (articles.length === 0) {
-    console.error(
-      "\nNo articles extracted. Try `--template default-defuddle` or `--list-templates`.",
+    throw new Error(
+      "No articles extracted. Try `--template default-defuddle` or `--list-templates`.",
     );
-    process.exit(1);
   }
 
   const rootArticle = articles.find((a) => a.toc.depth === 0);
@@ -158,7 +216,7 @@ async function main() {
   }
 
   const skillName = deriveSkillName(url, pageTitle);
-  console.log(`\nStep 3: Generating skill "${skillName}"...`);
+  console.log(`Generating skill "${skillName}"...`);
   console.log(`  Page title: ${pageTitle}`);
   console.log(`  Root article: ${rootArticle ? "yes" : "no"}`);
   console.log(`  Child articles: ${childArticles.length}`);
@@ -172,10 +230,47 @@ async function main() {
     mergeThreshold,
   });
 
-  console.log(`\n✓ Skill generated at: ${skillDir}`);
-  console.log(
-    `\nTo use this skill, copy "${skillName}/" to your AI agent's skills directory.`,
-  );
+  console.log(`✓ Skill generated at: ${skillDir}`);
+}
+
+/**
+ * If `html` looks like the Rock documentation bookshelf index page, return the
+ * absolute URLs of every manual it links to. Returns an empty array otherwise.
+ *
+ * The index page (https://community.rockrms.com/documentation) renders books
+ * as `<div class="bookshelf"><div class="book"><div class="img-content">
+ * <a href="/documentation/bookcontent/<bookId>/<versionId>">…</a></div></div>`
+ * grouped under section `<h3 class="title">` headings. We simply scrape every
+ * `bookcontent/<id>/<id>` link in document order and de-duplicate.
+ */
+function enumerateDocumentationIndex(
+  html: string,
+  sourceUrl: string,
+): string[] {
+  // Restrict to the Rock community documentation index path. Other URLs may
+  // also contain stray bookcontent links (cross-references) — we don't want
+  // to accidentally batch-process those.
+  let base: URL;
+  try {
+    base = new URL(sourceUrl);
+  } catch {
+    return [];
+  }
+  if (base.host !== "community.rockrms.com") return [];
+  const path = base.pathname.replace(/\/+$/, "").toLowerCase();
+  if (path !== "/documentation") return [];
+
+  const seen = new Set<string>();
+  const out: string[] = [];
+  const re = /href=["'](\/documentation\/bookcontent\/\d+\/\d+)["']/gi;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(html)) !== null) {
+    const abs = new URL(m[1]!, base).toString();
+    if (seen.has(abs)) continue;
+    seen.add(abs);
+    out.push(abs);
+  }
+  return out;
 }
 
 main().catch((err) => {
