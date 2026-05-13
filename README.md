@@ -158,3 +158,49 @@ fly storage create               # auto-injects AWS_* + BUCKET_NAME secrets
 fly secrets set ANTHROPIC_API_KEY=sk-ant-...
 fly deploy
 ```
+
+## Updating the Hosted App
+
+The hosted instance auto-deploys via the [`Fly Deploy` GitHub Action](.github/workflows/fly-deploy.yml) on every push to `main`.
+
+Typical workflow:
+
+```bash
+# 1. Make changes locally and run them
+bun run dev                       # http://localhost:3456 with hot reload
+
+# 2. Commit
+git add -A
+git commit -m "describe the change"
+
+# 3. Push to main → triggers Fly deploy
+git push origin main
+```
+
+Watch the deploy at [github.com/pbassham/rockumentation-skill-builder/actions](https://github.com/pbassham/rockumentation-skill-builder/actions) or with `fly logs`.
+
+If you prefer to deploy manually (e.g. from a feature branch without merging), run:
+
+```bash
+fly deploy
+```
+
+This builds the Docker image remotely and rolls out new machines. The app uses scale-to-zero, so the first request after a deploy may take a couple seconds to wake.
+
+### Managing secrets and storage
+
+```bash
+fly secrets list                        # view configured env vars
+fly secrets set KEY=value               # add or rotate (triggers redeploy)
+fly secrets unset KEY
+fly storage list                        # view Tigris buckets
+fly logs                                # tail app logs
+fly status                              # machine state
+```
+
+### Rolling back
+
+```bash
+fly releases                            # list past versions
+fly deploy --image registry.fly.io/rockumentation-skill-builder:deployment-<id>
+```
