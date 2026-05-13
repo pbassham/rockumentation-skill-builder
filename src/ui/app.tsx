@@ -9,6 +9,25 @@ interface ProgressEvent {
   pageTitle?: string;
   articleCount?: number;
   refCount?: number;
+  // Batch metadata — set when /api/build expanded an index URL into N
+  // sub-builds, or when the UI is iterating curated URLs.
+  urlIndex?: number;
+  urlTotal?: number;
+  sourceUrl?: string;
+  batchTotal?: number;
+}
+
+interface CuratedRoot {
+  label: string;
+  description?: string;
+  url: string;
+  kind: "single" | "index";
+}
+
+interface CuratedRootGroup {
+  label: string;
+  description?: string;
+  items: CuratedRoot[];
 }
 
 const STATUS_ICONS: Record<string, string> = {
@@ -36,10 +55,52 @@ app.innerHTML = `
     </nav>
   </header>
 
-  <form id="build-form" class="card">
+  <div id="mode-picker" class="card">
+    <h2 class="mode-title">What do you want to build?</h2>
+    <p class="hint">Pick a starting point. You can switch back and forth.</p>
+    <div class="mode-grid">
+      <button type="button" class="mode-card" data-mode="curated">
+        <h3>Build from Rock canonical docs</h3>
+        <p>Pick from a curated list of Rock RMS documentation roots. Best for keeping your skills library refreshed.</p>
+      </button>
+      <button type="button" class="mode-card" data-mode="custom">
+        <h3>Use a custom URL</h3>
+        <p>Paste any Rockumentation page or other doc URL and pick a template.</p>
+      </button>
+    </div>
+  </div>
+
+  <section id="curated-panel" class="card" style="display:none">
+    <div class="mode-back">
+      <button type="button" class="link-btn" data-back="mode">\u2190 Back</button>
+    </div>
+    <h2>Rock canonical docs</h2>
+    <p class="hint">Select the docs you want to (re)build. Each selection becomes its own skill folder under <code>./output</code>.</p>
+    <div id="curated-loading" class="hint">Loading sources\u2026</div>
+    <div id="curated-groups"></div>
+    <div class="curated-actions" id="curated-actions" style="display:none">
+      <div class="curated-summary"><span id="curated-count">0</span> selected</div>
+      <div class="curated-buttons">
+        <label class="curated-toggle"><input type="checkbox" id="curated-gen-desc" /> Generate AI descriptions</label>
+        <button type="button" class="btn-sm btn-secondary" id="curated-select-all">Select all</button>
+        <button type="button" class="btn-sm btn-secondary" id="curated-clear">Clear</button>
+        <button type="button" class="btn-sm" id="curated-build">Build selected</button>
+      </div>
+    </div>
+    <div id="curated-key-block" class="form-group" style="display:none">
+      <label for="curated-api-key">Anthropic API Key</label>
+      <input type="password" id="curated-api-key" placeholder="sk-ant-..." autocomplete="off" />
+      <p class="hint">Required to generate descriptions during the batch. Used only for this request \u2014 not stored.</p>
+    </div>
+  </section>
+
+  <form id="build-form" class="card" style="display:none">
+    <div class="mode-back">
+      <button type="button" class="link-btn" data-back="mode">\u2190 Back</button>
+    </div>
     <div class="form-group">
       <label for="url">Rockumentation URL</label>
-      <input type="url" id="url" name="url" placeholder="https://community.rockrms.com/developer/developer-codex" required />
+      <input type="url" id="url" name="url" placeholder="https://community.rockrms.com/developer/developer-codex" />
       <p class="hint">The root URL of the Rockumentation page you want to convert</p>
     </div>
 
@@ -113,6 +174,351 @@ const progressDiv = document.getElementById("progress")!;
 const resultDiv = document.getElementById("result")!;
 const errorDiv = document.getElementById("error")!;
 const submitBtn = document.getElementById("submit-btn") as HTMLButtonElement;
+
+// Mode switching ------------------------------------------------------------
+
+const modePicker = document.getElementById("mode-picker")!;
+const curatedPanel = document.getElementById("curated-panel")!;
+
+function showMode(mode: "picker" | "curated" | "custom") {
+  modePicker.style.display = mode === "picker" ? "block" : "none";
+  curatedPanel.style.display = mode === "curated" ? "block" : "none";
+  form.style.display = mode === "custom" ? "block" : "none";
+  if (mode === "curated" && !curatedLoaded) loadCuratedRoots();
+}
+
+modePicker.querySelectorAll<HTMLButtonElement>("[data-mode]").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const m = btn.dataset.mode === "curated" ? "curated" : "custom";
+    showMode(m);
+  });
+});
+
+document.querySelectorAll<HTMLButtonElement>("[data-back]").forEach((btn) => {
+  btn.addEventListener("click", () => showMode("picker"));
+});
+
+// Curated roots -------------------------------------------------------------
+
+let curatedLoaded = false;
+
+async function loadCuratedRoots() {
+  curatedLoaded = true;
+  const loading = document.getElementById("curated-loading")!;
+  const groupsEl = document.getElementById("curated-groups")!;
+  const actionsEl = document.getElementById("curated-actions")!;
+  try {
+    const res = await fetch("/api/curated-roots");
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = (await res.json()) as { groups: CuratedRootGroup[] };
+    loading.style.display = "none";
+    groupsEl.innerHTML = data.groups
+      .map(
+        (g, gi) => `
+      <fieldset class="curated-group">
+        <legend>${escapeHtml(g.label)}</legend>
+        ${g.description ? `<p class="hint">${escapeHtml(g.description)}</p>` : ""}
+        ${g.items
+          .map(
+            (it, ii) => `
+          <label class="curated-item">
+            <input type="checkbox" class="curated-check" data-url="${escapeHtml(it.url)}" data-label="${escapeHtml(it.label)}" data-kind="${it.kind}" id="curated-${gi}-${ii}" />
+            <span class="curated-item-body">
+              <span class="curated-item-label">${escapeHtml(it.label)}${it.kind === "index" ? ' <span class="curated-badge">batch</span>' : ""}</span>
+              ${it.description ? `<span class="curated-item-desc">${escapeHtml(it.description)}</span>` : ""}
+              <span class="curated-item-url">${escapeHtml(it.url)}</span>
+            </span>
+          </label>`,
+          )
+          .join("")}
+      </fieldset>`,
+      )
+      .join("");
+    actionsEl.style.display = "flex";
+
+    const checks = () =>
+      Array.from(groupsEl.querySelectorAll<HTMLInputElement>(".curated-check"));
+    const countEl = document.getElementById("curated-count")!;
+    const buildBtn = document.getElementById(
+      "curated-build",
+    ) as HTMLButtonElement;
+    const updateCount = () => {
+      const n = checks().filter((c) => c.checked).length;
+      countEl.textContent = String(n);
+      buildBtn.disabled = n === 0;
+    };
+    updateCount();
+    groupsEl.addEventListener("change", updateCount);
+
+    document
+      .getElementById("curated-select-all")!
+      .addEventListener("click", () => {
+        checks().forEach((c) => (c.checked = true));
+        updateCount();
+      });
+    document.getElementById("curated-clear")!.addEventListener("click", () => {
+      checks().forEach((c) => (c.checked = false));
+      updateCount();
+    });
+    buildBtn.addEventListener("click", () => {
+      const selected = checks()
+        .filter((c) => c.checked)
+        .map((c) => ({
+          url: c.dataset.url!,
+          label: c.dataset.label!,
+          kind: (c.dataset.kind as "single" | "index") || "single",
+        }));
+      if (selected.length > 0) runCuratedBatch(selected);
+    });
+
+    const genDescCb = document.getElementById(
+      "curated-gen-desc",
+    ) as HTMLInputElement;
+    const keyBlock = document.getElementById("curated-key-block")!;
+    const updateKeyBlock = () => {
+      keyBlock.style.display =
+        genDescCb.checked && serverHasApiKey === false ? "block" : "none";
+    };
+    genDescCb.addEventListener("change", updateKeyBlock);
+    updateKeyBlock();
+  } catch (err: any) {
+    loading.textContent = `Failed to load sources: ${err.message}`;
+  }
+}
+
+interface BatchItem {
+  url: string;
+  label: string;
+  kind: "single" | "index";
+}
+
+async function runCuratedBatch(items: BatchItem[]) {
+  // Reset progress UI areas (reuse existing slots).
+  progressDiv.style.display = "block";
+  progressDiv.innerHTML = "";
+  resultDiv.style.display = "block";
+  resultDiv.innerHTML = `
+    <div class="result-card">
+      <h3>Batch Build</h3>
+      <p class="hint">Building ${items.length} selected source${items.length === 1 ? "" : "s"} sequentially.</p>
+      <ul class="batch-list" id="batch-list">
+        ${items
+          .map(
+            (it, i) => `
+          <li class="batch-row" id="batch-row-${i}" data-status="pending">
+            <span class="batch-status">\u23F3</span>
+            <div class="batch-meta">
+              <div class="batch-label">${escapeHtml(it.label)}${it.kind === "index" ? ' <span class="curated-badge">batch</span>' : ""}</div>
+              <div class="batch-url">${escapeHtml(it.url)}</div>
+              <div class="batch-progress" id="batch-progress-${i}"></div>
+              <div class="batch-result" id="batch-result-${i}"></div>
+            </div>
+          </li>`,
+          )
+          .join("")}
+      </ul>
+      <div id="batch-actions" class="batch-actions" style="display:none"></div>
+    </div>
+  `;
+  errorDiv.style.display = "none";
+  document.getElementById("finalize")!.style.display = "none";
+  document.getElementById("descriptions")!.style.display = "none";
+  document.getElementById("split-panel")!.style.display = "none";
+
+  const buildBtn = document.getElementById(
+    "curated-build",
+  ) as HTMLButtonElement;
+  buildBtn.disabled = true;
+  buildBtn.textContent = "Building\u2026";
+
+  const genDesc =
+    (document.getElementById("curated-gen-desc") as HTMLInputElement | null)
+      ?.checked ?? false;
+  const apiKey =
+    (
+      document.getElementById("curated-api-key") as HTMLInputElement | null
+    )?.value.trim() || undefined;
+
+  // Tracks every skill folder produced during this batch run (across all
+  // selected sources, including index URLs that expand to multiple skills)
+  // so the footer can offer bulk actions over them.
+  const producedSkillDirs: string[] = [];
+
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i]!;
+    const row = document.getElementById(`batch-row-${i}`)!;
+    const progRow = document.getElementById(`batch-progress-${i}`)!;
+    const resultRow = document.getElementById(`batch-result-${i}`)!;
+    row.dataset.status = "running";
+    row.querySelector(".batch-status")!.textContent = "\u23F3";
+
+    let lastMessage = "";
+    let producedSkills = 0;
+    let failed = false;
+
+    try {
+      const res = await fetch("/api/build", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          url: item.url,
+          outputDir: "./output",
+          mergeThreshold: 50,
+          generateDescriptions: genDesc,
+          apiKey,
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || `HTTP ${res.status}`);
+      }
+      const reader = res.body!.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+        for (const line of lines) {
+          if (!line.trim()) continue;
+          let evt: ProgressEvent;
+          try {
+            evt = JSON.parse(line);
+          } catch {
+            continue;
+          }
+          lastMessage = evt.message;
+          if (evt.urlIndex && evt.urlTotal) {
+            progRow.textContent = `[${evt.urlIndex}/${evt.urlTotal}] ${evt.message}`;
+          } else {
+            progRow.textContent = evt.message;
+          }
+          if (evt.status === "complete" && evt.skillDir) {
+            producedSkills++;
+            const dir = evt.skillDir;
+            producedSkillDirs.push(dir);
+            const div = document.createElement("div");
+            div.className = "batch-skill";
+            div.innerHTML = `\u2713 <strong>${escapeHtml(evt.skillName || "")}</strong> <span class="hint">(${evt.refCount ?? 0} refs)</span>`;
+
+            const dl = document.createElement("a");
+            dl.className = "link-btn";
+            dl.href = "#";
+            dl.textContent = "Download";
+            dl.addEventListener("click", (e) => {
+              e.preventDefault();
+              downloadZip(dir);
+            });
+
+            const sep = document.createElement("span");
+            sep.className = "batch-skill-sep";
+            sep.textContent = "·";
+
+            const md = document.createElement("a");
+            md.className = "link-btn";
+            md.href = "#";
+            md.textContent = "Manage skill";
+
+            // Per-row inline container that hosts the descriptions + split
+            // panels when expanded — keeps the management UI close to the
+            // result row instead of jumping to a separate section at the
+            // bottom of the page.
+            const inline = document.createElement("div");
+            inline.className = "batch-desc-inline";
+            inline.style.display = "none";
+
+            md.addEventListener("click", (e) => {
+              e.preventDefault();
+              const descPanel = document.getElementById("descriptions");
+              const splitPanel = document.getElementById("split-panel");
+              if (!descPanel) return;
+              const isHere =
+                inline.style.display !== "none" &&
+                descPanel.parentElement === inline;
+              if (isHere) {
+                // Collapse: hide and detach so the next "Manage skill"
+                // click on a different row can reclaim the panels.
+                inline.style.display = "none";
+                descPanel.style.display = "none";
+                if (splitPanel) splitPanel.style.display = "none";
+                md.textContent = "Manage skill";
+                return;
+              }
+              currentSkillDir = dir;
+              inline.appendChild(descPanel);
+              if (splitPanel) inline.appendChild(splitPanel);
+              inline.style.display = "block";
+              md.textContent = "Hide skill management";
+              loadReferences(dir);
+              loadCategories(dir);
+              inline.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            });
+
+            div.append(" ", dl, " ", sep, " ", md);
+
+            // Warn when AI descriptions weren't auto-generated for this batch
+            // — descriptions are required for category routing and search to
+            // work well, so flag it inline rather than letting users miss it.
+            if (!genDesc && (evt.refCount ?? 0) > 0) {
+              const warn = document.createElement("div");
+              warn.className = "batch-desc-warn";
+              warn.dataset.warnDir = dir;
+              warn.innerHTML = `\u26A0 <strong>${evt.refCount} reference${evt.refCount === 1 ? "" : "s"} have no AI description.</strong> Click <em>Manage skill</em> above to add them — they help downstream tools surface the right reference for a query.`;
+              resultRow.appendChild(div);
+              resultRow.appendChild(warn);
+              resultRow.appendChild(inline);
+            } else {
+              resultRow.appendChild(div);
+              resultRow.appendChild(inline);
+            }
+          }
+          if (evt.status === "error") {
+            failed = true;
+            const div = document.createElement("div");
+            div.className = "batch-error";
+            div.textContent = `\u2717 ${evt.message}`;
+            resultRow.appendChild(div);
+          }
+        }
+      }
+    } catch (err: any) {
+      failed = true;
+      resultRow.innerHTML += `<div class="batch-error">\u2717 ${escapeHtml(err.message)}</div>`;
+    }
+
+    row.dataset.status = failed
+      ? producedSkills > 0
+        ? "partial"
+        : "error"
+      : "done";
+    row.querySelector(".batch-status")!.textContent = failed
+      ? producedSkills > 0
+        ? "\u26A0"
+        : "\u2717"
+      : "\u2713";
+    progRow.textContent = failed
+      ? `Finished with errors. ${producedSkills} skill${producedSkills === 1 ? "" : "s"} created.`
+      : producedSkills > 0
+        ? `Done. ${producedSkills} skill${producedSkills === 1 ? "" : "s"} created.`
+        : lastMessage;
+  }
+
+  // Note: download / manage-descriptions click handlers are wired
+  // immediately when each `.batch-skill` row is created (above), so users
+  // can click them as soon as the skill appears — no need for a final
+  // wire-up pass here.
+
+  if (producedSkillDirs.length > 0) {
+    renderBatchActions(producedSkillDirs, apiKey);
+  }
+
+  buildBtn.disabled = false;
+  buildBtn.textContent = "Build selected";
+}
+
+// Custom URL form -----------------------------------------------------------
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -419,6 +825,137 @@ async function downloadZip(skillDir: string) {
   URL.revokeObjectURL(a.href);
 }
 
+/**
+ * Bundle multiple skill directories into a single ZIP and trigger a
+ * download. Used by the curated-batch footer.
+ */
+async function downloadZipBundle(skillDirs: string[], filename = "skills") {
+  const res = await fetch("/api/zip-bundle", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ skillDirs, filename }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    alert(err.error || "Failed to create bundle");
+    return;
+  }
+  const blob = await res.blob();
+  const disposition = res.headers.get("Content-Disposition") || "";
+  const filenameMatch = disposition.match(/filename="?(.+?)"?$/);
+  const dlName = filenameMatch?.[1] || `${filename}.zip`;
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = dlName;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+/**
+ * Render the bulk-action footer card under the batch result list. Offers
+ * a single button to generate every missing AI description across all
+ * built skills, and another to download all skills as one combined ZIP.
+ */
+function renderBatchActions(skillDirs: string[], apiKey: string | undefined) {
+  const host = document.getElementById("batch-actions");
+  if (!host) return;
+  host.style.display = "block";
+  host.innerHTML = `
+    <div class="batch-actions-inner">
+      <div class="batch-actions-summary">${skillDirs.length} skill${skillDirs.length === 1 ? "" : "s"} ready.</div>
+      <div class="batch-actions-buttons">
+        <button class="btn btn-sm" id="bulk-describe-btn">Generate all missing descriptions</button>
+        <button class="btn btn-sm" id="bulk-download-btn">Download all as ZIP</button>
+      </div>
+      <div class="desc-progress" id="bulk-describe-status" style="display:none"></div>
+    </div>
+  `;
+
+  document
+    .getElementById("bulk-download-btn")
+    ?.addEventListener("click", () => {
+      downloadZipBundle(skillDirs);
+    });
+
+  document
+    .getElementById("bulk-describe-btn")
+    ?.addEventListener("click", async () => {
+      const btn = document.getElementById(
+        "bulk-describe-btn",
+      ) as HTMLButtonElement;
+      const status = document.getElementById("bulk-describe-status")!;
+      btn.disabled = true;
+      btn.textContent = "Generating\u2026";
+      status.style.display = "block";
+      status.className = "desc-progress";
+      status.textContent = "Starting\u2026";
+      try {
+        const res = await fetch("/api/describe/missing-bulk", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ skillDirs, apiKey }),
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || `HTTP ${res.status}`);
+        }
+        const reader = res.body!.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+        let totalGenerated = 0;
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() || "";
+          for (const line of lines) {
+            if (!line.trim()) continue;
+            const evt = JSON.parse(line);
+            if (typeof evt.message === "string")
+              status.textContent = evt.message;
+            if (evt.status === "skill-complete" && evt.skillDir) {
+              // Refresh per-row warning so it disappears as each skill
+              // finishes describing.
+              loadReferencesQuiet(evt.skillDir);
+            }
+            if (evt.status === "complete") {
+              totalGenerated = evt.generated || 0;
+              status.textContent = evt.message || "Done";
+            }
+          }
+        }
+        status.className = "desc-progress desc-success";
+        if (totalGenerated === 0 && !status.textContent) {
+          status.textContent = "All skills already had descriptions.";
+        }
+      } catch (err: any) {
+        status.className = "desc-progress desc-error";
+        status.textContent = err.message || "Failed";
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Generate all missing descriptions";
+      }
+    });
+}
+
+/**
+ * Like `loadReferences` but never re-renders the descriptions panel — it
+ * only refreshes the per-row warning. Used by the bulk-describe streamer
+ * which would otherwise repeatedly clobber a panel the user might be
+ * viewing for a different skill.
+ */
+async function loadReferencesQuiet(skillDir: string) {
+  try {
+    const res = await fetch(
+      `/api/references?skillDir=${encodeURIComponent(skillDir)}`,
+    );
+    if (!res.ok) return;
+    const data = await res.json();
+    refreshBatchDescWarning(skillDir, data.references);
+  } catch {}
+}
+
 let storageEnabled: boolean | null = null;
 
 function setupPublishButton() {
@@ -512,7 +1049,38 @@ async function loadReferences(skillDir: string) {
     if (!res.ok) return;
     const data = await res.json();
     renderDescriptionsPanel(data.references);
+    // Sync any per-row "missing descriptions" warning bound to this skill
+    // so it disappears (or updates its count) once descriptions exist.
+    refreshBatchDescWarning(skillDir, data.references);
   } catch {}
+}
+
+/**
+ * Update — or remove — the inline "missing AI descriptions" warning that
+ * `runCuratedBatch` attaches to a result row when a skill is built without
+ * `genDesc`. Called after `loadReferences` so generating descriptions
+ * immediately reflects in the row UI.
+ */
+function refreshBatchDescWarning(skillDir: string, refs: RefEntry[]) {
+  const warn = document.querySelector<HTMLElement>(
+    `.batch-desc-warn[data-warn-dir="${cssEscape(skillDir)}"]`,
+  );
+  if (!warn) return;
+  const missing = refs.filter((r) => !r.hasDescription).length;
+  if (missing === 0) {
+    warn.remove();
+    return;
+  }
+  warn.innerHTML = `\u26A0 <strong>${missing} reference${missing === 1 ? "" : "s"} still missing AI descriptions.</strong> Use <em>Manage skill</em> above to generate the rest.`;
+}
+
+function cssEscape(value: string): string {
+  // CSS.escape is broadly available; fall back to a safe regex if the
+  // browser is older.
+  if (typeof (window as any).CSS?.escape === "function") {
+    return (window as any).CSS.escape(value);
+  }
+  return value.replace(/["\\\n\r\f\t]/g, (c) => `\\${c}`);
 }
 
 interface RefEntry {
@@ -521,6 +1089,8 @@ interface RefEntry {
   breadcrumb: string;
   description: string | null;
   hasDescription: boolean;
+  /** GitHub edit URL for the curated description cache file. */
+  editUrl?: string | null;
 }
 
 function renderDescriptionsPanel(refs: RefEntry[]) {
@@ -559,7 +1129,10 @@ function renderDescriptionsPanel(refs: RefEntry[]) {
                 <span class="desc-title">${escapeHtml(ref.title)}</span>
                 <span class="desc-breadcrumb">${escapeHtml(ref.breadcrumb)}</span>
               </div>
-              <button class="desc-regen-btn" data-slug="${escapeHtml(ref.slug)}" title="Regenerate">\u21BB</button>
+              <div class="desc-item-tools">
+                ${ref.editUrl ? `<a class="desc-suggest-btn" href="${escapeHtml(ref.editUrl)}" target="_blank" rel="noopener" title="Suggest a better description on GitHub">Suggest</a>` : ""}
+                <button class="desc-regen-btn" data-slug="${escapeHtml(ref.slug)}" title="Regenerate">\u21BB</button>
+              </div>
             </div>
             <div class="desc-text${ref.hasDescription ? "" : " desc-missing"}">${ref.hasDescription ? escapeHtml(ref.description!) : "No description"}</div>
           </div>`,

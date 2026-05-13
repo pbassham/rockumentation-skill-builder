@@ -12,8 +12,13 @@ import { getSettings, saveSettings } from "./interpreter";
 import { generateSkill, updateSkillMdDescriptions } from "./generate";
 import { deriveSkillName } from "./utils";
 import { rockLogin } from "./auth";
+import {
+  CURATED_ROOT_GROUPS,
+  enumerateDocumentationIndex,
+} from "./curated-roots";
 import { parseFrontmatter, setDescription } from "./frontmatter";
 import { generateDescription } from "./describe";
+import { writeCachedDescription, editUrlFor } from "./description-cache";
 import { listCategories, splitSkill } from "./split-skill";
 import {
   isStorageConfigured,
@@ -121,6 +126,9 @@ async function generateMissingDescriptions(
       );
       const updated = setDescription(content, desc);
       await Bun.write(filepath, updated);
+      // Persist to the repo-tracked cache so curated descriptions are
+      // shared across builds and contributors.
+      await writeCachedDescription(skillName, slug, desc).catch(() => {});
       updatedDescs.set(slug, desc);
       generated++;
     } catch (err: any) {
@@ -164,6 +172,10 @@ const server = Bun.serve({
             hasInterpreterPipeline: (t.interpreterPipeline?.length ?? 0) > 0,
           })),
         }),
+    },
+
+    "/api/curated-roots": {
+      GET: () => Response.json({ groups: CURATED_ROOT_GROUPS }),
     },
 
     "/api/interpreter": {
@@ -376,26 +388,44 @@ const server = Bun.serve({
         const encoder = new TextEncoder();
         const stream = new ReadableStream({
           async start(controller) {
-            const send = (data: Record<string, unknown>) => {
+            const baseSend = (data: Record<string, unknown>) => {
               controller.enqueue(encoder.encode(JSON.stringify(data) + "\n"));
             };
 
-            try {
+            // Build a single URL into a single skill. Sends step events
+            // through `send`, which may inject batch metadata
+            // (urlIndex/urlTotal/sourceUrl) when called inside a batch loop.
+            async function buildOneUrl(
+              targetUrl: string,
+              prefetchedHtml?: string,
+              extra?: Record<string, unknown>,
+            ): Promise<void> {
+              const send = (data: Record<string, unknown>) => {
+                baseSend(extra ? { ...extra, ...data } : data);
+              };
+
               // Authenticate if credentials provided
               let cookie: string | undefined;
               if (username && password) {
                 send({ step: 1, status: "running", message: "Logging in..." });
-                cookie = await rockLogin(url, username, password);
+                cookie = await rockLogin(targetUrl, username, password);
                 send({ step: 1, status: "done", message: "Authenticated" });
               }
 
-              send({ step: 2, status: "running", message: "Fetching page..." });
-              const html = await fetchPage(url, cookie);
-              send({
-                step: 2,
-                status: "done",
-                message: `Fetched ${(html.length / 1024).toFixed(1)} KB of HTML`,
-              });
+              let html = prefetchedHtml;
+              if (!html) {
+                send({
+                  step: 2,
+                  status: "running",
+                  message: "Fetching page...",
+                });
+                html = await fetchPage(targetUrl, cookie);
+                send({
+                  step: 2,
+                  status: "done",
+                  message: `Fetched ${(html.length / 1024).toFixed(1)} KB of HTML`,
+                });
+              }
 
               send({
                 step: 3,
@@ -406,7 +436,12 @@ const server = Bun.serve({
                 articles,
                 pageTitle,
                 template: chosenTemplate,
-              } = await extractWithTemplate(html, url, templateId, cookie);
+              } = await extractWithTemplate(
+                html,
+                targetUrl,
+                templateId,
+                cookie,
+              );
               send({
                 step: 3,
                 status: "running",
@@ -421,7 +456,6 @@ const server = Bun.serve({
                   message:
                     "No Rockumentation articles found. Make sure the URL points to a Rockumentation page.",
                 });
-                controller.close();
                 return;
               }
 
@@ -441,7 +475,7 @@ const server = Bun.serve({
                 articleCount: articles.length,
               });
 
-              const skillName = deriveSkillName(url, pageTitle);
+              const skillName = deriveSkillName(targetUrl, pageTitle);
               send({
                 step: 4,
                 status: "running",
@@ -453,7 +487,7 @@ const server = Bun.serve({
               const skillDir = await generateSkill({
                 skillName,
                 pageTitle,
-                sourceUrl: url,
+                sourceUrl: targetUrl,
                 articles,
                 outputDir: resolvedOutput,
                 customInstructions,
@@ -501,8 +535,75 @@ const server = Bun.serve({
                 articleCount: articles.length,
                 refCount: childArticles.length,
               });
+            }
+
+            try {
+              // Detect the documentation bookshelf index. If we recognise
+              // it, expand to N book URLs and process each in a loop within
+              // the same NDJSON stream — each sub-build's events are tagged
+              // with urlIndex/urlTotal/sourceUrl so the UI can group them.
+              let indexHtml: string | undefined;
+              let bookUrls: string[] = [];
+              try {
+                const probe = new URL(url);
+                if (
+                  probe.host === "community.rockrms.com" &&
+                  probe.pathname.replace(/\/+$/, "").toLowerCase() ===
+                    "/documentation"
+                ) {
+                  baseSend({
+                    step: 2,
+                    status: "running",
+                    message: "Fetching documentation index...",
+                  });
+                  indexHtml = await fetchPage(url);
+                  bookUrls = enumerateDocumentationIndex(indexHtml, url);
+                }
+              } catch {
+                // fall through to single-URL build
+              }
+
+              if (bookUrls.length > 0) {
+                baseSend({
+                  step: 2,
+                  status: "done",
+                  message: `Documentation index detected — ${bookUrls.length} manual${bookUrls.length === 1 ? "" : "s"} to build`,
+                });
+                for (let i = 0; i < bookUrls.length; i++) {
+                  const bookUrl = bookUrls[i]!;
+                  const extra = {
+                    urlIndex: i + 1,
+                    urlTotal: bookUrls.length,
+                    sourceUrl: bookUrl,
+                  };
+                  baseSend({
+                    ...extra,
+                    step: 0,
+                    status: "running",
+                    message: `[${i + 1}/${bookUrls.length}] ${bookUrl}`,
+                  });
+                  try {
+                    await buildOneUrl(bookUrl, undefined, extra);
+                  } catch (err: any) {
+                    baseSend({
+                      ...extra,
+                      step: 0,
+                      status: "error",
+                      message: err.message || "Build failed",
+                    });
+                  }
+                }
+                baseSend({
+                  step: 7,
+                  status: "complete",
+                  message: `Batch complete: ${bookUrls.length} build${bookUrls.length === 1 ? "" : "s"}.`,
+                  batchTotal: bookUrls.length,
+                });
+              } else {
+                await buildOneUrl(url);
+              }
             } catch (err: any) {
-              send({
+              baseSend({
                 step: 0,
                 status: "error",
                 message: err.message || "Unknown error",
@@ -513,6 +614,189 @@ const server = Bun.serve({
           },
         });
 
+        return new Response(stream, {
+          headers: {
+            "Content-Type": "application/x-ndjson",
+            "Cache-Control": "no-cache",
+          },
+        });
+      },
+    },
+
+    /**
+     * Bundle multiple built skills into a single ZIP. Accepts an array of
+     * `skillDir` paths (typically the per-row `skillDir`s reported by
+     * `/api/build`'s `complete` events during a curated batch run).
+     *
+     * Each skill is included under its own folder (taken from the skill's
+     * SKILL.md `name:` frontmatter) so the resulting archive looks like:
+     *
+     *   bundle.zip/
+     *     rock-helix/SKILL.md
+     *     rock-helix/references/...
+     *     rock-mobile-docs/SKILL.md
+     *     ...
+     *
+     * Implemented via a temporary staging directory of symlinks so we can
+     * drive a single `zip -r` invocation and avoid copying file bytes.
+     */
+    "/api/zip-bundle": {
+      POST: async (req) => {
+        const body = (await req.json().catch(() => ({}))) as {
+          skillDirs?: string[];
+          filename?: string;
+        };
+        const skillDirs = (body.skillDirs ?? []).filter(
+          (d): d is string => typeof d === "string" && d.length > 0,
+        );
+        if (skillDirs.length === 0) {
+          return Response.json(
+            { error: "skillDirs (non-empty array) is required" },
+            { status: 400 },
+          );
+        }
+
+        const { mkdtemp, symlink, rm } = await import("node:fs/promises");
+        const { tmpdir } = await import("node:os");
+        const stage = await mkdtemp(join(tmpdir(), "skill-bundle-"));
+        const folderNames: string[] = [];
+        try {
+          for (const dir of skillDirs) {
+            let folderName = "skill";
+            try {
+              const skillMd = await Bun.file(join(dir, "SKILL.md")).text();
+              const nameMatch = skillMd.match(/^name:\s*"?(.+?)"?\s*$/m);
+              folderName = nameMatch?.[1]?.trim() || "skill";
+            } catch {
+              continue; // skip skills we can't read
+            }
+            // Disambiguate duplicate folder names by suffixing -2, -3, ...
+            let unique = folderName;
+            let n = 2;
+            while (folderNames.includes(unique))
+              unique = `${folderName}-${n++}`;
+            folderNames.push(unique);
+            await symlink(dir, join(stage, unique));
+          }
+
+          if (folderNames.length === 0) {
+            return Response.json(
+              { error: "No valid skill directories found" },
+              { status: 400 },
+            );
+          }
+
+          // -y preserves symlinks but we want their *contents* — omit -y so
+          // zip follows links into the real skill directories.
+          const proc = Bun.spawn(["zip", "-r", "-", ...folderNames], {
+            cwd: stage,
+            stdout: "pipe",
+            stderr: "pipe",
+          });
+          const zipBytes = await new Response(proc.stdout).arrayBuffer();
+          const exitCode = await proc.exited;
+          if (exitCode !== 0) {
+            const stderr = await new Response(proc.stderr).text();
+            return Response.json(
+              { error: `ZIP creation failed: ${stderr}` },
+              { status: 500 },
+            );
+          }
+
+          const filename =
+            (body.filename || "skills-bundle").replace(/[^a-z0-9._-]+/gi, "-") +
+            ".zip";
+          return new Response(zipBytes, {
+            headers: {
+              "Content-Type": "application/zip",
+              "Content-Disposition": `attachment; filename="${filename}"`,
+            },
+          });
+        } finally {
+          await rm(stage, { recursive: true, force: true }).catch(() => {});
+        }
+      },
+    },
+
+    /**
+     * Streaming bulk-describe across multiple skill directories. Reuses
+     * `generateMissingDescriptions` per skill and emits NDJSON events so
+     * the UI can show per-skill progress.
+     */
+    "/api/describe/missing-bulk": {
+      POST: async (req) => {
+        const body = (await req.json().catch(() => ({}))) as {
+          skillDirs?: string[];
+          apiKey?: string;
+        };
+        const skillDirs = (body.skillDirs ?? []).filter(
+          (d): d is string => typeof d === "string" && d.length > 0,
+        );
+        const apiKey = body.apiKey?.trim() || process.env.ANTHROPIC_API_KEY;
+        if (!apiKey) {
+          return Response.json(
+            {
+              error:
+                "No API key configured. Set ANTHROPIC_API_KEY in .env or provide one in AI Settings.",
+            },
+            { status: 400 },
+          );
+        }
+        if (skillDirs.length === 0) {
+          return Response.json(
+            { error: "skillDirs (non-empty array) is required" },
+            { status: 400 },
+          );
+        }
+
+        const encoder = new TextEncoder();
+        const stream = new ReadableStream({
+          async start(controller) {
+            const send = (data: Record<string, unknown>) =>
+              controller.enqueue(encoder.encode(JSON.stringify(data) + "\n"));
+            let totalGenerated = 0;
+            let totalErrors = 0;
+            for (let i = 0; i < skillDirs.length; i++) {
+              const dir = skillDirs[i]!;
+              send({
+                status: "running",
+                skillDir: dir,
+                index: i + 1,
+                total: skillDirs.length,
+                message: `Describing skill ${i + 1}/${skillDirs.length}`,
+              });
+              try {
+                const { generated, errors } = await generateMissingDescriptions(
+                  dir,
+                  apiKey,
+                  (evt) => send({ ...evt, skillDir: dir }),
+                );
+                totalGenerated += generated;
+                totalErrors += errors;
+                send({
+                  status: "skill-complete",
+                  skillDir: dir,
+                  generated,
+                  errors,
+                });
+              } catch (err: any) {
+                totalErrors++;
+                send({
+                  status: "error",
+                  skillDir: dir,
+                  message: err.message || "Failed to describe skill",
+                });
+              }
+            }
+            send({
+              status: "complete",
+              message: `Generated ${totalGenerated} description${totalGenerated === 1 ? "" : "s"}${totalErrors > 0 ? `, ${totalErrors} error${totalErrors === 1 ? "" : "s"}` : ""}`,
+              generated: totalGenerated,
+              errors: totalErrors,
+            });
+            controller.close();
+          },
+        });
         return new Response(stream, {
           headers: {
             "Content-Type": "application/x-ndjson",
@@ -676,6 +960,7 @@ const server = Bun.serve({
               breadcrumb,
               description: description || null,
               hasDescription: !!description,
+              editUrl: skillName ? editUrlFor(skillName, filename.replace(".md", "")) : null,
             };
           }),
         );
@@ -771,6 +1056,12 @@ const server = Bun.serve({
 
                 const updated = setDescription(content, description);
                 await Bun.write(filepath, updated);
+                // Persist to the repo-tracked cache as well.
+                await writeCachedDescription(
+                  skillName,
+                  slug,
+                  description,
+                ).catch(() => {});
 
                 updatedDescs.set(slug, description);
                 generated++;

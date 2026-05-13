@@ -191,6 +191,61 @@ export async function splitByTocLinks(
   // Stash the page title on the first article so callers can pick it up.
   if (articles.length > 0) (articles[0] as any)._pageTitle = pageTitle;
 
+  // Fallback: many community.rockrms.com pages (e.g. /developer/sql-style-guide,
+  // /developer/changelog) are simple one-pagers without the rockumentation
+  // TOC sidebar. Defuddle often misses Rock's `<main class="community-content">`
+  // wrapper, so reach in directly and convert just that block.
+  if (articles.length === 0) {
+    const main =
+      document.querySelector("main.community-content") || document.body;
+    // Drop sidebar / header / nav zones so we don't pull unrelated nav
+    // links and the duplicated page-title header into the article body.
+    main
+      .querySelectorAll(
+        "#zone-sidebar1, #zone-sidebar2, #zone-navigation, #zone-header, #zone-login, #zone-feature, #zone-sectiona, #zone-sectionb, #zone-sectionc, #zone-sectiond, .community-content-header, header.community-content-header, .ajax-error, script, style, noscript",
+      )
+      .forEach((el) => el.remove());
+
+    const titleEl = document.querySelector(
+      "h1.page-title, .community-content-header h1, main.community-content h1",
+    );
+    const fallbackTitle =
+      titleEl?.textContent?.trim() ||
+      document.querySelector("title")?.textContent?.trim() ||
+      String(ctx.variables.title || "").trim() ||
+      "Article";
+
+    // Prefer the main content zone; fall back to the broader main element.
+    const contentEl =
+      main.querySelector("#zone-main .zone-content") ||
+      main.querySelector("#zone-main") ||
+      main;
+
+    const cleanedHtml = stripPresentationAttrs(
+      (contentEl as Element).outerHTML,
+    );
+    let markdown = await htmlToMarkdown(cleanedHtml, ctx.url);
+    markdown = postProcess(markdown);
+
+    if (markdown.trim().length > 0) {
+      // The content block doesn't include an h1, so prepend one from the
+      // page title for parity with rockumentation articles.
+      const body = `# ${fallbackTitle}\n\n${markdown}`.trim() + "\n";
+      return [
+        {
+          articleId: "root",
+          title: fallbackTitle,
+          slug: slugify(fallbackTitle),
+          content: body,
+          toc: rootToc(ctx.url, fallbackTitle),
+        },
+      ];
+    }
+
+    // Last resort: defer to the standard single-article splitter.
+    return splitSingle(ctx);
+  }
+
   return articles;
 }
 
@@ -751,15 +806,19 @@ export async function splitByTocPages(
         if (absUrl) {
           const u = new URL(absUrl);
           const pathname = u.pathname.replace(/\/+$/, "").toLowerCase();
+          // Keep query string in the dedup key so that listing pages like
+          // `/WorkflowActionCategory?Category=1`,`...?Category=2` are treated
+          // as distinct destinations rather than collapsed to one pathname.
+          const dedupKey = pathname + (u.search || "").toLowerCase();
           const sameOrigin = !baseOrigin || u.origin === baseOrigin;
           if (
             sameOrigin &&
             pathname &&
             pathname !== basePathname &&
             matchesInclude(pathname) &&
-            !seen.has(pathname)
+            !seen.has(dedupKey)
           ) {
-            seen.add(pathname);
+            seen.add(dedupKey);
             items.push({ kind: "link", title: text, absUrl, pathname });
           }
         }

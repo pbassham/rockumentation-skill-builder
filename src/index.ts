@@ -7,6 +7,7 @@ import { allTemplates, getById } from "../templates";
 import { generateSkill } from "./generate";
 import { deriveSkillName } from "./utils";
 import { rockLogin } from "./auth";
+import { enumerateDocumentationIndex } from "./curated-roots";
 
 function parseArgs(args: string[]): {
   url?: string;
@@ -231,46 +232,6 @@ async function processSingleUrl(opts: SingleUrlOptions): Promise<void> {
   });
 
   console.log(`✓ Skill generated at: ${skillDir}`);
-}
-
-/**
- * If `html` looks like the Rock documentation bookshelf index page, return the
- * absolute URLs of every manual it links to. Returns an empty array otherwise.
- *
- * The index page (https://community.rockrms.com/documentation) renders books
- * as `<div class="bookshelf"><div class="book"><div class="img-content">
- * <a href="/documentation/bookcontent/<bookId>/<versionId>">…</a></div></div>`
- * grouped under section `<h3 class="title">` headings. We simply scrape every
- * `bookcontent/<id>/<id>` link in document order and de-duplicate.
- */
-function enumerateDocumentationIndex(
-  html: string,
-  sourceUrl: string,
-): string[] {
-  // Restrict to the Rock community documentation index path. Other URLs may
-  // also contain stray bookcontent links (cross-references) — we don't want
-  // to accidentally batch-process those.
-  let base: URL;
-  try {
-    base = new URL(sourceUrl);
-  } catch {
-    return [];
-  }
-  if (base.host !== "community.rockrms.com") return [];
-  const path = base.pathname.replace(/\/+$/, "").toLowerCase();
-  if (path !== "/documentation") return [];
-
-  const seen = new Set<string>();
-  const out: string[] = [];
-  const re = /href=["'](\/documentation\/bookcontent\/\d+\/\d+)["']/gi;
-  let m: RegExpExecArray | null;
-  while ((m = re.exec(html)) !== null) {
-    const abs = new URL(m[1]!, base).toString();
-    if (seen.has(abs)) continue;
-    seen.add(abs);
-    out.push(abs);
-  }
-  return out;
 }
 
 main().catch((err) => {

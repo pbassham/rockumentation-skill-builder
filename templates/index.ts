@@ -8,6 +8,7 @@ import { rockrmsLavaItems } from "./rockrms-lava-items";
 import { rockManual } from "./rock-manual";
 import { defaultDefuddle } from "./default-defuddle";
 import { rockumentationAi } from "./rockumentation-ai";
+import { rockWorkflowActions } from "./rock-workflow-actions";
 
 const builtin: Template[] = [
   rockumentationPrint,
@@ -17,6 +18,7 @@ const builtin: Template[] = [
   rockrmsLavaItems,
   rockManual,
   rockumentationAi,
+  rockWorkflowActions,
   defaultDefuddle,
 ];
 

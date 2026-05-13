@@ -4,6 +4,7 @@ import { ensureDir } from "./utils";
 import type { ArticleSection } from "./convert";
 import { buildTree, type HierarchyNode, type TocEntry } from "./hierarchy";
 import { parseFrontmatter } from "./frontmatter";
+import { readCachedDescription } from "./description-cache";
 
 interface GenerateOptions {
   skillName: string;
@@ -52,19 +53,28 @@ export async function generateSkill(opts: GenerateOptions): Promise<string> {
 
   const mergedIds = new Set(mergeMap.keys());
 
-  // Collect existing AI-generated descriptions from reference files
+  // Collect existing AI-generated descriptions from reference files,
+  // falling back to the repo-tracked cache at
+  // `data/descriptions/<skill-name>/<slug>.md` when an extracted file is
+  // brand new (or had its frontmatter stripped). The on-disk file always
+  // wins so manual edits in `output/...` aren't reverted by the cache.
   const descriptionMap = new Map<string, string>();
   for (const article of childArticles) {
     if (mergedIds.has(article.articleId)) continue;
+    let onDisk: string | undefined;
     try {
       const file = Bun.file(join(refsDir, `${article.slug}.md`));
       if (await file.exists()) {
         const { description } = parseFrontmatter(await file.text());
-        if (description) {
-          descriptionMap.set(article.articleId, description);
-        }
+        if (description) onDisk = description;
       }
     } catch {}
+    if (onDisk) {
+      descriptionMap.set(article.articleId, onDisk);
+      continue;
+    }
+    const cached = await readCachedDescription(opts.skillName, article.slug);
+    if (cached) descriptionMap.set(article.articleId, cached);
   }
 
   // Build slug map for all articles (needed for TOC and merge targets)
@@ -303,6 +313,19 @@ function buildSkillMd(
         mergeMap,
       ),
     );
+  } else if (childArticles.length > 0 || opts.articles.length > 0) {
+    // Fallback: no usable tree (e.g. by-toc-pages hub where every entry
+    // sits at the same flat depth and there is no depth-0 root). Emit a
+    // flat Topics list so SKILL.md still has a usable index.
+    bodyParts.push("\n## Topics\n");
+    const flat = childArticles.length > 0 ? childArticles : opts.articles;
+    for (const a of flat) {
+      const slug = slugMap.get(a.articleId) || "unknown";
+      const summary =
+        descriptionMap.get(a.articleId) || summaryMap.get(a.articleId) || "";
+      const desc = summary ? ` \u2014 ${summary}` : "";
+      bodyParts.push(`- [${a.title}](references/${slug}.md)${desc}`);
+    }
   }
 
   const body = bodyParts.join("\n");
@@ -391,9 +414,20 @@ function buildDescription(
 ): string {
   const cleanTitle = stripEmoji(pageTitle);
 
-  // Collect top-level category titles (strip emojis)
+  // Collect top-level category titles (strip emojis). Prefer depth 1, but
+  // fall back to the shallowest depth actually present so flat extractions
+  // (e.g. by-toc-pages hubs whose entries all share depth 4) still produce
+  // a useful "Covers: ..." list.
+  const depths = articles
+    .map((a) => a.toc.depth)
+    .filter((d) => typeof d === "number");
+  const targetDepth = depths.includes(1)
+    ? 1
+    : depths.length > 0
+      ? Math.min(...depths)
+      : 1;
   const topLevel = articles
-    .filter((a) => a.toc.depth === 1)
+    .filter((a) => a.toc.depth === targetDepth)
     .map((a) => stripEmoji(a.title))
     .filter((t) => t.length > 0);
 
