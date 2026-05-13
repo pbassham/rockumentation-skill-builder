@@ -469,6 +469,12 @@ async function runCuratedBatch(items: BatchItem[]) {
               resultRow.appendChild(div);
               resultRow.appendChild(warn);
               resultRow.appendChild(inline);
+              // The warning's refCount is from the build pipeline and doesn't
+              // know about descriptions seeded from the curated cache. Kick
+              // off a quiet /api/references load so the count self-corrects
+              // (or the warning vanishes) without forcing the user to open
+              // Manage skill first.
+              loadReferencesQuiet(dir);
             } else {
               resultRow.appendChild(div);
               resultRow.appendChild(inline);
