@@ -960,7 +960,9 @@ const server = Bun.serve({
               breadcrumb,
               description: description || null,
               hasDescription: !!description,
-              editUrl: skillName ? editUrlFor(skillName, filename.replace(".md", "")) : null,
+              editUrl: skillName
+                ? editUrlFor(skillName, filename.replace(".md", ""))
+                : null,
             };
           }),
         );

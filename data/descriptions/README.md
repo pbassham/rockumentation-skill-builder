@@ -10,12 +10,12 @@ frontmatter, no markdown structure.
 - When `generateSkill` writes a new reference file, it seeds the
   description from this cache (per-file frontmatter in `output/...`
   always wins, so you can override per-build with manual edits).
-- When you click *Generate descriptions* in the UI, every successful
+- When you click _Generate descriptions_ in the UI, every successful
   generation is written back here so the next contributor inherits it.
 
 ## How to contribute a better description
 
-1. Open the file you want to improve from the *Manage skill* panel
+1. Open the file you want to improve from the _Manage skill_ panel
    in the UI (each row has a `Suggest` button that links here).
 2. Edit on GitHub, open a PR.
 3. Keep it short, action-oriented, and keyword-rich — that's what
