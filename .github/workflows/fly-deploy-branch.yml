@@ -29,10 +29,13 @@ jobs:
           SLUG=$(echo "$BRANCH" \
             | tr '[:upper:]' '[:lower:]' \
             | sed -E 's/[^a-z0-9]+/-/g; s/^-+|-+$//g')
-          # Fly app names max 30 chars; trim if needed.
-          NAME="rockumentation-skill-builder-${SLUG}"
-          NAME="${NAME:0:30}"
-          NAME="${NAME%-}"
+          # Fly app names max 30 chars. Use a short prefix so the branch
+          # slug survives intact for readability.
+          PREFIX="rsb-"
+          MAX_SLUG=$((30 - ${#PREFIX}))
+          SLUG="${SLUG:0:$MAX_SLUG}"
+          SLUG="${SLUG%-}"
+          NAME="${PREFIX}${SLUG}"
           echo "name=$NAME" >> "$GITHUB_OUTPUT"
           echo "Preview app: $NAME"
 

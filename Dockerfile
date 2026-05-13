@@ -12,6 +12,7 @@ RUN bun install --frozen-lockfile
 # Copy source.
 COPY tsconfig.json ./
 COPY src ./src
+COPY templates ./templates
 
 ENV PORT=8080
 EXPOSE 8080
