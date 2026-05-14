@@ -16,6 +16,19 @@ on:
         options:
           - prod
           - preview
+      bundle:
+        description: "Bundle name (leave empty for all)"
+        required: false
+        default: ""
+        type: choice
+        options:
+          - ""
+          - rock-user
+          - rock-administration
+          - rock-advanced
+          - rock-mobile
+          - rock-hosting
+          - rock-developer
 
 jobs:
   trigger:
@@ -36,10 +49,18 @@ jobs:
         env:
           PREBUILD_TRIGGER_TOKEN: ${{ secrets.PREBUILD_TRIGGER_TOKEN }}
           HOST: ${{ steps.target.outputs.host }}
+          BUNDLE: ${{ github.event.inputs.bundle }}
         run: |
           set -euo pipefail
+          url="https://$HOST/api/prebuild-curated"
+          if [ -n "$BUNDLE" ]; then
+            url="$url?bundle=$BUNDLE"
+            echo "Bundle: $BUNDLE"
+          else
+            echo "Bundle: (all)"
+          fi
           response=$(curl -sS -o /tmp/body -w "%{http_code}" \
-            -X POST "https://$HOST/api/prebuild-curated" \
+            -X POST "$url" \
             -H "x-prebuild-token: $PREBUILD_TRIGGER_TOKEN")
           echo "HTTP $response"
           cat /tmp/body

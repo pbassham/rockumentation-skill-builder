@@ -265,6 +265,8 @@ export interface PrebuildSummary {
  */
 export async function prebuildAllCurated(opts: {
   apiKey?: string;
+  /** If set, only rebuild this bundle name (e.g. "rock-user"). */
+  bundleName?: string;
 } = {}): Promise<PrebuildSummary> {
   if (prebuildInFlight) {
     const results = await prebuildInFlight;
@@ -278,9 +280,12 @@ export async function prebuildAllCurated(opts: {
   const apiKey = opts.apiKey || process.env.ANTHROPIC_API_KEY;
   const startedAt = Date.now();
   lastPrebuildAt = startedAt;
+  const targets = opts.bundleName
+    ? CURATED_BUNDLES.filter((b) => b.name === opts.bundleName)
+    : CURATED_BUNDLES;
   prebuildInFlight = (async () => {
     const out: PrebuildResult[] = [];
-    for (const bundle of CURATED_BUNDLES) {
+    for (const bundle of targets) {
       try {
         out.push(await prebuildOne(bundle, apiKey, uploadEnabled));
       } catch (err: any) {
@@ -297,7 +302,9 @@ export async function prebuildAllCurated(opts: {
   })();
   try {
     const results = await prebuildInFlight;
-    if (uploadEnabled) {
+    // Only refresh the global "last prebuild" timestamp on a full run;
+    // a single-bundle rebuild shouldn't reset the weekly cron clock.
+    if (uploadEnabled && !opts.bundleName) {
       await writeLastCuratedPrebuildAt(
         new Date(startedAt).toISOString(),
       ).catch(() => {});

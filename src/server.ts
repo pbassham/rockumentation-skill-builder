@@ -217,16 +217,18 @@ const server = Bun.serve({
             { status: 400 },
           );
         }
-        prebuildAllCurated()
+        const bundleName =
+          new URL(req.url).searchParams.get("bundle") || undefined;
+        prebuildAllCurated({ bundleName })
           .then((s) =>
             console.log(
-              `[curated-prebuild manual] built ${s.results.length} bundle(s) in ${(s.durationMs / 1000).toFixed(1)}s`,
+              `[curated-prebuild manual${bundleName ? ` ${bundleName}` : ""}] built ${s.results.length} bundle(s) in ${(s.durationMs / 1000).toFixed(1)}s`,
             ),
           )
           .catch((err) =>
             console.warn("[curated-prebuild manual] failed:", err),
           );
-        return Response.json({ status: "started" });
+        return Response.json({ status: "started", bundle: bundleName ?? "all" });
       },
     },
 
