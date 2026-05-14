@@ -277,35 +277,23 @@ async function loadCuratedRoots() {
   const singlesGroupsEl = document.getElementById("curated-singles-groups")!;
   const singlesActionsEl = document.getElementById("curated-singles-actions")!;
   try {
-    const [rootsRes, bundlesRes, profilesRes] = await Promise.all([
+    const [rootsRes, bundlesRes] = await Promise.all([
       fetch("/api/curated-roots"),
       fetch("/api/curated-bundles"),
-      fetch("/api/saved-profiles").catch(() => null),
     ]);
     if (!rootsRes.ok) throw new Error(`HTTP ${rootsRes.status}`);
     const data = (await rootsRes.json()) as { groups: CuratedRootGroup[] };
     const bundlesData = bundlesRes.ok
       ? ((await bundlesRes.json()) as { bundles: BundledSkill[] })
       : { bundles: [] };
-    const profilesData =
-      profilesRes && profilesRes.ok
-        ? ((await profilesRes.json()) as {
-            enabled: boolean;
-            profiles: { id: string; name: string; profile: BundledSkill }[];
-          })
-        : { enabled: false, profiles: [] };
     loading.style.display = "none";
 
-    // Combine curated bundles with user-saved profiles. Saved profiles
-    // are tagged so the gallery can show a "saved" badge and so we know
-    // to open them in editable mode.
-    const combined: { bundle: BundledSkill; saved: boolean }[] = [
-      ...bundlesData.bundles.map((b) => ({ bundle: b, saved: false })),
-      ...(profilesData.profiles || []).map((p) => ({
-        bundle: p.profile,
-        saved: true,
-      })),
-    ];
+    // Home page lists curated bundles only. Visitor-saved profiles are
+    // intentionally NOT merged in here \u2014 we don't want strangers
+    // overwriting/cluttering the canonical bundle list. Sharing happens
+    // through /gallery instead.
+    const combined: { bundle: BundledSkill; saved: boolean }[] =
+      bundlesData.bundles.map((b) => ({ bundle: b, saved: false }));
     loadedBundles = combined.map((c) => c.bundle);
 
     // Bundle cards \u2014 primary entry point.
@@ -1236,7 +1224,7 @@ async function downloadZipBundle(skillDirs: string[], filename = "skills") {
  * bundle config to the home-page profile list \u2014 that flow is reserved
  * for curated bundles to avoid letting visitors clutter the home page.
  */
-async function saveBundleProfile(_bundle: BundledSkill, skillDir?: string) {
+async function saveBundleProfile(bundle: BundledSkill, skillDir?: string) {
   const btn = document.getElementById(
     "bulk-save-profile-btn",
   ) as HTMLButtonElement | null;
@@ -1263,7 +1251,7 @@ async function saveBundleProfile(_bundle: BundledSkill, skillDir?: string) {
     const pubRes = await fetch("/api/publish", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ skillDir }),
+      body: JSON.stringify({ skillDir, bundle }),
     });
     const pubData = (await pubRes.json().catch(() => ({}))) as any;
     if (!pubRes.ok) {
@@ -1440,6 +1428,28 @@ let serverHasApiKey: boolean | null = null;
 
 // Kick off the initial bundle load — the gallery is the home view.
 loadCuratedRoots();
+
+// If the URL carries `?bundle=<id>`, fetch that published skill's bundle
+// config and open it in the builder for re-editing. Linked from the
+// gallery detail "Open in builder" button.
+(async () => {
+  const params = new URLSearchParams(window.location.search);
+  const bundleId = params.get("bundle");
+  if (!bundleId) return;
+  try {
+    const res = await fetch(`/api/public-skill/${encodeURIComponent(bundleId)}`);
+    if (!res.ok) return;
+    const data = (await res.json()) as { meta?: { bundle?: BundledSkill } };
+    const b = data.meta?.bundle;
+    if (b && b.sources && b.sources.length > 0) {
+      showBundleDetail(b, { editable: true });
+      // Clean URL so a refresh doesn't re-trigger.
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+  } catch {
+    // Silent — leave user on the default home view.
+  }
+})();
 
 // Check public storage status; disable publish button if not configured.
 (async () => {

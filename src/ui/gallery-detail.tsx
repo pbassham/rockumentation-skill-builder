@@ -26,6 +26,11 @@ interface SkillMeta {
   articleCount: number;
   refCount: number;
   createdAt: string;
+  bundle?: {
+    name?: string;
+    description?: string;
+    sources?: Array<{ url: string; label?: string }>;
+  };
 }
 
 interface DetailResponse {
@@ -105,15 +110,27 @@ function renderMeta(meta: SkillMeta) {
       return meta.createdAt;
     }
   })();
-  metaEl.innerHTML = `
-    ${
-      meta.sourceUrl
+  const sources = meta.bundle?.sources || [];
+  const sourcesHtml =
+    sources.length > 0
+      ? `<div class="result-row">
+      <span class="result-label">Sources</span>
+      <span class="result-value"><ul class="source-list">${sources
+        .map(
+          (s) =>
+            `<li><a href="${escapeHtml(s.url)}" target="_blank" rel="noopener">${escapeHtml(s.label || s.url)}</a></li>`,
+        )
+        .join("")}</ul></span>
+    </div>`
+      : meta.sourceUrl
         ? `<div class="result-row">
       <span class="result-label">Source</span>
       <span class="result-value"><a href="${escapeHtml(meta.sourceUrl)}" target="_blank" rel="noopener">${escapeHtml(meta.sourceUrl)}</a></span>
     </div>`
-        : ""
-    }
+        : "";
+
+  metaEl.innerHTML = `
+    ${sourcesHtml}
     <div class="result-row">
       <span class="result-label">Articles</span>
       <span class="result-value">${meta.articleCount} (${meta.refCount} references)</span>
@@ -124,6 +141,11 @@ function renderMeta(meta: SkillMeta) {
     </div>
     <div class="result-actions">
       <a class="btn btn-sm" href="/s/${encodeURIComponent(meta.id)}">Download ZIP</a>
+      ${
+        meta.bundle
+          ? `<a class="btn btn-sm btn-secondary" href="/?bundle=${encodeURIComponent(meta.id)}">Open in builder</a>`
+          : ""
+      }
     </div>
   `;
 }

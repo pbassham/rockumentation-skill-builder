@@ -242,6 +242,18 @@ button:disabled {
   border-top: 1px solid #30363d;
 }
 
+.source-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  text-align: right;
+}
+
+.source-list li {
+  margin: 0.15rem 0;
+  word-break: break-all;
+}
+
 .error-banner {
   margin-top: 1.5rem;
   padding: 1rem;
@@ -1443,7 +1455,7 @@ a:hover {
     background 0.15s;
 }
 
-.bundle-card:hover {
+.bundle-card:hover:not(:disabled) {
   border-color: var(--accent);
   background: rgba(88, 166, 255, 0.05);
   transform: translateY(-1px);

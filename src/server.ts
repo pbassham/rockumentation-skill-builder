@@ -451,7 +451,10 @@ const server = Bun.serve({
           );
         }
         const body = await req.json().catch(() => ({}));
-        const { skillDir } = body as { skillDir?: string };
+        const { skillDir, bundle } = body as {
+          skillDir?: string;
+          bundle?: unknown;
+        };
         if (!skillDir) {
           return Response.json(
             { error: "skillDir is required" },
@@ -496,6 +499,7 @@ const server = Bun.serve({
             articleCount: refNames.length + 1,
             refCount: refNames.length,
             createdAt: new Date().toISOString(),
+            bundle: bundle ?? undefined,
           });
           const files = await collectSkillFiles(skillDir);
           for (const f of files) {

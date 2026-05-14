@@ -23,6 +23,9 @@ export interface SkillMeta {
   articleCount: number;
   refCount: number;
   createdAt: string; // ISO timestamp
+  // Optional rebuildable bundle config captured at publish time so the
+  // gallery can show the full source list and offer "Open in builder".
+  bundle?: unknown;
 }
 
 let cachedClient: S3Client | null = null;
