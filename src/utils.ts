@@ -15,17 +15,24 @@ export function slugify(text: string): string {
 }
 
 /**
- * Derive a skill name from a Rockumentation URL.
- * Takes the last meaningful path segment(s) and slugifies them.
- * e.g. "https://community.rockrms.com/developer/developer-codex" → "rock-developer-codex"
+ * Derive a skill name from a URL, optionally falling back to a page title
+ * when the URL's last segment is empty, numeric, or otherwise non-descriptive
+ * (e.g. `/documentation/bookcontent/39/362` → `rock-362` is useless,
+ *  `pageTitle = "Engagement"` → `rock-engagement`).
  */
-export function deriveSkillName(url: string): string {
+export function deriveSkillName(url: string, pageTitle?: string): string {
   const parsed = new URL(url);
   const segments = parsed.pathname.split("/").filter((s) => s.length > 0);
+  const last = segments[segments.length - 1] || "";
 
-  // Use the last segment, prefixed with "rock-" if it doesn't already start with "rock"
-  const last = segments[segments.length - 1] || "rock-docs";
-  const slug = slugify(last);
+  // If the URL slug is numeric / empty / single-char, prefer the page title.
+  const looksUseless = !last || /^[0-9]+$/.test(last) || last.length <= 1;
+  const source =
+    looksUseless && pageTitle && pageTitle.trim()
+      ? pageTitle.trim()
+      : last || "rock-docs";
+
+  const slug = slugify(source);
   return slug.startsWith("rock") ? slug : `rock-${slug}`;
 }
 

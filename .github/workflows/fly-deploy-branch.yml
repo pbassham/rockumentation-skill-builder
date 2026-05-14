@@ -1,0 +1,90 @@
+# Deploys non-main branches to their own Fly app for preview/testing.
+# App name pattern: rockumentation-skill-builder-<slugified-branch>
+# URL: https://rockumentation-skill-builder-<branch>.fly.dev
+#
+# To tear down a preview app when you're done with the branch:
+#   flyctl apps destroy rockumentation-skill-builder-<branch>
+
+name: Fly Deploy (branch preview)
+on:
+  push:
+    branches-ignore:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy preview app
+    runs-on: ubuntu-latest
+    concurrency: deploy-${{ github.ref }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Compute preview app name
+        id: app
+        run: |
+          BRANCH="${GITHUB_REF_NAME}"
+          # Slugify: lowercase, non-alnum -> '-', collapse, trim '-'
+          SLUG=$(echo "$BRANCH" \
+            | tr '[:upper:]' '[:lower:]' \
+            | sed -E 's/[^a-z0-9]+/-/g; s/^-+|-+$//g')
+          # Fly app names max 30 chars. Use a short prefix so the branch
+          # slug survives intact for readability.
+          PREFIX="rsb-"
+          MAX_SLUG=$((30 - ${#PREFIX}))
+          SLUG="${SLUG:0:$MAX_SLUG}"
+          SLUG="${SLUG%-}"
+          NAME="${PREFIX}${SLUG}"
+          echo "name=$NAME" >> "$GITHUB_OUTPUT"
+          echo "Preview app: $NAME"
+
+      - name: Ensure Fly app exists
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        run: |
+          if ! flyctl apps list --json | grep -q "\"Name\": *\"${{ steps.app.outputs.name }}\""; then
+            flyctl apps create "${{ steps.app.outputs.name }}" --org personal
+          fi
+
+      - name: Set required secrets on preview app
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.TIGRIS_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.TIGRIS_AWS_SECRET_ACCESS_KEY }}
+          AWS_ENDPOINT_URL_S3: ${{ secrets.TIGRIS_AWS_ENDPOINT_URL_S3 }}
+          AWS_REGION: ${{ secrets.TIGRIS_AWS_REGION }}
+          BUCKET_NAME: ${{ secrets.TIGRIS_BUCKET_NAME }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          # Fly secrets are write-only; we can't copy them from the prod
+          # app. Pull each value from a matching GitHub Actions repo
+          # secret and push it to the preview app. Skip any that aren't
+          # configured so the workflow stays useful for branches that
+          # don't need storage / AI.
+          declare -a kvs=()
+          [ -n "$AWS_ACCESS_KEY_ID" ]     && kvs+=("AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID")
+          [ -n "$AWS_SECRET_ACCESS_KEY" ] && kvs+=("AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY")
+          [ -n "$AWS_ENDPOINT_URL_S3" ]   && kvs+=("AWS_ENDPOINT_URL_S3=$AWS_ENDPOINT_URL_S3")
+          [ -n "$AWS_REGION" ]            && kvs+=("AWS_REGION=$AWS_REGION")
+          [ -n "$BUCKET_NAME" ]           && kvs+=("BUCKET_NAME=$BUCKET_NAME")
+          [ -n "$ANTHROPIC_API_KEY" ]     && kvs+=("ANTHROPIC_API_KEY=$ANTHROPIC_API_KEY")
+          if [ ${#kvs[@]} -gt 0 ]; then
+            flyctl secrets set --stage \
+              --app "${{ steps.app.outputs.name }}" \
+              "${kvs[@]}"
+          else
+            echo "No GitHub secrets set for preview deploys; skipping."
+          fi
+
+      - name: Deploy
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        run: |
+          flyctl deploy --remote-only \
+            --app "${{ steps.app.outputs.name }}" \
+            --config fly.toml
+
+      - name: Summary
+        run: |
+          echo "Deployed to: https://${{ steps.app.outputs.name }}.fly.dev" >> "$GITHUB_STEP_SUMMARY"

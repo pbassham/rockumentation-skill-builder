@@ -26,6 +26,11 @@ interface SkillMeta {
   articleCount: number;
   refCount: number;
   createdAt: string;
+  bundle?: {
+    name?: string;
+    description?: string;
+    sources?: Array<{ url: string; label?: string }>;
+  };
 }
 
 interface DetailResponse {
@@ -83,6 +88,10 @@ function renderShell(error?: string) {
       <main class="detail-main">
         <div class="file-toolbar">
           <span id="file-current" class="file-current"></span>
+          <div class="file-view-toggle" id="file-view-toggle" style="display:none">
+            <button type="button" class="file-view-btn is-active" data-view="raw">Raw (with frontmatter)</button>
+            <button type="button" class="file-view-btn" data-view="rendered">Rendered</button>
+          </div>
         </div>
         <pre id="file-content" class="file-content">Select a file to view its contents.</pre>
         <article id="file-rendered" class="file-rendered markdown-body" style="display:none"></article>
@@ -105,15 +114,27 @@ function renderMeta(meta: SkillMeta) {
       return meta.createdAt;
     }
   })();
-  metaEl.innerHTML = `
-    ${
-      meta.sourceUrl
+  const sources = meta.bundle?.sources || [];
+  const sourcesHtml =
+    sources.length > 0
+      ? `<div class="result-row">
+      <span class="result-label">Sources</span>
+      <span class="result-value"><ul class="source-list">${sources
+        .map(
+          (s) =>
+            `<li><a href="${escapeHtml(s.url)}" target="_blank" rel="noopener">${escapeHtml(s.label || s.url)}</a></li>`,
+        )
+        .join("")}</ul></span>
+    </div>`
+      : meta.sourceUrl
         ? `<div class="result-row">
       <span class="result-label">Source</span>
       <span class="result-value"><a href="${escapeHtml(meta.sourceUrl)}" target="_blank" rel="noopener">${escapeHtml(meta.sourceUrl)}</a></span>
     </div>`
-        : ""
-    }
+        : "";
+
+  metaEl.innerHTML = `
+    ${sourcesHtml}
     <div class="result-row">
       <span class="result-label">Articles</span>
       <span class="result-value">${meta.articleCount} (${meta.refCount} references)</span>
@@ -124,6 +145,11 @@ function renderMeta(meta: SkillMeta) {
     </div>
     <div class="result-actions">
       <a class="btn btn-sm" href="/s/${encodeURIComponent(meta.id)}">Download ZIP</a>
+      ${
+        meta.bundle
+          ? `<a class="btn btn-sm btn-secondary" href="/?bundle=${encodeURIComponent(meta.id)}">Open in builder</a>`
+          : ""
+      }
     </div>
   `;
 }
@@ -160,10 +186,12 @@ async function loadFile(path: string) {
   const currentEl = document.getElementById("file-current")!;
   const contentEl = document.getElementById("file-content")!;
   const renderedEl = document.getElementById("file-rendered")!;
+  const toggleEl = document.getElementById("file-view-toggle")!;
   currentEl.textContent = path;
   contentEl.style.display = "block";
   renderedEl.style.display = "none";
   contentEl.textContent = "Loading...";
+  toggleEl.style.display = "none";
   try {
     const res = await fetch(
       `/api/public-skill/${encodeURIComponent(currentData.meta.id)}/file?path=${encodeURIComponent(path)}`,
@@ -171,13 +199,46 @@ async function loadFile(path: string) {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const text = await res.text();
     if (path.endsWith(".md")) {
-      // Strip YAML frontmatter for cleaner display.
-      const stripped = text.replace(/^---\n[\s\S]*?\n---\n*/, "");
-      const html = await marked.parse(stripped);
-      renderedEl.innerHTML = html;
-      renderedEl.style.display = "block";
-      contentEl.style.display = "none";
-      highlightAll(renderedEl);
+      // Show raw content (with YAML frontmatter) by default \u2014 the
+      // frontmatter is the most load-bearing part of a skill spec, so
+      // hiding it on first view obscures what makes the file work.
+      // Users can toggle to the rendered view for prose-friendly
+      // browsing.
+      contentEl.textContent = text;
+      contentEl.style.display = "block";
+      renderedEl.style.display = "none";
+      toggleEl.style.display = "inline-flex";
+      toggleEl
+        .querySelectorAll<HTMLButtonElement>(".file-view-btn")
+        .forEach((b) =>
+          b.classList.toggle("is-active", b.dataset.view === "raw"),
+        );
+      // Wire up the toggle (re-bound on every load so we always have a
+      // fresh closure over `text`).
+      toggleEl
+        .querySelectorAll<HTMLButtonElement>(".file-view-btn")
+        .forEach((b) => {
+          b.onclick = async () => {
+            const view = b.dataset.view;
+            toggleEl
+              .querySelectorAll<HTMLButtonElement>(".file-view-btn")
+              .forEach((x) =>
+                x.classList.toggle("is-active", x.dataset.view === view),
+              );
+            if (view === "rendered") {
+              const stripped = text.replace(/^---\n[\s\S]*?\n---\n*/, "");
+              const html = await marked.parse(stripped);
+              renderedEl.innerHTML = html;
+              renderedEl.style.display = "block";
+              contentEl.style.display = "none";
+              highlightAll(renderedEl);
+            } else {
+              contentEl.textContent = text;
+              contentEl.style.display = "block";
+              renderedEl.style.display = "none";
+            }
+          };
+        });
     } else {
       contentEl.textContent = text;
     }

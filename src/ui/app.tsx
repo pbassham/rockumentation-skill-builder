@@ -2,13 +2,48 @@
 
 interface ProgressEvent {
   step: number;
-  status: "running" | "done" | "error" | "complete";
+  status: "running" | "done" | "error" | "complete" | "auth-required";
   message: string;
   skillDir?: string;
   skillName?: string;
   pageTitle?: string;
   articleCount?: number;
   refCount?: number;
+  // Batch metadata — set when /api/build expanded an index URL into N
+  // sub-builds, or when the UI is iterating curated URLs.
+  urlIndex?: number;
+  urlTotal?: number;
+  sourceUrl?: string;
+  batchTotal?: number;
+}
+
+interface CuratedRoot {
+  label: string;
+  description?: string;
+  url: string;
+  kind: "single" | "index";
+}
+
+interface CuratedRootGroup {
+  label: string;
+  description?: string;
+  items: CuratedRoot[];
+}
+
+interface BundledSource {
+  url: string;
+  note?: string;
+  label?: string;
+  templateId?: string;
+}
+
+interface BundledSkill {
+  name: string;
+  description?: string;
+  generateDescription?: boolean;
+  additionalInstructions?: string;
+  version?: string;
+  sources: BundledSource[];
 }
 
 const STATUS_ICONS: Record<string, string> = {
@@ -16,6 +51,7 @@ const STATUS_ICONS: Record<string, string> = {
   done: "\u2713",
   error: "\u2717",
   complete: "\uD83C\uDF89",
+  "auth-required": "\uD83D\uDD12",
 };
 
 let currentSkillDir: string | null = null;
@@ -36,11 +72,91 @@ app.innerHTML = `
     </nav>
   </header>
 
-  <form id="build-form" class="card">
+  <section id="bundle-gallery" class="card">
+    <h2 class="mode-title">Pick a starter skill</h2>
+    <p class="hint">Each skill aggregates one or more Rock RMS docs. Click to see what it covers, then build.</p>
+    <div id="bundle-loading" class="hint">Loading skills\u2026</div>
+    <div id="bundle-cards" class="bundle-grid"></div>
+
+    <details id="curated-singles-block" class="curated-singles-details" style="display:none">
+      <summary>Or pick individual canonical docs</summary>
+      <p class="hint">Single-source skills. Most are also included in the developer skill above.</p>
+      <div id="curated-singles-groups"></div>
+      <div class="curated-actions" id="curated-singles-actions" style="display:none">
+        <div class="curated-summary"><span id="curated-singles-count">0</span> selected</div>
+        <div class="curated-buttons">
+          <button type="button" class="btn-sm btn-secondary" id="singles-clear">Clear</button>
+          <button type="button" class="btn-sm" id="singles-build">Build selected</button>
+        </div>
+      </div>
+    </details>
+
+    <p class="hint custom-url-link">
+      Need a one-off? <button type="button" class="link-btn" id="show-custom-form">Build from custom URLs \u2192</button>
+    </p>
+  </section>
+
+  <section id="bundle-detail" class="card" style="display:none">
+    <div class="mode-back">
+      <button type="button" class="link-btn" id="bundle-back">\u2190 Back to skills</button>
+    </div>
+    <h2 id="bundle-detail-name"></h2>
+    <p class="hint bundle-detail-tagline">
+      Customize this skill before building. Anything you change here is baked into the resulting <code>SKILL.md</code> &mdash; the
+      <strong>description</strong> and <strong>skill instructions</strong> appear above the Topics list and are preserved across rebuilds and AI description regeneration.
+    </p>
+
+    <div class="form-group" id="bundle-name-group" style="display:none">
+      <label for="bundle-edit-name">Skill name <span class="form-meta">(kebab-case, becomes the folder name)</span></label>
+      <input type="text" id="bundle-edit-name" placeholder="my-custom-skill" />
+    </div>
+
+    <div class="form-group">
+      <div class="form-label-row">
+        <label for="bundle-edit-desc">Skill description <span class="form-meta" id="bundle-desc-count"></span></label>
+        <button type="button" class="link-btn ai-fill-btn" id="bundle-ai-meta-btn" title="Generate description and pre-text from the source URLs using Claude.">\u2728 Draft with AI</button>
+      </div>
+      <textarea id="bundle-edit-desc" rows="3" placeholder="Use when&hellip; (keyword-rich, &le; 1024 chars)"></textarea>
+      <p class="hint">The frontmatter <code>description:</code>. The agent reads this to decide whether to load the skill at all, so be specific about trigger phrases.</p>
+    </div>
+
+    <div class="form-group">
+      <label for="bundle-edit-pretext">Skill instructions <span class="form-meta">(markdown, optional)</span></label>
+      <textarea id="bundle-edit-pretext" rows="5" placeholder="Hand-written guidance for the agent: when to use this skill, important gotchas, project conventions. Appears in SKILL.md above the Topics list."></textarea>
+      <p class="hint">Free markdown injected just above <code>## Topics</code>. The agent reads this every time it loads the skill, so use it for anything that should always apply. Survives every rebuild and description regeneration.</p>
+    </div>
+
+    <h3 class="bundle-sources-heading">Sources <span id="bundle-detail-count" class="bundle-count"></span></h3>
+    <p class="hint">Each source becomes a section heading in the Topics list. Edit the label or add an optional note for context.</p>
+    <ol id="bundle-detail-sources" class="bundle-source-list"></ol>
+    <div class="bundle-add-source-row">
+      <button type="button" class="btn-sm btn-secondary" id="bundle-add-source">+ Add source URL</button>
+    </div>
+
+    <div id="bundle-ai-meta-status" class="ai-fill-status" style="display:none"></div>
+
+    <div class="bundle-detail-actions">
+      <button type="button" class="btn-sm btn-secondary" id="bundle-reset-btn">Reset</button>
+      <button type="button" class="btn-sm" id="bundle-build-btn">Build skill</button>
+    </div>
+  </section>
+
+  <form id="build-form" class="card" style="display:none">
+    <div class="mode-back">
+      <button type="button" class="link-btn" id="custom-back">\u2190 Back to skills</button>
+    </div>
     <div class="form-group">
       <label for="url">Rockumentation URL</label>
-      <input type="url" id="url" name="url" placeholder="https://community.rockrms.com/developer/developer-codex" required />
+      <input type="url" id="url" name="url" placeholder="https://community.rockrms.com/developer/developer-codex" />
       <p class="hint">The root URL of the Rockumentation page you want to convert</p>
+    </div>
+
+    <div class="form-group">
+      <label for="templateId">Template</label>
+      <select id="templateId" name="templateId">
+        <option value="">Auto-detect (recommended)</option>
+      </select>
+      <p class="hint" id="template-hint">Pick a template to override auto-detection. Templates control how the page is split and processed.</p>
     </div>
 
     <details id="advanced-section">
@@ -74,7 +190,7 @@ app.innerHTML = `
     <button type="submit" id="submit-btn">Build Skill</button>
   </form>
 
-  <section class="info-card">
+  <section class="info-card" id="info-card">
     <h2>What's an Agent Skill?</h2>
     <p>
       An <strong>Agent Skill</strong> is a packaged folder of Markdown that teaches an AI
@@ -96,7 +212,6 @@ app.innerHTML = `
   <div id="error" style="display:none"></div>
   <div id="result" style="display:none"></div>
   <div id="descriptions" style="display:none"></div>
-  <div id="split-panel" style="display:none"></div>
   <div id="finalize" style="display:none"></div>
 `;
 
@@ -105,6 +220,783 @@ const progressDiv = document.getElementById("progress")!;
 const resultDiv = document.getElementById("result")!;
 const errorDiv = document.getElementById("error")!;
 const submitBtn = document.getElementById("submit-btn") as HTMLButtonElement;
+
+// View switching ------------------------------------------------------------
+//
+// The home is a list of curated bundles. Clicking a bundle swaps to a
+// detail panel showing its sources + build button. The legacy custom-URL
+// form is still available via a small secondary link, and curated single-
+// source docs collapse into a `<details>` block under the bundle list.
+
+const bundleGallery = document.getElementById("bundle-gallery")!;
+const bundleDetail = document.getElementById("bundle-detail")!;
+
+type View = "gallery" | "detail";
+
+function showView(view: View) {
+  bundleGallery.style.display = view === "gallery" ? "block" : "none";
+  bundleDetail.style.display = view === "detail" ? "block" : "none";
+  // The intro "What's an Agent Skill?" card is contextual to the home
+  // landing only — once you're inside a bundle it's noise.
+  const infoCard = document.getElementById("info-card");
+  if (infoCard) infoCard.style.display = view === "gallery" ? "block" : "none";
+  // Legacy custom-URL form is reachable only via /api/build callers, no
+  // longer surfaced in the UI \u2014 the editable bundle detail panel is the
+  // single source of truth for both curated and ad-hoc skills.
+  form.style.display = "none";
+  if (view === "gallery" && !curatedLoaded) loadCuratedRoots();
+}
+
+document.getElementById("show-custom-form")!.addEventListener("click", () => {
+  // Open the bundle detail panel in editable mode with an empty draft
+  // so the user can paste one or more URLs and configure them with the
+  // same controls as a curated bundle.
+  showBundleDetail(
+    {
+      name: "custom-skill",
+      description: "",
+      sources: [{ url: "", label: "" }],
+    } as BundledSkill,
+    { editable: true },
+  );
+});
+document
+  .getElementById("custom-back")!
+  .addEventListener("click", () => showView("gallery"));
+document
+  .getElementById("bundle-back")!
+  .addEventListener("click", () => showView("gallery"));
+
+// Curated roots -------------------------------------------------------------
+
+let curatedLoaded = false;
+/** Stash for bundle objects so detail-view can recover by index. */
+let loadedBundles: BundledSkill[] = [];
+
+async function loadCuratedRoots() {
+  curatedLoaded = true;
+  const loading = document.getElementById("bundle-loading")!;
+  const cardsEl = document.getElementById("bundle-cards")!;
+  const singlesBlock = document.getElementById("curated-singles-block")!;
+  const singlesGroupsEl = document.getElementById("curated-singles-groups")!;
+  const singlesActionsEl = document.getElementById("curated-singles-actions")!;
+  try {
+    const [rootsRes, bundlesRes, prebuiltRes] = await Promise.all([
+      fetch("/api/curated-roots"),
+      fetch("/api/curated-bundles"),
+      fetch("/api/curated-prebuilt"),
+    ]);
+    if (!rootsRes.ok) throw new Error(`HTTP ${rootsRes.status}`);
+    const data = (await rootsRes.json()) as { groups: CuratedRootGroup[] };
+    const bundlesData = bundlesRes.ok
+      ? ((await bundlesRes.json()) as { bundles: BundledSkill[] })
+      : { bundles: [] };
+    const prebuiltData = prebuiltRes.ok
+      ? ((await prebuiltRes.json()) as {
+          enabled: boolean;
+          ids: Record<string, string>;
+        })
+      : { enabled: false, ids: {} };
+    loading.style.display = "none";
+
+    // Home page lists curated bundles only. Visitor-saved profiles are
+    // intentionally NOT merged in here \u2014 we don't want strangers
+    // overwriting/cluttering the canonical bundle list. Sharing happens
+    // through /gallery instead.
+    const combined: { bundle: BundledSkill; saved: boolean }[] =
+      bundlesData.bundles.map((b) => ({ bundle: b, saved: false }));
+    loadedBundles = combined.map((c) => c.bundle);
+
+    // Bundle cards \u2014 primary entry point. Each card pairs the
+    // editor-launcher button with an inline Download link when the
+    // server has a curated prebuild ready in S3 (so visitors can grab
+    // the canonical zip without rebuilding).
+    cardsEl.innerHTML = combined
+      .map((c, i) => {
+        const prebuiltId = prebuiltData.enabled
+          ? prebuiltData.ids[c.bundle.name]
+          : undefined;
+        return `
+      <div class="bundle-card-wrap">
+        <button type="button" class="bundle-card" data-bundle-index="${i}" data-saved="${c.saved ? "1" : "0"}">
+          <span class="bundle-card-name">${escapeHtml(c.bundle.name)}${c.saved ? ' <span class="bundle-card-badge">saved</span>' : ""}</span>
+          <span class="bundle-card-desc">${escapeHtml(c.bundle.description || "")}</span>
+          <span class="bundle-card-meta">${c.bundle.sources.length} source${c.bundle.sources.length === 1 ? "" : "s"}</span>
+        </button>
+        ${prebuiltId ? `<a class="bundle-card-download" href="/s/${prebuiltId}" download title="Download the latest curated build">Download .zip</a>` : ""}
+      </div>`;
+      })
+      .join("");
+
+    cardsEl
+      .querySelectorAll<HTMLButtonElement>(".bundle-card")
+      .forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const i = Number(btn.dataset.bundleIndex);
+          const bundle = loadedBundles[i]!;
+          // If a curated prebuild exists in S3, route through the
+          // gallery restore flow (?bundle=<id>) so the user lands on a
+          // ready-to-manage skill rather than just the source-list
+          // panel. Falls through to plain showBundleDetail for
+          // saved-profile cards or when no prebuild is available yet.
+          const prebuiltId = prebuiltData.enabled
+            ? prebuiltData.ids[bundle.name]
+            : undefined;
+          if (prebuiltId && btn.dataset.saved !== "1") {
+            window.location.href = `/?bundle=${encodeURIComponent(prebuiltId)}`;
+            return;
+          }
+          // Saved profiles get full editability so the user can tweak
+          // and re-save; curated bundles keep URLs read-only.
+          showBundleDetail(bundle, {
+            editable: btn.dataset.saved === "1",
+          });
+        });
+      });
+
+    // Single-source curated docs — collapsed secondary section.
+    if (data.groups.length > 0) {
+      singlesBlock.style.display = "block";
+      singlesGroupsEl.innerHTML = data.groups
+        .map(
+          (g, gi) => `
+      <fieldset class="curated-group">
+        <legend>${escapeHtml(g.label)}</legend>
+        ${g.description ? `<p class="hint">${escapeHtml(g.description)}</p>` : ""}
+        ${g.items
+          .map(
+            (it, ii) => `
+          <label class="curated-item">
+            <input type="checkbox" class="singles-check" data-url="${escapeHtml(it.url)}" data-label="${escapeHtml(it.label)}" data-kind="${it.kind}" id="singles-${gi}-${ii}" />
+            <span class="curated-item-body">
+              <span class="curated-item-label">${escapeHtml(it.label)}${it.kind === "index" ? ' <span class="curated-badge">batch</span>' : ""}</span>
+              ${it.description ? `<span class="curated-item-desc">${escapeHtml(it.description)}</span>` : ""}
+              <span class="curated-item-url">${escapeHtml(it.url)}</span>
+            </span>
+          </label>`,
+          )
+          .join("")}
+      </fieldset>`,
+        )
+        .join("");
+
+      singlesActionsEl.style.display = "flex";
+
+      const checks = () =>
+        Array.from(
+          singlesGroupsEl.querySelectorAll<HTMLInputElement>(".singles-check"),
+        );
+      const countEl = document.getElementById("curated-singles-count")!;
+      const buildBtn = document.getElementById(
+        "singles-build",
+      ) as HTMLButtonElement;
+      const updateCount = () => {
+        const n = checks().filter((c) => c.checked).length;
+        countEl.textContent = String(n);
+        buildBtn.disabled = n === 0;
+      };
+      updateCount();
+      singlesGroupsEl.addEventListener("change", updateCount);
+
+      document
+        .getElementById("singles-clear")!
+        .addEventListener("click", () => {
+          checks().forEach((c) => (c.checked = false));
+          updateCount();
+        });
+      buildBtn.addEventListener("click", () => {
+        const selected: BatchItem[] = checks()
+          .filter((c) => c.checked)
+          .map((c) => ({
+            url: c.dataset.url!,
+            label: c.dataset.label!,
+            kind: (c.dataset.kind as BatchItem["kind"]) || "single",
+          }));
+        if (selected.length > 0) runCuratedBatch(selected);
+      });
+    }
+  } catch (err: any) {
+    loading.textContent = `Failed to load skills: ${err.message}`;
+  }
+}
+
+/**
+ * Swap to the bundle detail panel and wire up its Build button. Each
+ * source is shown in display order so the user can verify URLs and
+ * labels before paying for a build.
+ */
+/**
+ * Swap to the bundle detail panel and wire up its Build button. The
+ * panel is fully editable: skill description, free-form pre-text, and
+ * per-source label/note are all writable form fields. On Build we deep-
+ * clone the curated bundle and overlay the user's edits before posting
+ * to /api/build-config, so the curated defaults are never mutated.
+ */
+function showBundleDetail(
+  bundle: BundledSkill,
+  options: { editable?: boolean } = {},
+) {
+  // `editable` mode lets the user rename the skill, edit/add/remove source
+  // URLs. Curated bundles default to non-editable URLs (label/note still
+  // editable); custom and saved-profile-from-scratch flows go through here
+  // too with editable=true.
+  const editable = options.editable === true;
+
+  // Working draft of sources — mutated by add/remove handlers without
+  // touching the original bundle (so Reset still works).
+  type DraftSource = {
+    url: string;
+    label?: string;
+    note?: string;
+    templateId?: string;
+    expand?: BundledSkill["sources"][number]["expand"];
+  };
+  let draftSources: DraftSource[] = bundle.sources.map((s) => ({ ...s }));
+  let draftName = bundle.name;
+
+  const nameGroup = document.getElementById("bundle-name-group")!;
+  const nameInput = document.getElementById(
+    "bundle-edit-name",
+  ) as HTMLInputElement;
+  const detailNameEl = document.getElementById(
+    "bundle-detail-name",
+  ) as HTMLElement;
+  const countEl = document.getElementById("bundle-detail-count") as HTMLElement;
+  const descInput = document.getElementById(
+    "bundle-edit-desc",
+  ) as HTMLTextAreaElement;
+  const preTextInput = document.getElementById(
+    "bundle-edit-pretext",
+  ) as HTMLTextAreaElement;
+  const descCount = document.getElementById("bundle-desc-count")!;
+  const list = document.getElementById("bundle-detail-sources")!;
+  const addSourceBtn = document.getElementById(
+    "bundle-add-source",
+  ) as HTMLButtonElement;
+  const aiBtn = document.getElementById(
+    "bundle-ai-meta-btn",
+  ) as HTMLButtonElement;
+  const aiStatus = document.getElementById("bundle-ai-meta-status")!;
+
+  nameGroup.style.display = "block";
+  detailNameEl.textContent = bundle.name;
+  nameInput.value = bundle.name;
+
+  const setCount = () => {
+    countEl.textContent = `(${draftSources.length})`;
+  };
+
+  const updateDescCount = () => {
+    const len = descInput.value.length;
+    descCount.textContent = `${len} / 1024`;
+    descCount.className = "form-meta" + (len > 1024 ? " is-error" : "");
+  };
+  descInput.oninput = updateDescCount;
+
+  // Persist label/note edits from the DOM back into draftSources before
+  // any structural mutation (add/remove) so we don't lose typed values.
+  const flushSourceFields = () => {
+    draftSources.forEach((s, i) => {
+      const li = list.querySelector(
+        `li.bundle-source-edit[data-src-index="${i}"]`,
+      );
+      if (!li) return;
+      const url = (
+        li.querySelector('input[data-field="url"]') as HTMLInputElement | null
+      )?.value.trim();
+      const label = (
+        li.querySelector('input[data-field="label"]') as HTMLInputElement | null
+      )?.value;
+      const note = (
+        li.querySelector('input[data-field="note"]') as HTMLInputElement | null
+      )?.value;
+      if (url !== undefined) s.url = url;
+      if (label !== undefined) s.label = label.trim() || undefined;
+      if (note !== undefined) s.note = note.trim() || undefined;
+    });
+  };
+
+  const renderSourceRows = () => {
+    setCount();
+    if (draftSources.length === 0) {
+      list.innerHTML = `<li class="bundle-source-empty hint">No sources yet \u2014 add at least one URL below.</li>`;
+      return;
+    }
+    list.innerHTML = draftSources
+      .map((s, i) => {
+        // URL is always an input — adding a source needs to expose the
+        // field, and even on curated bundles the user may want to swap
+        // a URL before saving as their own profile.
+        const urlField = `<input type="url" class="bundle-source-url-input" data-field="url" value="${escapeHtml(s.url)}" placeholder="https://\u2026" />`;
+        return `
+        <li class="bundle-source-item bundle-source-edit" data-src-index="${i}">
+          <div class="bundle-source-head">
+            <span class="bundle-source-num">${i + 1}.</span>
+            <input type="text" class="bundle-source-label-input" data-field="label" value="${escapeHtml(s.label || "")}" placeholder="Label (section heading)" />
+            <button type="button" class="bundle-source-remove" data-action="remove" title="Remove this source" aria-label="Remove source ${i + 1}">\u00D7</button>
+          </div>
+          <div class="bundle-source-url-row">${urlField}</div>
+          <input type="text" class="bundle-source-note-input" data-field="note" value="${escapeHtml(s.note || "")}" placeholder="Note (optional)" />
+        </li>`;
+      })
+      .join("");
+
+    list
+      .querySelectorAll<HTMLButtonElement>('[data-action="remove"]')
+      .forEach((btn) => {
+        btn.addEventListener("click", () => {
+          flushSourceFields();
+          const li = btn.closest("li.bundle-source-edit") as HTMLElement | null;
+          const idx = li ? Number(li.dataset.srcIndex) : -1;
+          if (idx >= 0) {
+            draftSources.splice(idx, 1);
+            renderSourceRows();
+          }
+        });
+      });
+  };
+
+  const applyDefaults = () => {
+    draftSources = bundle.sources.map((s) => ({ ...s }));
+    draftName = bundle.name;
+    nameInput.value = draftName;
+    descInput.value = bundle.description || "";
+    preTextInput.value = (bundle as any).preText || "";
+    updateDescCount();
+    renderSourceRows();
+    aiStatus.style.display = "none";
+  };
+
+  applyDefaults();
+
+  addSourceBtn.onclick = () => {
+    flushSourceFields();
+    draftSources.push({ url: "", label: "" });
+    renderSourceRows();
+    // Focus the new URL input so the user can paste straight away.
+    const last = list.querySelector(
+      `li.bundle-source-edit[data-src-index="${draftSources.length - 1}"] input[data-field="url"], ` +
+        `li.bundle-source-edit[data-src-index="${draftSources.length - 1}"] input[data-field="label"]`,
+    ) as HTMLInputElement | null;
+    last?.focus();
+  };
+
+  const resetBtn = document.getElementById(
+    "bundle-reset-btn",
+  ) as HTMLButtonElement;
+  resetBtn.onclick = () => applyDefaults();
+
+  // Build the merged BundledSkill from current form state. Used by Build,
+  // Save-to-gallery, and the AI generator.
+  const buildMergedBundle = (): BundledSkill => {
+    flushSourceFields();
+    const cleanedSources = draftSources
+      .map((s) => ({
+        ...s,
+        url: s.url.trim(),
+        label: s.label?.trim() || undefined,
+        note: s.note?.trim() || undefined,
+      }))
+      .filter((s) => s.url.length > 0);
+    return {
+      ...bundle,
+      name: editable ? nameInput.value.trim() || bundle.name : bundle.name,
+      description: descInput.value.trim() || bundle.description,
+      ...({
+        preText: preTextInput.value.trim() || undefined,
+      } as Partial<BundledSkill>),
+      sources: cleanedSources as BundledSkill["sources"],
+    };
+  };
+
+  // AI: draft description + preText from current source URLs/labels/notes.
+  aiBtn.onclick = async () => {
+    flushSourceFields();
+    const sources = draftSources
+      .map((s) => ({
+        url: s.url.trim(),
+        label: s.label?.trim() || undefined,
+        note: s.note?.trim() || undefined,
+      }))
+      .filter((s) => s.url.length > 0);
+    const skillName = editable
+      ? nameInput.value.trim() || bundle.name
+      : bundle.name;
+    if (sources.length === 0) {
+      aiStatus.style.display = "block";
+      aiStatus.className = "ai-fill-status is-error";
+      aiStatus.textContent = "Add at least one source URL first.";
+      return;
+    }
+    aiBtn.disabled = true;
+    const origText = aiBtn.textContent || "";
+    aiBtn.textContent = "Drafting\u2026";
+    aiStatus.style.display = "block";
+    aiStatus.className = "ai-fill-status";
+    aiStatus.textContent = "Calling Claude\u2026";
+    try {
+      const res = await fetch("/api/ai-skill-meta", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: skillName, sources }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error((err as any).error || `HTTP ${res.status}`);
+      }
+      const data = (await res.json()) as {
+        description: string;
+        preText: string;
+      };
+      descInput.value = data.description;
+      preTextInput.value = data.preText;
+      updateDescCount();
+      aiStatus.className = "ai-fill-status is-saved";
+      aiStatus.textContent =
+        "\u2713 Drafted. Review and edit before saving or building.";
+    } catch (err: any) {
+      aiStatus.className = "ai-fill-status is-error";
+      aiStatus.textContent = err.message || "AI generation failed.";
+    } finally {
+      aiBtn.disabled = false;
+      aiBtn.textContent = origText;
+    }
+  };
+
+  // Save current configuration to the public gallery as a profile.
+  // (Moved into the post-build batch actions; the inline handler used to
+  // live here.)
+
+  const buildBtn = document.getElementById(
+    "bundle-build-btn",
+  ) as HTMLButtonElement;
+  buildBtn.onclick = () => {
+    const merged = buildMergedBundle();
+    if (merged.sources.length === 0) {
+      aiStatus.style.display = "block";
+      aiStatus.className = "ai-fill-status is-error";
+      aiStatus.textContent = "Add at least one source URL first.";
+      return;
+    }
+    runCuratedBatch([
+      { kind: "bundle", label: merged.name, url: "", bundle: merged },
+    ]);
+  };
+
+  // Suppress unused-var warnings when editable=false (draftName is only
+  // referenced through nameInput in editable mode).
+  void draftName;
+
+  showView("detail");
+}
+
+interface BatchItem {
+  url: string;
+  label: string;
+  kind: "single" | "index" | "bundle";
+  /** Present when kind === "bundle" — the multi-source skill spec to POST. */
+  bundle?: BundledSkill;
+}
+
+async function runCuratedBatch(items: BatchItem[]) {
+  // Reset progress UI areas (reuse existing slots).
+  progressDiv.style.display = "block";
+  progressDiv.innerHTML = "";
+  resultDiv.style.display = "block";
+  resultDiv.innerHTML = `
+    <div class="result-card">
+      <h3>Batch Build</h3>
+      <p class="hint">Building ${items.length} selected source${items.length === 1 ? "" : "s"} sequentially.</p>
+      <ul class="batch-list" id="batch-list">
+        ${items
+          .map(
+            (it, i) => `
+          <li class="batch-row" id="batch-row-${i}" data-status="pending">
+            <span class="batch-status">\u23F3</span>
+            <div class="batch-meta">
+              <div class="batch-label">${escapeHtml(it.label)}${it.kind === "index" ? ' <span class="curated-badge">batch</span>' : ""}</div>
+              <div class="batch-url">${escapeHtml(it.url)}</div>
+              <div class="batch-progress" id="batch-progress-${i}"></div>
+              <div class="batch-result" id="batch-result-${i}"></div>
+            </div>
+          </li>`,
+          )
+          .join("")}
+      </ul>
+      <div id="batch-actions" class="batch-actions" style="display:none"></div>
+    </div>
+  `;
+  errorDiv.style.display = "none";
+  document.getElementById("finalize")!.style.display = "none";
+  document.getElementById("descriptions")!.style.display = "none";
+
+  // The build button lives in different places depending on entry point
+  // (bundle detail panel, singles fieldset, or none for direct flows).
+  // Disable whichever exists.
+  const buildBtn = (document.getElementById("bundle-build-btn") ||
+    document.getElementById("singles-build")) as HTMLButtonElement | null;
+  if (buildBtn) {
+    buildBtn.disabled = true;
+    buildBtn.dataset.origText = buildBtn.textContent || "Build";
+    buildBtn.textContent = "Building\u2026";
+  }
+
+  const genDesc = false;
+  const apiKey: string | undefined = undefined;
+
+  // Tracks every skill folder produced during this batch run (across all
+  // selected sources, including index URLs that expand to multiple skills)
+  // so the footer can offer bulk actions over them.
+  const producedSkillDirs: string[] = [];
+
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i]!;
+    const row = document.getElementById(`batch-row-${i}`)!;
+    const progRow = document.getElementById(`batch-progress-${i}`)!;
+    const resultRow = document.getElementById(`batch-result-${i}`)!;
+    row.dataset.status = "running";
+    row.querySelector(".batch-status")!.textContent = "\u23F3";
+
+    let lastMessage = "";
+    let producedSkills = 0;
+    let failed = false;
+
+    try {
+      const isBundle = item.kind === "bundle" && item.bundle;
+      const res = isBundle
+        ? await fetch("/api/build-config", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              config: {
+                schema: "rockumentation-skill-builder/v1",
+                skills: [item.bundle],
+              },
+              outputDir: "./output",
+              generateDescriptions: genDesc,
+              apiKey,
+            }),
+          })
+        : await fetch("/api/build", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              url: item.url,
+              outputDir: "./output",
+              mergeThreshold: 50,
+              generateDescriptions: genDesc,
+              apiKey,
+            }),
+          });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || `HTTP ${res.status}`);
+      }
+      const reader = res.body!.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+        for (const line of lines) {
+          if (!line.trim()) continue;
+          let evt: ProgressEvent;
+          try {
+            evt = JSON.parse(line);
+          } catch {
+            continue;
+          }
+          lastMessage = evt.message;
+          if (evt.urlIndex && evt.urlTotal) {
+            progRow.textContent = `[${evt.urlIndex}/${evt.urlTotal}] ${evt.message}`;
+          } else {
+            progRow.textContent = evt.message;
+          }
+          if (evt.status === "complete" && evt.skillDir) {
+            producedSkills++;
+            const dir = evt.skillDir;
+            producedSkillDirs.push(dir);
+            const div = document.createElement("div");
+            div.className = "batch-skill";
+            div.innerHTML = `\u2713 <strong>${escapeHtml(evt.skillName || "")}</strong> <span class="hint">(${evt.refCount ?? 0} refs)</span>`;
+
+            const dl = document.createElement("a");
+            dl.className = "link-btn";
+            dl.href = "#";
+            dl.textContent = "Download";
+            dl.dataset.skillDir = dir;
+            // Track "missing descriptions" state so we can warn (but
+            // never hard-block) on download. The flag is updated when
+            // `loadReferences` runs after a Manage-skill click or a
+            // bulk-describe completion.
+            if (!genDesc) {
+              dl.dataset.missingDesc = "unknown";
+            }
+            dl.addEventListener("click", (e) => {
+              e.preventDefault();
+              if (
+                dl.dataset.missingDesc &&
+                dl.dataset.missingDesc !== "0" &&
+                !confirm(
+                  dl.dataset.missingDesc === "unknown"
+                    ? "This skill was built without AI descriptions. The agent will not know which references to load. Download anyway?"
+                    : `${dl.dataset.missingDesc} reference${dl.dataset.missingDesc === "1" ? "" : "s"} are missing AI descriptions. Download anyway?`,
+                )
+              ) {
+                return;
+              }
+              downloadZip(dir);
+            });
+
+            const sep = document.createElement("span");
+            sep.className = "batch-skill-sep";
+            sep.textContent = "·";
+
+            const md = document.createElement("a");
+            md.className = "link-btn";
+            md.href = "#";
+            md.textContent = "Manage skill";
+
+            // Per-row inline container that hosts the descriptions + split
+            // panels when expanded — keeps the management UI close to the
+            // result row instead of jumping to a separate section at the
+            // bottom of the page.
+            const inline = document.createElement("div");
+            inline.className = "batch-desc-inline";
+            inline.style.display = "none";
+
+            md.addEventListener("click", (e) => {
+              e.preventDefault();
+              const descPanel = document.getElementById("descriptions");
+              if (!descPanel) return;
+              const isHere =
+                inline.style.display !== "none" &&
+                descPanel.parentElement === inline;
+              if (isHere) {
+                // Collapse: hide and detach so the next "Manage skill"
+                // click on a different row can reclaim the panel.
+                inline.style.display = "none";
+                descPanel.style.display = "none";
+                md.textContent = "Manage skill";
+                return;
+              }
+              currentSkillDir = dir;
+              inline.appendChild(descPanel);
+              inline.style.display = "block";
+              md.textContent = "Hide skill management";
+              loadReferences(dir);
+              inline.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            });
+
+            div.append(" ", dl, " ", sep, " ", md);
+
+            // Surface skill-validation problems (broken frontmatter,
+            // missing Topics, references that came back empty, etc.).
+            const validation = evt.validation as
+              | {
+                  ok: boolean;
+                  problems: { severity: string; message: string }[];
+                }
+              | undefined;
+            const vWarn =
+              validation && validation.problems.length > 0
+                ? (() => {
+                    const el = document.createElement("div");
+                    el.className = validation.ok
+                      ? "batch-desc-warn"
+                      : "batch-error";
+                    const items = validation.problems
+                      .map(
+                        (p) =>
+                          `<li>${p.severity === "error" ? "\u2717" : "\u26A0"} ${escapeHtml(p.message)}</li>`,
+                      )
+                      .join("");
+                    el.innerHTML = `<strong>${validation.ok ? "Skill validation warnings" : "Skill validation failed"}:</strong><ul style="margin:4px 0 0 1.2em;padding:0;">${items}</ul>`;
+                    return el;
+                  })()
+                : null;
+
+            // Warn when AI descriptions weren't auto-generated for this batch
+            // — descriptions are required for category routing and search to
+            // work well, so flag it inline rather than letting users miss it.
+            if (!genDesc && (evt.refCount ?? 0) > 0) {
+              const warn = document.createElement("div");
+              warn.className = "batch-desc-warn";
+              warn.dataset.warnDir = dir;
+              warn.innerHTML = `\u26A0 <strong>${evt.refCount} reference${evt.refCount === 1 ? "" : "s"} have no AI description.</strong> Click <em>Manage skill</em> above to add them — they help downstream tools surface the right reference for a query.`;
+              resultRow.appendChild(div);
+              resultRow.appendChild(warn);
+              resultRow.appendChild(inline);
+              if (vWarn) resultRow.appendChild(vWarn);
+              // The warning's refCount is from the build pipeline and doesn't
+              // know about descriptions seeded from the curated cache. Kick
+              // off a quiet /api/references load so the count self-corrects
+              // (or the warning vanishes) without forcing the user to open
+              // Manage skill first.
+              loadReferencesQuiet(dir);
+            } else {
+              resultRow.appendChild(div);
+              resultRow.appendChild(inline);
+              if (vWarn) resultRow.appendChild(vWarn);
+            }
+          }
+          if (evt.status === "error") {
+            failed = true;
+            const div = document.createElement("div");
+            div.className = "batch-error";
+            div.textContent = `\u2717 ${evt.message}`;
+            resultRow.appendChild(div);
+          }
+          if (evt.status === "auth-required") {
+            failed = true;
+            const div = document.createElement("div");
+            div.className = "batch-error";
+            div.innerHTML = `\u{1F512} <strong>Login required.</strong> ${escapeHtml(evt.message)}`;
+            resultRow.appendChild(div);
+          }
+        }
+      }
+    } catch (err: any) {
+      failed = true;
+      resultRow.innerHTML += `<div class="batch-error">\u2717 ${escapeHtml(err.message)}</div>`;
+    }
+
+    row.dataset.status = failed
+      ? producedSkills > 0
+        ? "partial"
+        : "error"
+      : "done";
+    row.querySelector(".batch-status")!.textContent = failed
+      ? producedSkills > 0
+        ? "\u26A0"
+        : "\u2717"
+      : "\u2713";
+    progRow.textContent = failed
+      ? `Finished with errors. ${producedSkills} skill${producedSkills === 1 ? "" : "s"} created.`
+      : producedSkills > 0
+        ? `Done. ${producedSkills} skill${producedSkills === 1 ? "" : "s"} created.`
+        : lastMessage;
+  }
+
+  // Note: download / manage-descriptions click handlers are wired
+  // immediately when each `.batch-skill` row is created (above), so users
+  // can click them as soon as the skill appears — no need for a final
+  // wire-up pass here.
+
+  if (producedSkillDirs.length > 0) {
+    renderBatchActions(producedSkillDirs, apiKey, items);
+  }
+
+  if (buildBtn) {
+    buildBtn.disabled = false;
+    buildBtn.textContent = buildBtn.dataset.origText || "Build";
+  }
+}
+
+// Custom URL form -----------------------------------------------------------
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -125,6 +1017,9 @@ form.addEventListener("submit", async (e) => {
         "0",
       10,
     ) || 0;
+  const templateId = (
+    document.getElementById("templateId") as HTMLSelectElement
+  ).value.trim();
 
   if (!url) return;
 
@@ -149,6 +1044,7 @@ form.addEventListener("submit", async (e) => {
         username: username || undefined,
         password: password || undefined,
         mergeThreshold,
+        templateId: templateId || undefined,
       }),
     });
 
@@ -192,6 +1088,28 @@ form.addEventListener("submit", async (e) => {
 });
 
 function handleEvent(event: ProgressEvent) {
+  if (event.status === "auth-required") {
+    // The fetched page was a Rock login wall. Surface a prominent
+    // error and pop open the credentials section so the user can fill
+    // them in without hunting through Advanced options.
+    errorDiv.style.display = "block";
+    errorDiv.className = "error-banner auth-required-banner";
+    errorDiv.innerHTML = `\u{1F512} <strong>Login required.</strong> ${escapeHtml(event.message)}`;
+    const adv = document.getElementById(
+      "advanced-section",
+    ) as HTMLDetailsElement | null;
+    if (adv) adv.open = true;
+    const userField = document.getElementById(
+      "username",
+    ) as HTMLInputElement | null;
+    const pwField = document.getElementById(
+      "password",
+    ) as HTMLInputElement | null;
+    (userField?.value ? pwField : userField)?.focus();
+    errorDiv.scrollIntoView({ behavior: "smooth", block: "center" });
+    return;
+  }
+
   if (event.status === "error") {
     errorDiv.style.display = "block";
     errorDiv.className = "error-banner";
@@ -253,6 +1171,7 @@ function handleEvent(event: ProgressEvent) {
       <div class="result-card">
         <h3>Final Step &middot; Download or Publish</h3>
         <p class="hint">When you're happy with the descriptions and structure above, grab a local copy or publish to the public gallery.</p>
+        <div id="download-missing-warn" class="batch-desc-warn" style="display:none"></div>
         <div class="result-actions">
           <button class="btn btn-sm" id="download-zip-btn">Download ZIP</button>
           <button class="btn btn-sm btn-secondary" id="publish-btn">Publish to Gallery</button>
@@ -265,6 +1184,16 @@ function handleEvent(event: ProgressEvent) {
     document
       .getElementById("download-zip-btn")
       ?.addEventListener("click", () => {
+        const warn = document.getElementById("download-missing-warn");
+        const visible = warn && warn.style.display !== "none";
+        if (
+          visible &&
+          !confirm(
+            "This skill has references without AI descriptions. The agent will not know which references to load. Download anyway?",
+          )
+        ) {
+          return;
+        }
         downloadZip(event.skillDir!);
       });
 
@@ -275,116 +1204,6 @@ function handleEvent(event: ProgressEvent) {
     setupPublishButton();
 
     loadReferences(event.skillDir);
-    loadCategories(event.skillDir);
-  }
-}
-
-async function loadCategories(skillDir: string) {
-  const splitPanel = document.getElementById("split-panel")!;
-  try {
-    const res = await fetch(
-      `/api/categories?skillDir=${encodeURIComponent(skillDir)}`,
-    );
-    if (!res.ok) return;
-    const data = await res.json();
-    const categories: { title: string; slug: string; fileCount: number }[] =
-      data.categories;
-
-    if (categories.length <= 1) {
-      splitPanel.style.display = "none";
-      return;
-    }
-
-    splitPanel.style.display = "block";
-    splitPanel.innerHTML = `
-      <div class="desc-panel">
-        <div class="desc-header">
-          <h3>Step 3 &middot; Split Skill <span class="step-optional">(optional)</span></h3>
-          <span class="desc-count">Select categories to extract into separate skills</span>
-        </div>
-        <div class="desc-list">
-          ${categories
-            .map(
-              (cat) => `
-            <label class="split-item">
-              <input type="checkbox" value="${escapeHtml(cat.slug)}" class="split-check" />
-              <span class="split-title">${escapeHtml(cat.title)}</span>
-              <span class="split-count">${cat.fileCount} files</span>
-            </label>`,
-            )
-            .join("")}
-        </div>
-        <div class="desc-actions">
-          <button id="split-btn" class="btn-sm" disabled>Split Selected</button>
-          <span id="split-status" class="desc-progress" style="display:none"></span>
-        </div>
-      </div>
-    `;
-
-    const checks = splitPanel.querySelectorAll(".split-check");
-    const splitBtn = document.getElementById("split-btn") as HTMLButtonElement;
-
-    checks.forEach((cb) => {
-      cb.addEventListener("change", () => {
-        const anyChecked = splitPanel.querySelector(".split-check:checked");
-        splitBtn.disabled = !anyChecked;
-      });
-    });
-
-    splitBtn.addEventListener("click", () => {
-      const selected = Array.from(
-        splitPanel.querySelectorAll<HTMLInputElement>(".split-check:checked"),
-      ).map((cb) => cb.value);
-      if (selected.length > 0) splitSelectedCategories(skillDir, selected);
-    });
-  } catch {}
-}
-
-async function splitSelectedCategories(
-  skillDir: string,
-  categorySlugs: string[],
-) {
-  const splitBtn = document.getElementById("split-btn") as HTMLButtonElement;
-  const statusEl = document.getElementById("split-status")!;
-
-  splitBtn.disabled = true;
-  splitBtn.textContent = "Splitting...";
-  statusEl.style.display = "inline";
-  statusEl.textContent = "";
-
-  try {
-    const res = await fetch("/api/split", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ skillDir, categorySlugs }),
-    });
-
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.error || "Split failed");
-    }
-
-    const data = await res.json();
-    const results: {
-      skillName: string;
-      filesMoved: number;
-      newSkillDir: string;
-    }[] = data.results;
-
-    statusEl.className = "desc-progress";
-    statusEl.textContent = results
-      .map((r) => `${r.skillName}: ${r.filesMoved} files`)
-      .join(", ");
-
-    // Reload categories to reflect the updated state
-    await loadCategories(skillDir);
-    await loadReferences(skillDir);
-  } catch (err: any) {
-    statusEl.className = "desc-progress desc-error";
-    statusEl.textContent = err.message;
-  } finally {
-    splitBtn.disabled = false;
-    splitBtn.textContent = "Split Selected";
   }
 }
 
@@ -405,6 +1224,166 @@ async function downloadZip(skillDir: string) {
   a.download = filename;
   a.click();
   URL.revokeObjectURL(a.href);
+}
+
+/**
+ * Bundle multiple skill directories into a single ZIP and trigger a
+ * download. Used by the curated-batch footer.
+ */
+async function downloadZipBundle(skillDirs: string[], filename = "skills") {
+  const res = await fetch("/api/zip-bundle", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ skillDirs, filename }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    alert(err.error || "Failed to create bundle");
+    return;
+  }
+  const blob = await res.blob();
+  const disposition = res.headers.get("Content-Disposition") || "";
+  const filenameMatch = disposition.match(/filename="?(.+?)"?$/);
+  const dlName = filenameMatch?.[1] || `${filename}.zip`;
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = dlName;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+/**
+ * Publish built skill files to the public /gallery. Does NOT save the
+ * bundle config to the home-page profile list \u2014 that flow is reserved
+ * for curated bundles to avoid letting visitors clutter the home page.
+ */
+async function saveBundleProfile(bundle: BundledSkill, skillDir?: string) {
+  const btn = document.getElementById(
+    "bulk-save-profile-btn",
+  ) as HTMLButtonElement | null;
+  const status = document.getElementById("bulk-save-status");
+  if (!status) return;
+
+  if (!skillDir) {
+    status.style.display = "block";
+    status.className = "ai-fill-status is-error";
+    status.textContent = "No built skill found to publish.";
+    return;
+  }
+
+  const origText = btn?.textContent || "Save to gallery";
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = "Publishing\u2026";
+  }
+  status.style.display = "block";
+  status.className = "ai-fill-status";
+  status.textContent = "Uploading skill files to gallery\u2026";
+
+  try {
+    const pubRes = await fetch("/api/publish", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ skillDir, bundle }),
+    });
+    const pubData = (await pubRes.json().catch(() => ({}))) as any;
+    if (!pubRes.ok) {
+      throw new Error(pubData.error || `Publish failed: HTTP ${pubRes.status}`);
+    }
+
+    status.className = "ai-fill-status is-saved";
+    status.innerHTML = pubData.publicUrl
+      ? `\u2713 Published. <a href="${escapeHtml(pubData.publicUrl)}" target="_blank">View on gallery</a>.`
+      : "\u2713 Published. Visible in the gallery on next reload.";
+    if (btn) btn.textContent = "Published";
+  } catch (err: any) {
+    status.className = "ai-fill-status is-error";
+    status.textContent = err.message || "Publish failed.";
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = origText;
+    }
+  }
+}
+
+/**
+ * Render the bulk-action footer card under the batch result list. Offers
+ * a single button to download all skills as one combined ZIP. (The
+ * old "generate all missing descriptions" button was removed \u2014 it
+ * didn't refresh the per-row editor and duplicated work that's already
+ * available per-skill via Manage skill \u2192 Generate Missing.)
+ */
+function renderBatchActions(
+  skillDirs: string[],
+  _apiKey: string | undefined,
+  items: BatchItem[] = [],
+) {
+  const host = document.getElementById("batch-actions");
+  if (!host) return;
+  // If exactly one source was a bundle config, offer to save it to the
+  // public gallery alongside the download.
+  const bundleItem =
+    items.length === 1 && items[0]?.kind === "bundle" ? items[0] : null;
+  const bundle = bundleItem?.bundle;
+  const showSave = !!bundle && storageEnabled !== false;
+  host.style.display = "block";
+  host.innerHTML = `
+    <div class="batch-actions-inner">
+      <div class="batch-actions-summary">When you're ready, download ${skillDirs.length === 1 ? "your skill" : "all " + skillDirs.length + " skills"}${showSave ? " \u2014 or save this configuration to the gallery so others can build it." : "."}</div>
+      <div class="batch-actions-buttons">
+        <button class="btn btn-sm" id="bulk-download-btn">Download ${skillDirs.length === 1 ? "ZIP" : "all as ZIP"}</button>
+        ${showSave ? '<button class="btn btn-sm btn-secondary" id="bulk-save-profile-btn" title="Save this skill configuration (URLs, description, pre-text) to the public gallery.">Save to gallery</button>' : ""}
+      </div>
+      <div id="bulk-save-status" class="ai-fill-status" style="display:none"></div>
+    </div>
+  `;
+
+  if (showSave && bundle) {
+    const skillDir = skillDirs[0];
+    document
+      .getElementById("bulk-save-profile-btn")
+      ?.addEventListener("click", () => saveBundleProfile(bundle, skillDir));
+  }
+
+  document
+    .getElementById("bulk-download-btn")
+    ?.addEventListener("click", () => {
+      // Soft-warn if any per-row Download is still flagged as missing
+      // descriptions \u2014 the user may still want the ZIP for a partial
+      // batch (e.g. to spot-check before paying for AI generation).
+      const missingRows = Array.from(
+        document.querySelectorAll<HTMLAnchorElement>(
+          'a.link-btn[data-missing-desc]:not([data-missing-desc="0"])',
+        ),
+      );
+      if (
+        missingRows.length > 0 &&
+        !confirm(
+          `${missingRows.length} skill${missingRows.length === 1 ? " is" : "s are"} missing AI descriptions. The agent will not know which references to load for those skills. Download all anyway?`,
+        )
+      ) {
+        return;
+      }
+      downloadZipBundle(skillDirs);
+    });
+}
+
+/**
+ * Like `loadReferences` but never re-renders the descriptions panel — it
+ * only refreshes the per-row warning. Used by the bulk-describe streamer
+ * which would otherwise repeatedly clobber a panel the user might be
+ * viewing for a different skill.
+ */
+async function loadReferencesQuiet(skillDir: string) {
+  try {
+    const res = await fetch(
+      `/api/references?skillDir=${encodeURIComponent(skillDir)}`,
+    );
+    if (!res.ok) return;
+    const data = await res.json();
+    refreshBatchDescWarning(skillDir, data.references);
+    refreshDownloadGating(skillDir, data.references);
+  } catch {}
 }
 
 let storageEnabled: boolean | null = null;
@@ -480,6 +1459,210 @@ let serverHasApiKey: boolean | null = null;
   }
 })();
 
+// Kick off the initial bundle load — the gallery is the home view.
+loadCuratedRoots();
+
+// If the URL carries `?bundle=<id>`, fetch that published skill's bundle
+// config and open it in the builder. Default behavior: download the
+// already-built files from the gallery and open the management view
+// (descriptions / split / publish) so the user can edit without
+// re-fetching the source documentation. They can still rebuild from
+// scratch via the bundle-detail "Build skill" button up top.
+(async () => {
+  const params = new URLSearchParams(window.location.search);
+  const bundleId = params.get("bundle");
+  if (!bundleId) return;
+  // Clean URL up-front so a refresh doesn't re-trigger.
+  window.history.replaceState({}, "", window.location.pathname);
+
+  // Show a loading card immediately so the home view doesn't flash blank
+  // while we fetch metadata + restore files from object storage.
+  showView("detail");
+  bundleDetail.style.display = "none";
+  errorDiv.style.display = "none";
+  resultDiv.style.display = "none";
+  progressDiv.style.display = "block";
+  progressDiv.innerHTML = `
+    <div class=\"result-card restore-loading\">\n      <h3>Restoring skill from gallery\u2026</h3>\n      <p class=\"hint\" id=\"restore-progress-msg\">Fetching skill metadata\u2026</p>\n      <div class=\"restore-spinner\" aria-hidden=\"true\"></div>\n    </div>\n  `;
+  const progMsg = document.getElementById("restore-progress-msg");
+
+  try {
+    const metaRes = await fetch(
+      `/api/public-skill/${encodeURIComponent(bundleId)}`,
+    );
+    if (!metaRes.ok) throw new Error("Skill not found in gallery.");
+    const data = (await metaRes.json()) as {
+      meta?: { bundle?: BundledSkill };
+    };
+    const bundle = data.meta?.bundle ?? null;
+
+    if (progMsg) progMsg.textContent = "Downloading built files\u2026";
+
+    // Try restoring the built files from object storage. If that
+    // succeeds, drop the user straight into the bundle-detail editor
+    // with the management view rendered below.
+    const restoreRes = await fetch("/api/restore-from-gallery", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: bundleId }),
+    });
+
+    if (restoreRes.ok) {
+      const r = (await restoreRes.json()) as {
+        skillDir: string;
+        skillName: string;
+        bundle: BundledSkill | null;
+        fileCount: number;
+      };
+      const finalBundle = r.bundle ?? bundle;
+      progressDiv.style.display = "none";
+      progressDiv.innerHTML = "";
+      // Populate the bundle-detail editor (description, instructions,
+      // sources, Draft with AI, Build) using whatever bundle config is
+      // available. If the published skill has no bundle config, fall
+      // back to a stub so the form still surfaces.
+      if (finalBundle && finalBundle.sources && finalBundle.sources.length > 0) {
+        showBundleDetail(finalBundle, { editable: true });
+      } else {
+        showBundleDetail(
+          {
+            name: r.skillName,
+            description: "",
+            sources: [{ url: "", label: "" }],
+          } as BundledSkill,
+          { editable: true },
+        );
+      }
+      renderRestoredSkill({
+        skillDir: r.skillDir,
+        skillName: r.skillName,
+      });
+      return;
+    }
+
+    // Restore failed (e.g. storage misconfigured) — fall back to
+    // opening the bundle config so the user can rebuild from sources.
+    progressDiv.style.display = "none";
+    progressDiv.innerHTML = "";
+    if (bundle && bundle.sources && bundle.sources.length > 0) {
+      showBundleDetail(bundle, { editable: true });
+    } else {
+      throw new Error("Could not restore skill.");
+    }
+  } catch (err: any) {
+    progressDiv.style.display = "none";
+    progressDiv.innerHTML = "";
+    errorDiv.style.display = "block";
+    errorDiv.textContent = err.message || "Failed to restore skill.";
+    showView("gallery");
+  }
+})();
+
+/**
+ * Render a "restored from gallery" management card in the result area —
+ * Download + Manage skill links for the already-built files. Auto-opens
+ * the management panel so the user lands directly in the editor. The
+ * bundle-detail card above provides the rebuild/edit-and-rebuild flow
+ * via its own Build button, so we no longer surface a separate
+ * "Rebuild from sources" link here.
+ */
+function renderRestoredSkill(opts: {
+  skillDir: string;
+  skillName: string;
+}) {
+  const { skillDir, skillName } = opts;
+
+  showView("detail");
+  errorDiv.style.display = "none";
+  progressDiv.style.display = "none";
+  resultDiv.style.display = "block";
+  resultDiv.innerHTML = `
+    <div class="result-card">
+      <h3>Built skill files</h3>
+      <p class="hint">Loaded the previously built files for <strong>${escapeHtml(skillName)}</strong>. Edit descriptions, split, or republish below \u2014 no re-fetching required. Use the <strong>Build skill</strong> button above to re-fetch every source URL and regenerate from scratch.</p>
+      <ul class="batch-list">
+        <li class="batch-row" data-status="success">
+          <span class="batch-status">\u2713</span>
+          <div class="batch-meta">
+            <div class="batch-label">${escapeHtml(skillName)} <span class="curated-badge">restored</span></div>
+            <div class="batch-result" id="restored-result"></div>
+          </div>
+        </li>
+      </ul>
+    </div>
+  `;
+
+  const resultRow = document.getElementById("restored-result")!;
+  const div = document.createElement("div");
+  div.className = "batch-skill";
+  div.innerHTML = `\u2713 <strong>${escapeHtml(skillName)}</strong>`;
+
+  const dl = document.createElement("a");
+  dl.className = "link-btn";
+  dl.href = "#";
+  dl.textContent = "Download";
+  dl.dataset.skillDir = skillDir;
+  dl.dataset.missingDesc = "unknown";
+  dl.addEventListener("click", (e) => {
+    e.preventDefault();
+    if (
+      dl.dataset.missingDesc &&
+      dl.dataset.missingDesc !== "0" &&
+      dl.dataset.missingDesc !== "unknown" &&
+      !confirm(
+        `${dl.dataset.missingDesc} reference${dl.dataset.missingDesc === "1" ? "" : "s"} are missing AI descriptions. Download anyway?`,
+      )
+    ) {
+      return;
+    }
+    downloadZip(skillDir);
+  });
+
+  const sep1 = document.createElement("span");
+  sep1.className = "batch-skill-sep";
+  sep1.textContent = "\u00B7";
+
+  const md = document.createElement("a");
+  md.className = "link-btn";
+  md.href = "#";
+  md.textContent = "Manage skill";
+
+  const inline = document.createElement("div");
+  inline.className = "batch-desc-inline";
+  inline.style.display = "none";
+
+  md.addEventListener("click", (e) => {
+    e.preventDefault();
+    const descPanel = document.getElementById("descriptions");
+    if (!descPanel) return;
+    const isHere =
+      inline.style.display !== "none" &&
+      descPanel.parentElement === inline;
+    if (isHere) {
+      inline.style.display = "none";
+      descPanel.style.display = "none";
+      md.textContent = "Manage skill";
+      return;
+    }
+    currentSkillDir = skillDir;
+    inline.appendChild(descPanel);
+    inline.style.display = "block";
+    md.textContent = "Hide skill management";
+    loadReferences(skillDir);
+    inline.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  });
+
+  div.append(" ", dl, " ", sep1, " ", md);
+
+  resultRow.appendChild(div);
+  resultRow.appendChild(inline);
+
+  // Refresh download-gating + auto-open the management panel so the
+  // user lands in the editor.
+  loadReferencesQuiet(skillDir);
+  setTimeout(() => md.click(), 50);
+}
+
 // Check public storage status; disable publish button if not configured.
 (async () => {
   try {
@@ -498,9 +1681,97 @@ async function loadReferences(skillDir: string) {
       `/api/references?skillDir=${encodeURIComponent(skillDir)}`,
     );
     if (!res.ok) return;
-    const data = await res.json();
-    renderDescriptionsPanel(data.references);
+    const data = (await res.json()) as ReferencesPayload;
+    renderDescriptionsPanel(data.references, data.skillMd);
+    // Sync any per-row "missing descriptions" warning bound to this skill
+    // so it disappears (or updates its count) once descriptions exist.
+    refreshBatchDescWarning(skillDir, data.references);
+    // Gate the Download / Publish buttons on having descriptions for
+    // every reference. The skill is technically valid without them but
+    // far less useful, so we make the user explicitly generate (or
+    // dismiss) before letting them ship it.
+    refreshDownloadGating(skillDir, data.references);
   } catch {}
+}
+
+/**
+ * Update the per-row "missing descriptions" warning banner AND the
+ * `data-missing-desc` count on the row's Download link, so a later
+ * click can surface an accurate confirm() rather than a generic warn.
+ * The skill is still downloadable — incomplete descriptions are a
+ * usefulness issue, not a correctness one.
+ */
+function refreshDownloadGating(skillDir: string, refs: RefEntry[]) {
+  const missing = refs.filter((r) => !r.hasDescription).length;
+
+  document
+    .querySelectorAll<HTMLAnchorElement>(
+      `a.link-btn[data-skill-dir="${cssEscape(skillDir)}"]`,
+    )
+    .forEach((dl) => {
+      if (dl.textContent?.trim() !== "Download") return;
+      dl.dataset.missingDesc = String(missing);
+    });
+
+  if (currentSkillDir === skillDir) {
+    const warn = document.getElementById("download-missing-warn");
+    if (warn) {
+      if (missing > 0) {
+        warn.style.display = "block";
+        warn.textContent = `\u26A0 ${missing} reference${missing === 1 ? " is" : "s are"} missing AI descriptions. The agent will not know which references to load. You can still download, but it's recommended to generate descriptions first.`;
+      } else {
+        warn.style.display = "none";
+      }
+    }
+  }
+}
+
+/**
+ * Update — or remove — the inline "missing AI descriptions" warning that
+ * `runCuratedBatch` attaches to a result row when a skill is built without
+ * `genDesc`. Called after `loadReferences` so generating descriptions
+ * immediately reflects in the row UI.
+ */
+function refreshBatchDescWarning(skillDir: string, refs: RefEntry[]) {
+  const warn = document.querySelector<HTMLElement>(
+    `.batch-desc-warn[data-warn-dir="${cssEscape(skillDir)}"]`,
+  );
+  if (!warn) return;
+  const missing = refs.filter((r) => !r.hasDescription).length;
+  if (missing === 0) {
+    warn.remove();
+    return;
+  }
+  warn.innerHTML = `\u26A0 <strong>${missing} reference${missing === 1 ? "" : "s"} still missing AI descriptions.</strong> Use <em>Manage skill</em> above to generate the rest.`;
+
+  // Auto-expand the Manage skill panel for this row the first time we
+  // detect missing descriptions \u2014 the user shouldn't have to hunt for
+  // the fix. Only fire once per row so the user can collapse it again.
+  const row = warn.closest(".batch-skill") as HTMLElement | null;
+  if (row && !row.dataset.autoOpened) {
+    const manage = row.querySelector<HTMLAnchorElement>(
+      'a.link-btn',
+    );
+    const manageBtn = Array.from(
+      row.querySelectorAll<HTMLAnchorElement>("a.link-btn"),
+    ).find((a) => a.textContent?.trim() === "Manage skill");
+    if (manageBtn) {
+      row.dataset.autoOpened = "1";
+      manageBtn.click();
+    } else if (manage && manage.textContent?.trim() === "Manage skill") {
+      row.dataset.autoOpened = "1";
+      manage.click();
+    }
+  }
+}
+
+function cssEscape(value: string): string {
+  // CSS.escape is broadly available; fall back to a safe regex if the
+  // browser is older.
+  if (typeof (window as any).CSS?.escape === "function") {
+    return (window as any).CSS.escape(value);
+  }
+  return value.replace(/["\\\n\r\f\t]/g, (c) => `\\${c}`);
 }
 
 interface RefEntry {
@@ -509,9 +1780,19 @@ interface RefEntry {
   breadcrumb: string;
   description: string | null;
   hasDescription: boolean;
+  bodyPreview?: string;
+  /** GitHub edit URL for the curated description cache file. */
+  editUrl?: string | null;
 }
 
-function renderDescriptionsPanel(refs: RefEntry[]) {
+interface ReferencesPayload {
+  skillName?: string;
+  pageTitle?: string;
+  skillMd?: string;
+  references: RefEntry[];
+}
+
+function renderDescriptionsPanel(refs: RefEntry[], skillMd?: string) {
   const panel = document.getElementById("descriptions")!;
   const withDesc = refs.filter((r) => r.hasDescription).length;
   const missingCount = refs.length - withDesc;
@@ -526,36 +1807,214 @@ function renderDescriptionsPanel(refs: RefEntry[]) {
 
   panel.style.display = "block";
   panel.innerHTML = `
+    ${
+      skillMd
+        ? `<div class="desc-panel preview-panel">
+        <div class="desc-header">
+          <h3>Step 1 &middot; Review & edit your <code>SKILL.md</code></h3>
+          <span class="desc-count">${refs.length} reference${refs.length === 1 ? "" : "s"}</span>
+        </div>
+        <div class="panel-callout preview-intro">
+          <strong>This is the manifest the AI agent reads first.</strong>
+          Edits made <em>above</em> the <code>## Topics</code> list \u2014 the description, overview prose, and any hand-written notes \u2014 are preserved across rebuilds and AI description regeneration.
+          The <code>## Topics</code> list itself is regenerated from your reference files; to change a topic's description use Step 2 below or hand-edit the matching <code>references/&lt;slug&gt;.md</code> frontmatter.
+          To change source labels or add intro text on the next build, go back and edit the bundle config.
+        </div>
+        <div class="skill-md-editor">
+          <div class="skill-md-editor-toolbar">
+            <span class="skill-md-meta" id="skill-md-meta">${skillMd.split("\n").length} lines &middot; ${skillMd.length.toLocaleString()} chars</span>
+            <span class="skill-md-status" id="skill-md-status"></span>
+            <div class="skill-md-actions">
+              <button id="skill-md-revert" class="btn-sm btn-secondary" disabled>Revert</button>
+              <button id="skill-md-save" class="btn-sm" disabled>Save changes</button>
+            </div>
+          </div>
+          <textarea id="skill-md-textarea" class="skill-md-textarea" spellcheck="false">${escapeHtml(skillMd)}</textarea>
+        </div>
+      </div>`
+        : ""
+    }
     <div class="desc-panel">
       <div class="desc-header">
-          <h3>Step 2 &middot; Reference Descriptions <span class="step-optional">(optional)</span></h3>
+          <h3>Step 2 &middot; Generate AI descriptions <span class="step-optional">(recommended)</span></h3>
         <span class="desc-count">${withDesc} of ${refs.length} have AI descriptions</span>
       </div>
-      ${apiKeyBlock}
-      <div class="desc-actions">
-        <button id="gen-missing-btn" class="btn-sm"${missingCount === 0 ? " disabled" : ""}>Generate Missing (${missingCount})</button>
-        <button id="gen-all-btn" class="btn-sm btn-secondary">Regenerate All (${refs.length})</button>
+      <div class="panel-callout">
+        Each reference file needs a one-line description so the agent knows when to load it. Click <strong>Generate</strong> to have Claude read every reference and draft one.
+        Generation calls the Anthropic API <strong>once per reference</strong> (\u2248 ${refs.length} call${refs.length === 1 ? "" : "s"}, billed to your account) and saves the results into both the reference file and SKILL.md.
+        After generation, fine-tune any line in the form below \u2014 each edit is saved immediately to disk.
+      </div>
+      ${missingCount > 0 ? `<div class="desc-missing-banner" role="alert">\u26A0 ${missingCount} reference${missingCount === 1 ? " is" : "s are"} missing a description. The agent may skip ${missingCount === 1 ? "it" : "them"} entirely.</div>` : ""}
+      <div class="panel-form">
+        ${apiKeyBlock}
+        <div class="desc-actions">
+          <button id="gen-missing-btn" class="btn-sm"${missingCount === 0 ? " disabled" : ""}>Generate Missing (${missingCount})</button>
+          <button id="gen-all-btn" class="btn-sm btn-secondary">Regenerate All (${refs.length})</button>
+        </div>
       </div>
       <div id="desc-progress" class="desc-progress" style="display:none"></div>
       <div class="desc-list">
         ${refs
           .map(
             (ref) => `
-          <div class="desc-item" id="desc-${escapeHtml(ref.slug)}">
+          <div class="desc-item${ref.hasDescription ? "" : " desc-item-missing"}" id="desc-${escapeHtml(ref.slug)}">
             <div class="desc-item-top">
               <div class="desc-item-info">
                 <span class="desc-title">${escapeHtml(ref.title)}</span>
                 <span class="desc-breadcrumb">${escapeHtml(ref.breadcrumb)}</span>
               </div>
-              <button class="desc-regen-btn" data-slug="${escapeHtml(ref.slug)}" title="Regenerate">\u21BB</button>
+              <div class="desc-item-tools">
+                ${ref.editUrl ? `<a class="desc-suggest-btn" href="${escapeHtml(ref.editUrl)}" target="_blank" rel="noopener" title="Suggest a better description on GitHub">Suggest</a>` : ""}
+                <button class="desc-regen-btn" data-slug="${escapeHtml(ref.slug)}" title="Regenerate">\u21BB</button>
+              </div>
             </div>
-            <div class="desc-text${ref.hasDescription ? "" : " desc-missing"}">${ref.hasDescription ? escapeHtml(ref.description!) : "No description"}</div>
+            <div class="desc-edit-wrap" data-slug="${escapeHtml(ref.slug)}">
+              <label class="desc-edit-label" for="desc-input-${escapeHtml(ref.slug)}">Description <span class="desc-edit-label-meta">— saved automatically as you type</span></label>
+              <textarea
+                id="desc-input-${escapeHtml(ref.slug)}"
+                class="desc-edit-input${ref.hasDescription ? "" : " desc-edit-missing"}"
+                data-slug="${escapeHtml(ref.slug)}"
+                rows="2"
+                placeholder="Use when&hellip; (one line, &le; 200 chars). Click Generate above to draft with Claude, or write your own."
+              >${ref.hasDescription ? escapeHtml(ref.description!) : ""}</textarea>
+              <div class="desc-edit-meta">
+                <span class="desc-edit-status" data-slug="${escapeHtml(ref.slug)}">${ref.hasDescription ? "" : "\u26A0 No description \u2014 agent will likely skip this reference"}</span>
+                <span class="desc-edit-count" data-slug="${escapeHtml(ref.slug)}"></span>
+              </div>
+            </div>
+            ${
+              ref.bodyPreview
+                ? `<div class="desc-body-wrap" data-slug="${escapeHtml(ref.slug)}">
+                    <div class="desc-body-label">Reference content <span class="desc-body-label-meta">— read-only preview</span></div>
+                    <div class="desc-body-preview" data-mode="snippet">${escapeHtml(ref.bodyPreview)}</div>
+                    <button type="button" class="desc-body-toggle" data-slug="${escapeHtml(ref.slug)}">Show full reference</button>
+                  </div>`
+                : ""
+            }
           </div>`,
           )
           .join("")}
       </div>
     </div>
   `;
+
+  // Wire up the SKILL.md editor (save / revert / dirty tracking).
+  const textarea = document.getElementById(
+    "skill-md-textarea",
+  ) as HTMLTextAreaElement | null;
+  const saveBtn = document.getElementById(
+    "skill-md-save",
+  ) as HTMLButtonElement | null;
+  const revertBtn = document.getElementById(
+    "skill-md-revert",
+  ) as HTMLButtonElement | null;
+  const statusEl = document.getElementById("skill-md-status");
+  const metaEl = document.getElementById("skill-md-meta");
+  if (textarea && saveBtn && revertBtn && skillMd) {
+    let original = skillMd;
+    const updateDirty = () => {
+      const dirty = textarea.value !== original;
+      saveBtn.disabled = !dirty;
+      revertBtn.disabled = !dirty;
+      if (statusEl) {
+        statusEl.textContent = dirty ? "Unsaved changes" : "";
+        statusEl.className = "skill-md-status" + (dirty ? " is-dirty" : "");
+      }
+      if (metaEl) {
+        metaEl.textContent = `${textarea.value.split("\n").length} lines · ${textarea.value.length.toLocaleString()} chars`;
+      }
+    };
+    textarea.addEventListener("input", updateDirty);
+    revertBtn.addEventListener("click", () => {
+      textarea.value = original;
+      updateDirty();
+    });
+    saveBtn.addEventListener("click", async () => {
+      if (!currentSkillDir) return;
+      saveBtn.disabled = true;
+      if (statusEl) {
+        statusEl.textContent = "Saving\u2026";
+        statusEl.className = "skill-md-status";
+      }
+      try {
+        const res = await fetch("/api/skill-md", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            skillDir: currentSkillDir,
+            content: textarea.value,
+          }),
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error((err as any).error || `HTTP ${res.status}`);
+        }
+        original = textarea.value;
+        updateDirty();
+        if (statusEl) {
+          statusEl.textContent = "Saved";
+          statusEl.className = "skill-md-status is-saved";
+          setTimeout(() => {
+            if (statusEl.textContent === "Saved") {
+              statusEl.textContent = "";
+              statusEl.className = "skill-md-status";
+            }
+          }, 2000);
+        }
+      } catch (err: any) {
+        if (statusEl) {
+          statusEl.textContent = `Save failed: ${err.message}`;
+          statusEl.className = "skill-md-status is-error";
+        }
+        saveBtn.disabled = false;
+      }
+    });
+  }
+
+  // Expand/collapse full reference body on demand.
+  panel.querySelectorAll(".desc-body-toggle").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const button = btn as HTMLButtonElement;
+      const slug = button.dataset.slug!;
+      const wrap = button.closest(".desc-body-wrap") as HTMLElement | null;
+      const preview = wrap?.querySelector(
+        ".desc-body-preview",
+      ) as HTMLElement | null;
+      if (!wrap || !preview) return;
+      if (preview.dataset.mode === "full") {
+        // Collapse back to snippet — stored in dataset.snippet on first expand.
+        preview.textContent = preview.dataset.snippet || "";
+        preview.dataset.mode = "snippet";
+        button.textContent = "Show full reference";
+        return;
+      }
+      if (!currentSkillDir) return;
+      // Cache the snippet text before swapping it for the full body.
+      if (!preview.dataset.snippet) {
+        preview.dataset.snippet = preview.textContent || "";
+      }
+      button.disabled = true;
+      const previousLabel = button.textContent;
+      button.textContent = "Loading\u2026";
+      try {
+        const res = await fetch(
+          `/api/reference?skillDir=${encodeURIComponent(currentSkillDir)}&slug=${encodeURIComponent(slug)}`,
+        );
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = (await res.json()) as { body?: string };
+        preview.textContent = data.body || "(empty)";
+        preview.dataset.mode = "full";
+        button.textContent = "Hide full reference";
+      } catch (err: any) {
+        button.textContent = previousLabel || "Show full reference";
+        preview.textContent =
+          (preview.dataset.snippet || "") +
+          `\n\n[Failed to load full reference: ${err.message}]`;
+      } finally {
+        button.disabled = false;
+      }
+    });
+  });
 
   document.getElementById("gen-missing-btn")?.addEventListener("click", () => {
     const missing = refs.filter((r) => !r.hasDescription).map((r) => r.slug);
@@ -570,6 +2029,133 @@ function renderDescriptionsPanel(refs: RefEntry[]) {
     btn.addEventListener("click", () => {
       const slug = (btn as HTMLElement).dataset.slug!;
       generateDescriptions([slug]);
+    });
+  });
+
+  // Inline description editor — debounced auto-save on input, flush on blur.
+  // Each textarea persists its slug's description back to disk via PUT
+  // /api/description, which rewrites the reference frontmatter and the
+  // SKILL.md TOC line. Status text mirrors the SKILL.md editor (dirty /
+  // saving / saved / error).
+  const saveTimers = new Map<string, ReturnType<typeof setTimeout>>();
+  const lastSaved = new Map<string, string>();
+  for (const ref of refs) {
+    lastSaved.set(ref.slug, ref.description || "");
+  }
+
+  const setStatus = (slug: string, text: string, cls: string) => {
+    const el = panel.querySelector(
+      `.desc-edit-status[data-slug="${cssEscape(slug)}"]`,
+    ) as HTMLElement | null;
+    if (!el) return;
+    el.textContent = text;
+    el.className = "desc-edit-status" + (cls ? " " + cls : "");
+  };
+
+  const updateCount = (slug: string, len: number) => {
+    const el = panel.querySelector(
+      `.desc-edit-count[data-slug="${cssEscape(slug)}"]`,
+    ) as HTMLElement | null;
+    if (!el) return;
+    el.textContent = `${len} / 200`;
+    el.className = "desc-edit-count" + (len > 200 ? " is-warn" : "");
+  };
+
+  const saveDescription = async (slug: string, value: string) => {
+    if (!currentSkillDir) return;
+    const trimmed = value.trim();
+    if (!trimmed) {
+      setStatus(
+        slug,
+        "\u26A0 No description \u2014 agent will likely skip this reference",
+        "is-warn",
+      );
+      return;
+    }
+    if (trimmed === lastSaved.get(slug)) {
+      setStatus(slug, "Saved", "is-saved");
+      return;
+    }
+    setStatus(slug, "Saving\u2026", "");
+    try {
+      const res = await fetch("/api/description", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          skillDir: currentSkillDir,
+          slug,
+          description: trimmed,
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error((err as any).error || `HTTP ${res.status}`);
+      }
+      lastSaved.set(slug, trimmed);
+      // Promote the row out of the missing-description visual state.
+      const item = document.getElementById(`desc-${slug}`);
+      item?.classList.remove("desc-item-missing");
+      const ta = panel.querySelector(
+        `.desc-edit-input[data-slug="${cssEscape(slug)}"]`,
+      ) as HTMLTextAreaElement | null;
+      ta?.classList.remove("desc-edit-missing");
+      setStatus(slug, "Saved", "is-saved");
+      // Keep the warning banner / batch count in sync without rerendering
+      // the whole panel (which would clobber the user's other open edits).
+      refreshBatchDescWarning(currentSkillDir!, await fetchRefsLite());
+      refreshDownloadGating(currentSkillDir!, await fetchRefsLite());
+    } catch (err: any) {
+      setStatus(slug, `Save failed: ${err.message}`, "is-error");
+    }
+  };
+
+  // Helper that pulls a slim references payload for the warning/gating
+  // refreshers. Avoids re-rendering the descriptions panel.
+  const fetchRefsLite = async () => {
+    if (!currentSkillDir) return [] as RefEntry[];
+    try {
+      const res = await fetch(
+        `/api/references?skillDir=${encodeURIComponent(currentSkillDir)}`,
+      );
+      if (!res.ok) return [];
+      const data = (await res.json()) as ReferencesPayload;
+      return data.references;
+    } catch {
+      return [];
+    }
+  };
+
+  panel.querySelectorAll(".desc-edit-input").forEach((el) => {
+    const ta = el as HTMLTextAreaElement;
+    const slug = ta.dataset.slug!;
+    updateCount(slug, ta.value.length);
+
+    ta.addEventListener("input", () => {
+      updateCount(slug, ta.value.length);
+      const trimmed = ta.value.trim();
+      if (trimmed && trimmed !== lastSaved.get(slug)) {
+        setStatus(slug, "Unsaved\u2026", "is-dirty");
+      } else if (!trimmed) {
+        setStatus(slug, "\u26A0 Empty", "is-warn");
+      } else {
+        setStatus(slug, "", "");
+      }
+      const existing = saveTimers.get(slug);
+      if (existing) clearTimeout(existing);
+      const t = setTimeout(() => {
+        saveTimers.delete(slug);
+        saveDescription(slug, ta.value);
+      }, 800);
+      saveTimers.set(slug, t);
+    });
+
+    ta.addEventListener("blur", () => {
+      const existing = saveTimers.get(slug);
+      if (existing) {
+        clearTimeout(existing);
+        saveTimers.delete(slug);
+      }
+      saveDescription(slug, ta.value);
     });
   });
 }
@@ -664,10 +2250,38 @@ function handleDescribeEvent(event: Record<string, unknown>) {
     const item = document.getElementById(`desc-${event.slug}`);
     if (item) {
       item.classList.remove("desc-generating");
-      const descEl = item.querySelector(".desc-text");
-      if (descEl) {
-        descEl.textContent = event.description as string;
-        descEl.classList.remove("desc-missing");
+      item.classList.remove("desc-item-missing");
+      // Populate the inline editor with the freshly generated description.
+      // We avoid an "Unsaved" flash by writing both the textarea and its
+      // status indicator together — the API call has already persisted
+      // the value to disk, so no save is needed.
+      const ta = item.querySelector(
+        ".desc-edit-input",
+      ) as HTMLTextAreaElement | null;
+      if (ta) {
+        ta.value = event.description as string;
+        ta.classList.remove("desc-edit-missing");
+        const slug = event.slug as string;
+        const statusEl = item.querySelector(
+          ".desc-edit-status",
+        ) as HTMLElement | null;
+        if (statusEl) {
+          statusEl.textContent = "Saved";
+          statusEl.className = "desc-edit-status is-saved";
+        }
+        const countEl = item.querySelector(
+          ".desc-edit-count",
+        ) as HTMLElement | null;
+        if (countEl) {
+          countEl.textContent = `${ta.value.length} / 200`;
+          countEl.className =
+            "desc-edit-count" + (ta.value.length > 200 ? " is-warn" : "");
+        }
+        // Touch the slug so further edits compare against the new value.
+        // (lastSaved lives inside renderDescriptionsPanel's closure; the
+        // next blur/auto-save will compute correctly because the textarea
+        // value matches the on-disk value.)
+        void slug;
       }
     }
   }
@@ -687,3 +2301,35 @@ function handleDescribeEvent(event: Record<string, unknown>) {
     }, 3000);
   }
 }
+
+// Populate Template dropdown from /api/templates
+(async function loadTemplates() {
+  try {
+    const res = await fetch("/api/templates");
+    if (!res.ok) return;
+    const { templates } = (await res.json()) as {
+      templates: Array<{
+        id: string;
+        name: string;
+        description?: string;
+        splitter: string;
+        hasInterpreterPipeline: boolean;
+      }>;
+    };
+    const select = document.getElementById(
+      "templateId",
+    ) as HTMLSelectElement | null;
+    if (!select) return;
+    for (const t of templates) {
+      const opt = document.createElement("option");
+      opt.value = t.id;
+      const flags: string[] = [t.splitter];
+      if (t.hasInterpreterPipeline) flags.push("interpreter");
+      opt.textContent = `${t.name} (${flags.join(", ")})`;
+      if (t.description) opt.title = t.description;
+      select.appendChild(opt);
+    }
+  } catch {
+    // Silent — auto-detect still works with empty dropdown.
+  }
+})();

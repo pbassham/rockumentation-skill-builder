@@ -1,3 +1,6 @@
+import { runStep, getSettings } from "./interpreter";
+import type { InterpreterSettings } from "./interpreter";
+
 export interface RefInfo {
   slug: string;
   title: string;
@@ -5,22 +8,7 @@ export interface RefInfo {
   content: string;
 }
 
-export async function generateDescription(
-  ref: RefInfo,
-  context: { skillName: string; pageTitle: string },
-  apiKey: string,
-): Promise<string> {
-  const response = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": apiKey,
-      "anthropic-version": "2023-06-01",
-    },
-    body: JSON.stringify({
-      model: "claude-haiku-4-5",
-      max_tokens: 256,
-      system: `You generate concise descriptions for AI agent skill reference files. These descriptions help an AI agent decide which reference file to consult when a user asks a question.
+const SYSTEM_PROMPT = `You generate concise descriptions for AI agent skill reference files. These descriptions help an AI agent decide which reference file to consult when a user asks a question.
 
 Rules:
 - Start with "Use when" followed by a description of the user intent or task
@@ -28,44 +16,43 @@ Rules:
 - Be specific about the domain and scope
 - 80-150 characters ideal, never exceed 200 characters
 - Do not wrap in quotes
-- One sentence only, no trailing period`,
-      messages: [
-        {
-          role: "user",
-          content: `Skill: "${context.skillName}" — ${context.pageTitle}
+- One sentence only, no trailing period`;
+
+/**
+ * Generate a per-reference description via the configured interpreter.
+ * Backwards-compatible signature: callers can still pass an Anthropic API
+ * key directly and we will inject a one-shot Anthropic settings override.
+ */
+export async function generateDescription(
+  ref: RefInfo,
+  context: { skillName: string; pageTitle: string },
+  apiKey?: string,
+): Promise<string> {
+  const settings = await resolveSettings(apiKey);
+  const userPrompt = `Skill: "${context.skillName}" — ${context.pageTitle}
 Reference: "${ref.title}"
 Path: ${ref.breadcrumb}
 
 Content (first 3000 chars):
 ${ref.content.slice(0, 3000)}
 
-Write a concise description for when an AI agent should consult this reference.`,
-        },
-      ],
-    }),
-  });
+Write a concise description for when an AI agent should consult this reference.`;
 
-  if (!response.ok) {
-    const errBody = await response.text();
-    let message = `Anthropic API error ${response.status}`;
-    try {
-      const err = JSON.parse(errBody) as {
-        error?: { type?: string; message?: string };
-      };
-      message =
-        err.error?.message || `${err.error?.type || message}: ${errBody}`;
-    } catch {
-      message = `${message}: ${errBody.slice(0, 200)}`;
-    }
-    throw new Error(message);
-  }
+  const result = await runStep(
+    {
+      id: "describe",
+      systemContext: SYSTEM_PROMPT,
+      prompt: userPrompt,
+      outputAs: "describe",
+      outputFormat: "text",
+      maxTokens: 256,
+    },
+    {},
+    "",
+    settings,
+  );
 
-  const data = (await response.json()) as {
-    content: Array<{ type: string; text: string }>;
-  };
-
-  let text = data.content[0]?.text?.trim() ?? "";
-  // Strip wrapping quotes if the model added them
+  let text = result.raw.trim();
   if (
     (text.startsWith('"') && text.endsWith('"')) ||
     (text.startsWith("'") && text.endsWith("'"))
@@ -73,4 +60,23 @@ Write a concise description for when an AI agent should consult this reference.`
     text = text.slice(1, -1);
   }
   return text;
+}
+
+async function resolveSettings(apiKey?: string): Promise<InterpreterSettings> {
+  if (apiKey) {
+    return {
+      enabled: true,
+      defaultModelId: "claude-haiku-4-5",
+      providers: [{ id: "anthropic", type: "anthropic", apiKey }],
+      models: [
+        {
+          id: "claude-haiku-4-5",
+          providerId: "anthropic",
+          modelName: "claude-haiku-4-5",
+          maxTokens: 256,
+        },
+      ],
+    };
+  }
+  return getSettings();
 }
