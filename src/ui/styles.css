@@ -479,8 +479,8 @@ button.btn-secondary:hover:not(:disabled) {
 }
 
 .preview-panel {
-  background: var(--bg-elev-1, rgba(88, 166, 255, 0.04));
-  border: 1px solid var(--border-subtle);
+  background: #161b22;
+  border: 1px solid #30363d;
 }
 
 .preview-intro {
@@ -490,6 +490,34 @@ button.btn-secondary:hover:not(:disabled) {
 
 .preview-intro strong {
   color: var(--text-strong, #e6edf3);
+}
+
+/* Inline info callout used inside a panel to clearly mark instructional
+ * text vs. form fields and warnings. */
+.panel-callout {
+  margin: 0 0 0.85rem;
+  padding: 0.6rem 0.85rem;
+  background: rgba(88, 166, 255, 0.07);
+  border: 1px solid rgba(88, 166, 255, 0.22);
+  border-left: 3px solid var(--accent);
+  border-radius: 4px;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+.panel-callout strong {
+  color: var(--text-strong, #e6edf3);
+}
+
+/* Subtle frame around the form/input region so it reads as "fields you
+ * fill in" rather than just more prose. */
+.panel-form {
+  margin-top: 0.85rem;
+  padding: 0.85rem 1rem;
+  background: rgba(255, 255, 255, 0.015);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
 }
 
 .skill-md-editor {
@@ -571,13 +599,15 @@ button.btn-secondary:hover:not(:disabled) {
 
 /* Missing-description treatment for reference rows. */
 .desc-missing-banner {
-  margin: 0.5rem 0 0.75rem;
-  padding: 0.55rem 0.75rem;
-  background: rgba(248, 81, 73, 0.08);
-  border: 1px solid rgba(248, 81, 73, 0.35);
+  margin: 0.5rem 0 0.85rem;
+  padding: 0.65rem 0.85rem;
+  background: rgba(248, 81, 73, 0.1);
+  border: 1px solid rgba(248, 81, 73, 0.45);
+  border-left: 3px solid #f85149;
   border-radius: 4px;
-  color: #ff7b72;
-  font-size: 0.85rem;
+  color: #ffa198;
+  font-size: 0.88rem;
+  font-weight: 500;
 }
 
 .desc-item-missing {

@@ -519,6 +519,63 @@ const server = Bun.serve({
       },
     },
 
+    "/api/restore-from-gallery": {
+      POST: async (req) => {
+        if (!isStorageConfigured()) {
+          return Response.json(
+            { error: "Public storage is not configured." },
+            { status: 400 },
+          );
+        }
+        const body = await req.json().catch(() => ({}));
+        const { id } = body as { id?: string };
+        if (!id) {
+          return Response.json({ error: "id is required" }, { status: 400 });
+        }
+        const meta = await getSkillMeta(id);
+        if (!meta) {
+          return Response.json({ error: "Skill not found" }, { status: 404 });
+        }
+        const skillName = meta.skillName || id;
+        // Sanity-check the slug to keep the writes confined to ./output.
+        if (!/^[a-z0-9][a-z0-9-]{0,63}$/.test(skillName)) {
+          return Response.json(
+            { error: "Skill has an invalid name and cannot be restored." },
+            { status: 400 },
+          );
+        }
+        const skillDir = resolve("./output", skillName);
+
+        try {
+          const files = await listSkillFiles(id);
+          if (files.length === 0) {
+            return Response.json(
+              { error: "Published skill has no files." },
+              { status: 404 },
+            );
+          }
+          for (const rel of files) {
+            // Re-validate every relative path before joining to skillDir.
+            if (rel.includes("..") || rel.startsWith("/")) continue;
+            const text = await getSkillFileText(id, rel);
+            if (text === null) continue;
+            await Bun.write(join(skillDir, rel), text);
+          }
+          return Response.json({
+            skillDir,
+            skillName,
+            bundle: meta.bundle ?? null,
+            fileCount: files.length,
+          });
+        } catch (err: any) {
+          return Response.json(
+            { error: err.message || "Restore failed" },
+            { status: 500 },
+          );
+        }
+      },
+    },
+
     "/api/build": {
       POST: async (req) => {
         const body = await req.json();

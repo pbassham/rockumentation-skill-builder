@@ -1434,26 +1434,196 @@ let serverHasApiKey: boolean | null = null;
 loadCuratedRoots();
 
 // If the URL carries `?bundle=<id>`, fetch that published skill's bundle
-// config and open it in the builder for re-editing. Linked from the
-// gallery detail "Open in builder" button.
+// config and open it in the builder. Default behavior: download the
+// already-built files from the gallery and open the management view
+// (descriptions / split / publish) so the user can edit without
+// re-fetching the source documentation. They can still rebuild from
+// scratch via the "Rebuild from sources" button on the result row.
 (async () => {
   const params = new URLSearchParams(window.location.search);
   const bundleId = params.get("bundle");
   if (!bundleId) return;
+  // Clean URL up-front so a refresh doesn't re-trigger.
+  window.history.replaceState({}, "", window.location.pathname);
   try {
-    const res = await fetch(`/api/public-skill/${encodeURIComponent(bundleId)}`);
-    if (!res.ok) return;
-    const data = (await res.json()) as { meta?: { bundle?: BundledSkill } };
-    const b = data.meta?.bundle;
-    if (b && b.sources && b.sources.length > 0) {
-      showBundleDetail(b, { editable: true });
-      // Clean URL so a refresh doesn't re-trigger.
-      window.history.replaceState({}, "", window.location.pathname);
+    const metaRes = await fetch(
+      `/api/public-skill/${encodeURIComponent(bundleId)}`,
+    );
+    if (!metaRes.ok) return;
+    const data = (await metaRes.json()) as {
+      meta?: { bundle?: BundledSkill };
+    };
+    const bundle = data.meta?.bundle;
+
+    // Try restoring the built files from object storage. If that
+    // succeeds, drop the user straight into the management UI.
+    const restoreRes = await fetch("/api/restore-from-gallery", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: bundleId }),
+    });
+    if (restoreRes.ok) {
+      const r = (await restoreRes.json()) as {
+        skillDir: string;
+        skillName: string;
+        bundle: BundledSkill | null;
+        fileCount: number;
+      };
+      renderRestoredSkill({
+        skillDir: r.skillDir,
+        skillName: r.skillName,
+        bundle: r.bundle ?? bundle ?? null,
+      });
+      return;
+    }
+
+    // Restore failed (e.g. storage misconfigured) — fall back to
+    // opening the bundle config so the user can rebuild from sources.
+    if (bundle && bundle.sources && bundle.sources.length > 0) {
+      showBundleDetail(bundle, { editable: true });
     }
   } catch {
     // Silent — leave user on the default home view.
   }
 })();
+
+/**
+ * Render a "restored from gallery" result row that mirrors what
+ * `runCuratedBatch` produces when a fresh build completes — Download +
+ * Manage skill links, plus a Rebuild-from-sources button that re-runs
+ * the original bundle through the build pipeline. Auto-opens the
+ * management panel so the user lands directly in the editor.
+ */
+function renderRestoredSkill(opts: {
+  skillDir: string;
+  skillName: string;
+  bundle: BundledSkill | null;
+}) {
+  const { skillDir, skillName, bundle } = opts;
+
+  showView("detail");
+  errorDiv.style.display = "none";
+  progressDiv.style.display = "none";
+  resultDiv.style.display = "block";
+  resultDiv.innerHTML = `
+    <div class="result-card">
+      <h3>Restored from gallery</h3>
+      <p class="hint">Loaded the previously built files for <strong>${escapeHtml(skillName)}</strong>. Edit descriptions, split, or republish below \u2014 no re-fetching required.</p>
+      <ul class="batch-list">
+        <li class="batch-row" data-status="success">
+          <span class="batch-status">\u2713</span>
+          <div class="batch-meta">
+            <div class="batch-label">${escapeHtml(skillName)} <span class="curated-badge">restored</span></div>
+            <div class="batch-result" id="restored-result"></div>
+          </div>
+        </li>
+      </ul>
+    </div>
+  `;
+
+  const resultRow = document.getElementById("restored-result")!;
+  const div = document.createElement("div");
+  div.className = "batch-skill";
+  div.innerHTML = `\u2713 <strong>${escapeHtml(skillName)}</strong>`;
+
+  const dl = document.createElement("a");
+  dl.className = "link-btn";
+  dl.href = "#";
+  dl.textContent = "Download";
+  dl.dataset.skillDir = skillDir;
+  dl.dataset.missingDesc = "unknown";
+  dl.addEventListener("click", (e) => {
+    e.preventDefault();
+    if (
+      dl.dataset.missingDesc &&
+      dl.dataset.missingDesc !== "0" &&
+      dl.dataset.missingDesc !== "unknown" &&
+      !confirm(
+        `${dl.dataset.missingDesc} reference${dl.dataset.missingDesc === "1" ? "" : "s"} are missing AI descriptions. Download anyway?`,
+      )
+    ) {
+      return;
+    }
+    downloadZip(skillDir);
+  });
+
+  const sep1 = document.createElement("span");
+  sep1.className = "batch-skill-sep";
+  sep1.textContent = "\u00B7";
+
+  const md = document.createElement("a");
+  md.className = "link-btn";
+  md.href = "#";
+  md.textContent = "Manage skill";
+
+  const inline = document.createElement("div");
+  inline.className = "batch-desc-inline";
+  inline.style.display = "none";
+
+  md.addEventListener("click", (e) => {
+    e.preventDefault();
+    const descPanel = document.getElementById("descriptions");
+    if (!descPanel) return;
+    const isHere =
+      inline.style.display !== "none" &&
+      descPanel.parentElement === inline;
+    if (isHere) {
+      inline.style.display = "none";
+      descPanel.style.display = "none";
+      md.textContent = "Manage skill";
+      return;
+    }
+    currentSkillDir = skillDir;
+    inline.appendChild(descPanel);
+    inline.style.display = "block";
+    md.textContent = "Hide skill management";
+    loadReferences(skillDir);
+    inline.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  });
+
+  div.append(" ", dl, " ", sep1, " ", md);
+
+  if (bundle && bundle.sources && bundle.sources.length > 0) {
+    const sep2 = document.createElement("span");
+    sep2.className = "batch-skill-sep";
+    sep2.textContent = "\u00B7";
+
+    const rebuild = document.createElement("a");
+    rebuild.className = "link-btn";
+    rebuild.href = "#";
+    rebuild.textContent = "Rebuild from sources";
+    rebuild.title =
+      "Re-fetch every source URL and regenerate the skill from scratch.";
+    rebuild.addEventListener("click", (e) => {
+      e.preventDefault();
+      if (
+        !confirm(
+          "Re-fetch every source URL and rebuild this skill from scratch? Your current edits to SKILL.md and references will be overwritten.",
+        )
+      ) {
+        return;
+      }
+      runCuratedBatch([
+        {
+          url: bundle.sources![0]!.url,
+          label: bundle.name || skillName,
+          kind: "bundle",
+          bundle,
+        },
+      ]);
+    });
+
+    div.append(" ", sep2, " ", rebuild);
+  }
+
+  resultRow.appendChild(div);
+  resultRow.appendChild(inline);
+
+  // Refresh download-gating + auto-open the management panel so the
+  // user lands in the editor.
+  loadReferencesQuiet(skillDir);
+  setTimeout(() => md.click(), 50);
+}
 
 // Check public storage status; disable publish button if not configured.
 (async () => {
@@ -1535,6 +1705,26 @@ function refreshBatchDescWarning(skillDir: string, refs: RefEntry[]) {
     return;
   }
   warn.innerHTML = `\u26A0 <strong>${missing} reference${missing === 1 ? "" : "s"} still missing AI descriptions.</strong> Use <em>Manage skill</em> above to generate the rest.`;
+
+  // Auto-expand the Manage skill panel for this row the first time we
+  // detect missing descriptions \u2014 the user shouldn't have to hunt for
+  // the fix. Only fire once per row so the user can collapse it again.
+  const row = warn.closest(".batch-skill") as HTMLElement | null;
+  if (row && !row.dataset.autoOpened) {
+    const manage = row.querySelector<HTMLAnchorElement>(
+      'a.link-btn',
+    );
+    const manageBtn = Array.from(
+      row.querySelectorAll<HTMLAnchorElement>("a.link-btn"),
+    ).find((a) => a.textContent?.trim() === "Manage skill");
+    if (manageBtn) {
+      row.dataset.autoOpened = "1";
+      manageBtn.click();
+    } else if (manage && manage.textContent?.trim() === "Manage skill") {
+      row.dataset.autoOpened = "1";
+      manage.click();
+    }
+  }
 }
 
 function cssEscape(value: string): string {
@@ -1586,12 +1776,12 @@ function renderDescriptionsPanel(refs: RefEntry[], skillMd?: string) {
           <h3>Step 1 &middot; Review & edit your <code>SKILL.md</code></h3>
           <span class="desc-count">${refs.length} reference${refs.length === 1 ? "" : "s"}</span>
         </div>
-        <p class="hint preview-intro">
+        <div class="panel-callout preview-intro">
           <strong>This is the manifest the AI agent reads first.</strong>
           Edits made <em>above</em> the <code>## Topics</code> list \u2014 the description, overview prose, and any hand-written notes \u2014 are preserved across rebuilds and AI description regeneration.
           The <code>## Topics</code> list itself is regenerated from your reference files; to change a topic's description use Step 2 below or hand-edit the matching <code>references/&lt;slug&gt;.md</code> frontmatter.
           To change source labels or add intro text on the next build, go back and edit the bundle config.
-        </p>
+        </div>
         <div class="skill-md-editor">
           <div class="skill-md-editor-toolbar">
             <span class="skill-md-meta" id="skill-md-meta">${skillMd.split("\n").length} lines &middot; ${skillMd.length.toLocaleString()} chars</span>
@@ -1611,16 +1801,18 @@ function renderDescriptionsPanel(refs: RefEntry[], skillMd?: string) {
           <h3>Step 2 &middot; Generate AI descriptions <span class="step-optional">(recommended)</span></h3>
         <span class="desc-count">${withDesc} of ${refs.length} have AI descriptions</span>
       </div>
-      <p class="hint">
+      <div class="panel-callout">
         Each reference file needs a one-line description so the agent knows when to load it. Click <strong>Generate</strong> to have Claude read every reference and draft one.
         Generation calls the Anthropic API <strong>once per reference</strong> (\u2248 ${refs.length} call${refs.length === 1 ? "" : "s"}, billed to your account) and saves the results into both the reference file and SKILL.md.
         After generation, fine-tune any line in the form below \u2014 each edit is saved immediately to disk.
-      </p>
+      </div>
       ${missingCount > 0 ? `<div class="desc-missing-banner" role="alert">\u26A0 ${missingCount} reference${missingCount === 1 ? " is" : "s are"} missing a description. The agent may skip ${missingCount === 1 ? "it" : "them"} entirely.</div>` : ""}
-      ${apiKeyBlock}
-      <div class="desc-actions">
-        <button id="gen-missing-btn" class="btn-sm"${missingCount === 0 ? " disabled" : ""}>Generate Missing (${missingCount})</button>
-        <button id="gen-all-btn" class="btn-sm btn-secondary">Regenerate All (${refs.length})</button>
+      <div class="panel-form">
+        ${apiKeyBlock}
+        <div class="desc-actions">
+          <button id="gen-missing-btn" class="btn-sm"${missingCount === 0 ? " disabled" : ""}>Generate Missing (${missingCount})</button>
+          <button id="gen-all-btn" class="btn-sm btn-secondary">Regenerate All (${refs.length})</button>
+        </div>
       </div>
       <div id="desc-progress" class="desc-progress" style="display:none"></div>
       <div class="desc-list">
