@@ -190,7 +190,7 @@ app.innerHTML = `
     <button type="submit" id="submit-btn">Build Skill</button>
   </form>
 
-  <section class="info-card">
+  <section class="info-card" id="info-card">
     <h2>What's an Agent Skill?</h2>
     <p>
       An <strong>Agent Skill</strong> is a packaged folder of Markdown that teaches an AI
@@ -236,6 +236,10 @@ type View = "gallery" | "detail";
 function showView(view: View) {
   bundleGallery.style.display = view === "gallery" ? "block" : "none";
   bundleDetail.style.display = view === "detail" ? "block" : "none";
+  // The intro "What's an Agent Skill?" card is contextual to the home
+  // landing only — once you're inside a bundle it's noise.
+  const infoCard = document.getElementById("info-card");
+  if (infoCard) infoCard.style.display = view === "gallery" ? "block" : "none";
   // Legacy custom-URL form is reachable only via /api/build callers, no
   // longer surfaced in the UI \u2014 the editable bundle detail panel is the
   // single source of truth for both curated and ad-hoc skills.

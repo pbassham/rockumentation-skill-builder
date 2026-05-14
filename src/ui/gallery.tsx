@@ -8,6 +8,9 @@ interface SkillMeta {
   articleCount: number;
   refCount: number;
   createdAt: string;
+  bundle?: {
+    sources?: Array<{ url: string; label?: string }>;
+  };
 }
 
 const root = document.getElementById("gallery")!;
@@ -43,17 +46,36 @@ function render(state: {
   } else if (!state.skills || state.skills.length === 0) {
     body = `
       <p class="hint">
-        No shared skills yet. Build one with the
-        <strong>Share publicly in gallery</strong> option enabled and it'll
-        show up here.
+        No shared skills yet. Build one from the home page and click
+        <strong>Save to gallery</strong> after the build finishes.
       </p>
     `;
   } else {
     body = `
       <div class="gallery-list">
         ${state.skills
-          .map(
-            (s) => `
+          .map((s) => {
+            const sources = s.bundle?.sources || [];
+            const sourcesBlock =
+              sources.length > 0
+                ? `<div class="gallery-card-source">
+                    <dt>Sources</dt>
+                    <dd><ul class="gallery-source-list">${sources
+                      .map(
+                        (src) =>
+                          `<li><a href="${escapeHtml(src.url)}" target="_blank" rel="noopener">${escapeHtml(src.label || src.url.replace(/^https?:\/\//, ""))}</a></li>`,
+                      )
+                      .join("")}</ul></dd>
+                  </div>`
+                : s.sourceUrl
+                  ? `<div class="gallery-card-source">
+                      <dt>Source</dt>
+                      <dd><a href="${escapeHtml(s.sourceUrl)}" target="_blank" rel="noopener">${escapeHtml(
+                        s.sourceUrl.replace(/^https?:\/\//, ""),
+                      )}</a></dd>
+                    </div>`
+                  : "";
+            return `
           <article class="gallery-card">
             <a href="/g/${encodeURIComponent(s.id)}" class="gallery-card-title">${escapeHtml(s.pageTitle)}</a>
             <p class="gallery-card-skill"><code>${escapeHtml(s.skillName)}</code></p>
@@ -66,23 +88,19 @@ function render(state: {
                 <dt>Shared</dt>
                 <dd>${escapeHtml(formatDate(s.createdAt))}</dd>
               </div>
-              ${
-                s.sourceUrl
-                  ? `<div class="gallery-card-source">
-                      <dt>Source</dt>
-                      <dd><a href="${escapeHtml(s.sourceUrl)}" target="_blank" rel="noopener">${escapeHtml(
-                        s.sourceUrl.replace(/^https?:\/\//, ""),
-                      )}</a></dd>
-                    </div>`
-                  : ""
-              }
+              ${sourcesBlock}
             </dl>
             <div class="gallery-card-actions">
               <a class="btn btn-sm" href="/g/${encodeURIComponent(s.id)}">View</a>
               <a class="btn btn-sm btn-secondary" href="/s/${encodeURIComponent(s.id)}">Download ZIP</a>
+              ${
+                s.bundle
+                  ? `<a class="btn btn-sm btn-secondary" href="/?bundle=${encodeURIComponent(s.id)}">Open in builder</a>`
+                  : ""
+              }
             </div>
-          </article>`,
-          )
+          </article>`;
+          })
           .join("")}
       </div>
     `;

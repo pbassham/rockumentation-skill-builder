@@ -374,7 +374,7 @@ details#advanced-section .advanced-fields {
   color: #c9d1d9;
 }
 
-.btn-secondary:hover:not(:disabled) {
+button.btn-secondary:hover:not(:disabled) {
   background: #3d444d;
 }
 
@@ -1406,8 +1406,12 @@ a:hover {
   margin-bottom: 1rem;
 }
 
-.link-btn {
+.link-btn,
+.link-btn:hover:not(:disabled) {
   background: none;
+}
+
+.link-btn {
   border: none;
   color: var(--accent);
   cursor: pointer;
@@ -1415,7 +1419,7 @@ a:hover {
   padding: 0;
 }
 
-.link-btn:hover {
+.link-btn:hover:not(:disabled) {
   color: var(--accent-hover);
   text-decoration: underline;
 }
