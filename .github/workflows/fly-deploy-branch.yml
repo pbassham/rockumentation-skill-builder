@@ -47,6 +47,20 @@ jobs:
             flyctl apps create "${{ steps.app.outputs.name }}" --org personal
           fi
 
+      - name: Set required secrets on preview app
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        run: |
+          # List of required secrets
+          for key in AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_ENDPOINT_URL_S3 AWS_REGION BUCKET_NAME ANTHROPIC_API_KEY; do
+            val=$(flyctl secrets list --app rockumentation-skill-builder | awk -v k="$key" '$1==k {print $1}')
+            if [ -n "$val" ]; then
+              # Get the value from the main app and set it on the preview app
+              secret_val=$(flyctl secrets download --app rockumentation-skill-builder --name "$key" | grep -v '^#' | cut -d= -f2-)
+              flyctl secrets set "$key=$secret_val" --app "${{ steps.app.outputs.name }}"
+            fi
+          done
+
       - name: Deploy
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
