@@ -1607,10 +1607,17 @@ const server = Bun.serve({
       },
     },
   },
-  development: {
-    hmr: true,
-    console: true,
-  },
+  // Only enable HMR locally. In production (Fly), HMR causes the page to
+  // reload mid-edit and wipe in-progress form state. NODE_ENV is set to
+  // "production" by Bun.serve()? No \u2014 we set it ourselves via env, and
+  // also fall back to detecting the Fly runtime.
+  development:
+    process.env.NODE_ENV === "production" || process.env.FLY_APP_NAME
+      ? false
+      : {
+          hmr: true,
+          console: true,
+        },
 });
 
 console.log(
