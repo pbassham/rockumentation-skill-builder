@@ -5,17 +5,21 @@ import { readdir } from "node:fs/promises";
 import index from "./ui/index.html";
 import gallery from "./ui/gallery.html";
 import galleryDetail from "./ui/gallery-detail.html";
-import { fetchPage } from "./fetch";
+import { fetchPage, looksLikeLoginPage } from "./fetch";
 import { extractWithTemplate } from "./extract";
 import { allTemplates } from "../templates";
 import { getSettings, saveSettings } from "./interpreter";
 import { generateSkill, updateSkillMdDescriptions } from "./generate";
+import { validateSkill } from "./validate-skill";
 import { deriveSkillName } from "./utils";
 import { rockLogin } from "./auth";
 import {
   CURATED_ROOT_GROUPS,
+  CURATED_BUNDLES,
   enumerateDocumentationIndex,
 } from "./curated-roots";
+import { parseBuildConfig } from "./build-config";
+import { buildBundle } from "./bundle-builder";
 import { parseFrontmatter, setDescription } from "./frontmatter";
 import { generateDescription } from "./describe";
 import { writeCachedDescription, editUrlFor } from "./description-cache";
@@ -30,7 +34,13 @@ import {
   listPublicSkills,
   getSkillMeta,
   getSkillZipFile,
+  newProfileId,
+  saveProfile,
+  listProfiles,
+  getProfile,
+  deleteProfile,
 } from "./storage";
+import { generateSkillMeta } from "./describe-skill-meta";
 
 async function zipSkillDir(skillDir: string): Promise<Uint8Array> {
   const proc = Bun.spawn(["zip", "-r", "-q", "-", "SKILL.md", "references"], {
@@ -178,6 +188,161 @@ const server = Bun.serve({
       GET: () => Response.json({ groups: CURATED_ROOT_GROUPS }),
     },
 
+    "/api/curated-bundles": {
+      GET: () => Response.json({ bundles: CURATED_BUNDLES }),
+    },
+
+    "/api/saved-profiles": {
+      GET: async () => {
+        if (!isStorageConfigured()) {
+          return Response.json({ enabled: false, profiles: [] });
+        }
+        try {
+          const items = await listProfiles();
+          return Response.json({
+            enabled: true,
+            profiles: items.map((x) => ({ ...x.meta, profile: x.profile })),
+          });
+        } catch (err: any) {
+          return Response.json(
+            { error: err.message || "Failed to list profiles" },
+            { status: 500 },
+          );
+        }
+      },
+      POST: async (req) => {
+        if (!isStorageConfigured()) {
+          return Response.json(
+            { error: "Public storage is not configured on this server." },
+            { status: 400 },
+          );
+        }
+        const body = (await req.json().catch(() => ({}))) as {
+          bundle?: unknown;
+        };
+        if (!body.bundle || typeof body.bundle !== "object") {
+          return Response.json(
+            { error: "Request body must be { bundle: BundledSkill }." },
+            { status: 400 },
+          );
+        }
+        const bundle = body.bundle as { name?: string };
+        if (
+          !bundle.name ||
+          !/^[a-z0-9][a-z0-9-]{1,62}[a-z0-9]$/.test(bundle.name)
+        ) {
+          return Response.json(
+            {
+              error:
+                "bundle.name must be kebab-case (lowercase letters, digits, dashes).",
+            },
+            { status: 400 },
+          );
+        }
+        try {
+          const id = newProfileId(bundle.name);
+          await saveProfile(id, body.bundle);
+          return Response.json({ id });
+        } catch (err: any) {
+          return Response.json(
+            { error: err.message || "Save failed" },
+            { status: 500 },
+          );
+        }
+      },
+    },
+
+    "/api/saved-profiles/:id": {
+      GET: async (req) => {
+        if (!isStorageConfigured()) {
+          return Response.json(
+            { error: "Public storage is not configured." },
+            { status: 404 },
+          );
+        }
+        const id = (req.params as { id: string }).id;
+        const profile = await getProfile(id);
+        if (!profile) {
+          return Response.json({ error: "Profile not found" }, { status: 404 });
+        }
+        return Response.json({ profile });
+      },
+      DELETE: async (req) => {
+        if (!isStorageConfigured()) {
+          return Response.json(
+            { error: "Public storage is not configured." },
+            { status: 404 },
+          );
+        }
+        const id = (req.params as { id: string }).id;
+        try {
+          await deleteProfile(id);
+          return Response.json({ ok: true });
+        } catch (err: any) {
+          return Response.json(
+            { error: err.message || "Delete failed" },
+            { status: 500 },
+          );
+        }
+      },
+    },
+
+    "/api/ai-skill-meta": {
+      POST: async (req) => {
+        const body = (await req.json().catch(() => ({}))) as {
+          name?: string;
+          sources?: { url?: string; label?: string; note?: string }[];
+          apiKey?: string;
+        };
+        const name = (body.name || "").trim();
+        const sources = Array.isArray(body.sources) ? body.sources : [];
+        const cleaned = sources
+          .filter(
+            (s): s is { url: string; label?: string; note?: string } =>
+              !!s && typeof s.url === "string" && s.url.trim().length > 0,
+          )
+          .map((s) => ({
+            url: s.url.trim(),
+            label:
+              typeof s.label === "string" && s.label.trim()
+                ? s.label.trim()
+                : undefined,
+            note:
+              typeof s.note === "string" && s.note.trim()
+                ? s.note.trim()
+                : undefined,
+          }));
+        if (!name) {
+          return Response.json({ error: "name is required" }, { status: 400 });
+        }
+        if (cleaned.length === 0) {
+          return Response.json(
+            { error: "At least one source URL is required" },
+            { status: 400 },
+          );
+        }
+        const apiKey = body.apiKey?.trim() || process.env.ANTHROPIC_API_KEY;
+        if (!apiKey) {
+          return Response.json(
+            {
+              error:
+                "No API key configured. Set ANTHROPIC_API_KEY in .env or provide one in AI Settings.",
+            },
+            { status: 400 },
+          );
+        }
+        try {
+          const meta = await generateSkillMeta(name, cleaned, apiKey);
+          return Response.json(meta);
+        } catch (err: any) {
+          return Response.json(
+            { error: err.message || "AI generation failed" },
+            { status: 500 },
+          );
+        }
+      },
+    },
+
     "/api/interpreter": {
       GET: async () => Response.json(await getSettings()),
       POST: async (req) => {
@@ -304,6 +469,7 @@ const server = Bun.serve({
           const headingMatch = skillMd.match(/^#\s+(.+)$/m);
           pageTitle = headingMatch?.[1]?.trim() || skillName;
           const sourceMatch =
+            skillMd.match(/^\s*-\s*url:\s*"?([^"\n]+)"?\s*$/m) ||
             skillMd.match(/\*\*Source:\*\*\s*(\S+)/i) ||
             skillMd.match(/^\s*source:\s*(.+)$/m);
           sourceUrl = sourceMatch?.[1]?.trim() || "";
@@ -427,6 +593,22 @@ const server = Bun.serve({
                 });
               }
 
+              // Rock returns the login page (HTTP 200) instead of 401
+              // when credentials are missing or wrong, so we have to
+              // sniff the response body. Abort with a structured
+              // `auth-required` event so the UI can prompt for
+              // credentials instead of generating a useless skill.
+              if (looksLikeLoginPage(html)) {
+                send({
+                  step: 2,
+                  status: "auth-required",
+                  message: cookie
+                    ? "Authentication did not grant access to this page. Check the username and password and try again."
+                    : "This page requires login. Enter Rock credentials in Advanced options and try again.",
+                });
+                return;
+              }
+
               send({
                 step: 3,
                 status: "running",
@@ -534,6 +716,7 @@ const server = Bun.serve({
                 pageTitle,
                 articleCount: articles.length,
                 refCount: childArticles.length,
+                validation: await validateSkill(skillDir),
               });
             }
 
@@ -602,6 +785,139 @@ const server = Bun.serve({
               } else {
                 await buildOneUrl(url);
               }
+            } catch (err: any) {
+              baseSend({
+                step: 0,
+                status: "error",
+                message: err.message || "Unknown error",
+              });
+            } finally {
+              controller.close();
+            }
+          },
+        });
+
+        return new Response(stream, {
+          headers: {
+            "Content-Type": "application/x-ndjson",
+            "Cache-Control": "no-cache",
+          },
+        });
+      },
+    },
+
+    /**
+     * Build one or many skills from a `BuildConfig`. Each skill in the
+     * config produces ONE folder with a flat `references/` directory
+     * built from N source URLs. Streams NDJSON events tagged with
+     * `skillIndex/skillTotal/skillName` so the UI can show per-skill
+     * progress identically to the curated batch flow.
+     */
+    "/api/build-config": {
+      POST: async (req) => {
+        const body = (await req.json().catch(() => ({}))) as {
+          config?: unknown;
+          outputDir?: string;
+          generateDescriptions?: boolean;
+          apiKey?: string;
+        };
+        let config;
+        try {
+          config = parseBuildConfig(body.config);
+        } catch (err: any) {
+          return Response.json(
+            { error: err.message || "Invalid BuildConfig" },
+            { status: 400 },
+          );
+        }
+
+        const resolvedOutput = resolve(body.outputDir || "./output");
+        const apiKey = body.apiKey?.trim() || process.env.ANTHROPIC_API_KEY;
+        const doGenerateDescriptions = body.generateDescriptions === true;
+
+        const encoder = new TextEncoder();
+        const stream = new ReadableStream({
+          async start(controller) {
+            const baseSend = (data: Record<string, unknown>) => {
+              controller.enqueue(encoder.encode(JSON.stringify(data) + "\n"));
+            };
+
+            try {
+              const skillTotal = config.skills.length;
+              for (let i = 0; i < skillTotal; i++) {
+                const skill = config.skills[i]!;
+                const skillIndex = i + 1;
+                const tag = { skillIndex, skillTotal, skillName: skill.name };
+
+                baseSend({
+                  ...tag,
+                  step: 0,
+                  status: "running",
+                  message: `[${skillIndex}/${skillTotal}] Building ${skill.name}`,
+                });
+
+                const result = await buildBundle({
+                  skill,
+                  outputDir: resolvedOutput,
+                  author: config.author,
+                  send: (e) => baseSend({ ...tag, ...e }),
+                });
+
+                if (!result) {
+                  // buildBundle already emitted the error/auth-required event.
+                  continue;
+                }
+
+                if (doGenerateDescriptions) {
+                  if (!apiKey) {
+                    baseSend({
+                      ...tag,
+                      step: 5,
+                      status: "error",
+                      message:
+                        "AI description generation requested but no API key configured. Skipping.",
+                    });
+                  } else {
+                    baseSend({
+                      ...tag,
+                      step: 5,
+                      status: "running",
+                      message: "Generating AI descriptions for references...",
+                    });
+                    const { generated, errors } =
+                      await generateMissingDescriptions(
+                        result.skillDir,
+                        apiKey,
+                        (e) => baseSend({ ...tag, ...e }),
+                      );
+                    baseSend({
+                      ...tag,
+                      step: 5,
+                      status: "done",
+                      message: `Generated ${generated} description${generated !== 1 ? "s" : ""}${errors > 0 ? ` (${errors} error${errors !== 1 ? "s" : ""})` : ""}`,
+                    });
+                  }
+                }
+
+                baseSend({
+                  ...tag,
+                  step: 6,
+                  status: "complete",
+                  message: "Bundle build complete!",
+                  skillDir: result.skillDir,
+                  skillName: result.skillName,
+                  refCount: result.refCount,
+                  sources: result.sources,
+                  validation: await validateSkill(result.skillDir),
+                });
+              }
+
+              baseSend({
+                step: 7,
+                status: "complete",
+                message: `All ${skillTotal} skill${skillTotal === 1 ? "" : "s"} built.`,
+                batchTotal: skillTotal,
+              });
             } catch (err: any) {
               baseSend({
                 step: 0,
@@ -912,6 +1228,167 @@ const server = Bun.serve({
       },
     },
 
+    "/api/skill-md": {
+      // Read or overwrite the SKILL.md for a generated skill so the user
+      // can hand-edit the manifest before downloading or publishing.
+      GET: async (req) => {
+        const url = new URL(req.url);
+        const skillDir = url.searchParams.get("skillDir");
+        if (!skillDir) {
+          return Response.json(
+            { error: "skillDir query parameter is required" },
+            { status: 400 },
+          );
+        }
+        try {
+          const content = await Bun.file(join(skillDir, "SKILL.md")).text();
+          return Response.json({ content });
+        } catch {
+          return Response.json(
+            { error: "SKILL.md not found" },
+            { status: 404 },
+          );
+        }
+      },
+      PUT: async (req) => {
+        const body = (await req.json()) as {
+          skillDir?: string;
+          content?: string;
+        };
+        const skillDir = body.skillDir;
+        const content = body.content;
+        if (!skillDir || typeof content !== "string") {
+          return Response.json(
+            { error: "skillDir and content are required" },
+            { status: 400 },
+          );
+        }
+        const target = join(skillDir, "SKILL.md");
+        try {
+          // Ensure the file already exists — refuse to write to arbitrary paths.
+          await Bun.file(target).text();
+        } catch {
+          return Response.json(
+            { error: "SKILL.md not found at that skillDir" },
+            { status: 404 },
+          );
+        }
+        try {
+          await Bun.write(target, content);
+          return Response.json({ ok: true, bytes: content.length });
+        } catch (err: any) {
+          return Response.json(
+            { error: err.message || "Failed to save SKILL.md" },
+            { status: 500 },
+          );
+        }
+      },
+    },
+
+    "/api/description": {
+      // Persist a hand-edited description back to disk: rewrites the
+      // reference file's frontmatter, updates SKILL.md's TOC line for
+      // that slug, and refreshes the curated cache so contributions
+      // can be shared. Used by the inline editor in Step 2.
+      PUT: async (req) => {
+        const body = (await req.json()) as {
+          skillDir?: string;
+          slug?: string;
+          description?: string;
+        };
+        const skillDir = body.skillDir;
+        const slug = body.slug;
+        const description = body.description;
+        if (!skillDir || !slug || typeof description !== "string") {
+          return Response.json(
+            { error: "skillDir, slug, and description are required" },
+            { status: 400 },
+          );
+        }
+        if (slug.includes("/") || slug.includes("\\") || slug.includes("..")) {
+          return Response.json({ error: "Invalid slug" }, { status: 400 });
+        }
+        const trimmed = description.trim();
+        if (!trimmed) {
+          return Response.json(
+            { error: "description cannot be empty" },
+            { status: 400 },
+          );
+        }
+        // Look up the skill name so the curated cache write lands in
+        // the right folder. Missing SKILL.md → bail with 404.
+        let skillName = "";
+        try {
+          const skillMd = await Bun.file(join(skillDir, "SKILL.md")).text();
+          const nameMatch = skillMd.match(/^name:\s*"?(.+?)"?\s*$/m);
+          skillName = nameMatch?.[1]?.trim() || "";
+        } catch {
+          return Response.json(
+            { error: "SKILL.md not found at that skillDir" },
+            { status: 404 },
+          );
+        }
+        const refPath = join(skillDir, "references", `${slug}.md`);
+        let raw: string;
+        try {
+          raw = await Bun.file(refPath).text();
+        } catch {
+          return Response.json(
+            { error: "Reference not found" },
+            { status: 404 },
+          );
+        }
+        try {
+          const updated = setDescription(raw, trimmed);
+          await Bun.write(refPath, updated);
+          await updateSkillMdDescriptions(skillDir, new Map([[slug, trimmed]]));
+          if (skillName) {
+            await writeCachedDescription(skillName, slug, trimmed).catch(
+              () => {},
+            );
+          }
+          return Response.json({ ok: true, slug, description: trimmed });
+        } catch (err: any) {
+          return Response.json(
+            { error: err.message || "Failed to save description" },
+            { status: 500 },
+          );
+        }
+      },
+    },
+
+    "/api/reference": {
+      // Return the full body of one reference file, used when the user
+      // expands the inline preview to see the entire article.
+      GET: async (req) => {
+        const url = new URL(req.url);
+        const skillDir = url.searchParams.get("skillDir");
+        const slug = url.searchParams.get("slug");
+        if (!skillDir || !slug) {
+          return Response.json(
+            { error: "skillDir and slug are required" },
+            { status: 400 },
+          );
+        }
+        // Reject path traversal — slug must be a simple filename component.
+        if (slug.includes("/") || slug.includes("\\") || slug.includes("..")) {
+          return Response.json({ error: "Invalid slug" }, { status: 400 });
+        }
+        try {
+          const raw = await Bun.file(
+            join(skillDir, "references", `${slug}.md`),
+          ).text();
+          const { body } = parseFrontmatter(raw);
+          return Response.json({ slug, body });
+        } catch {
+          return Response.json(
+            { error: "Reference not found" },
+            { status: 404 },
+          );
+        }
+      },
+    },
+
     "/api/references": {
       GET: async (req) => {
         const url = new URL(req.url);
@@ -954,12 +1431,27 @@ const server = Bun.serve({
             const bcMatch = body.match(/^>\s*\*\*Path:\*\*\s*(.+)$/m);
             const breadcrumb = bcMatch?.[1]?.trim() || "";
 
+            // First ~240 chars of meaningful body, after stripping the
+            // H1 + breadcrumb blockquote so the preview shows actual
+            // article prose. Used for the "this is what the agent will
+            // see" preview screen before paying for AI descriptions.
+            const stripped = body
+              .replace(/^#\s+.+$/m, "")
+              .replace(/^>\s*\*\*Path:\*\*.*$/m, "")
+              .replace(/^>\s*\*\*Source:\*\*.*$/m, "")
+              .trim();
+            const bodyPreview =
+              stripped.length > 240
+                ? stripped.slice(0, 240).replace(/\s+\S*$/, "") + "\u2026"
+                : stripped;
+
             return {
               slug: filename.replace(".md", ""),
               title,
               breadcrumb,
               description: description || null,
               hasDescription: !!description,
+              bodyPreview,
               editUrl: skillName
                 ? editUrlFor(skillName, filename.replace(".md", ""))
                 : null,
@@ -968,7 +1460,12 @@ const server = Bun.serve({
         );
 
         references.sort((a, b) => a.title.localeCompare(b.title));
-        return Response.json({ skillName, pageTitle, references });
+        return Response.json({
+          skillName,
+          pageTitle,
+          skillMd,
+          references,
+        });
       },
     },
 

@@ -1,10 +1,11 @@
 #!/usr/bin/env bun
 
 import { resolve } from "node:path";
-import { fetchPage } from "./fetch";
+import { fetchPage, looksLikeLoginPage } from "./fetch";
 import { extractWithTemplate } from "./extract";
 import { allTemplates, getById } from "../templates";
 import { generateSkill } from "./generate";
+import { validateSkill, formatProblems } from "./validate-skill";
 import { deriveSkillName } from "./utils";
 import { rockLogin } from "./auth";
 import { enumerateDocumentationIndex } from "./curated-roots";
@@ -133,6 +134,14 @@ async function main() {
   console.log("Step 1: Fetching page...");
   const html = await fetchPage(url, cookie);
 
+  if (looksLikeLoginPage(html)) {
+    const hint = cookie
+      ? "Authentication did not grant access. Check the username/password."
+      : "This page requires login. Pass --username and --password and try again.";
+    console.error(`\n\u2717 ${hint}`);
+    process.exit(2);
+  }
+
   // If this is the Rock documentation index, enumerate every manual on the
   // bookshelf and process each one as a separate skill.
   const indexBookUrls = enumerateDocumentationIndex(html, url);
@@ -192,6 +201,13 @@ async function processSingleUrl(opts: SingleUrlOptions): Promise<void> {
   const { url, outputDir, cookie, templateId, mergeThreshold } = opts;
   const html = opts.prefetchedHtml ?? (await fetchPage(url, cookie));
 
+  if (!opts.prefetchedHtml && looksLikeLoginPage(html)) {
+    const hint = cookie
+      ? "Authentication did not grant access. Check the username/password."
+      : "This page requires login. Pass --username and --password and try again.";
+    throw new Error(hint);
+  }
+
   console.log("Extracting articles...");
   const { articles, pageTitle, template } = await extractWithTemplate(
     html,
@@ -232,6 +248,18 @@ async function processSingleUrl(opts: SingleUrlOptions): Promise<void> {
   });
 
   console.log(`✓ Skill generated at: ${skillDir}`);
+
+  const validation = await validateSkill(skillDir);
+  if (validation.problems.length > 0) {
+    console.log(`\nValidation:`);
+    console.log(formatProblems(validation));
+    if (!validation.ok) {
+      console.log(
+        `\n✗ Skill failed validation. Fix the errors above before publishing.`,
+      );
+      process.exit(2);
+    }
+  }
 }
 
 main().catch((err) => {

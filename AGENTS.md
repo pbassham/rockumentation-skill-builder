@@ -53,6 +53,20 @@ When the user discovers a Rock URL pattern that extracts poorly:
 4. **Register in `templates/index.ts`.**
 5. **Verify**: skill folder name is meaningful, SKILL.md has a real Topics list, each reference contains real markdown (no "Partial conversion completed with errors" banner, no duplicated content from sibling chapters).
 
+## Detection beyond URLs
+
+Rockumentation is a JavaScript plugin churches install on their own servers — the URL host is unpredictable. [src/extract.ts](src/extract.ts) sniffs the raw HTML for `$('article').Rockumentation()` (and the `data-article-id` carousel) and upgrades the matched template from `default-defuddle` to `rockumentation-print` when it sees the marker. Add similar content sniffers — never URL-only checks — for any plugin-style template that may appear on third-party hosts.
+
+## Skill validation
+
+Every build runs [src/validate-skill.ts](src/validate-skill.ts) on the generated folder. Spec rules come from the upstream [`skills-ref`](https://pypi.org/project/skills-ref/) Python library — we shell out to its `agentskills validate` CLI so we stay in sync with the published Agent Skills spec instead of maintaining a hand-ported copy. The wrapper tries `agentskills` on PATH first, then `uvx --from skills-ref agentskills` (no install needed if `uv` is on PATH), then a small TS fallback so builds never silently skip validation.
+
+On top of the spec rules we layer "skill is too thin" heuristics specific to this generator (short SKILL.md body, missing/empty `## Topics` list, references with <200 chars of body). Those live in `runLocalHeuristics` and are tagged `(heuristic)` in the formatted output. Errors fail the CLI with exit code 2; the server emits them on the SSE `complete` event and the UI surfaces them under each batch row.
+
+Local development: install via `pipx install skills-ref` or rely on `uvx`. Docker: the Dockerfile installs `skills-ref` via `pipx` so production always uses the canonical validator.
+
+When changing the generator, re-run `bun test` AND validate `./output` to confirm no regressions.
+
 ## Repo conventions
 
 - Bun runtime — `bun test`, `bun run src/index.ts`, `bun --hot src/server.ts`. See [CLAUDE.md](CLAUDE.md).

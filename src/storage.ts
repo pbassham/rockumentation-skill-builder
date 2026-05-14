@@ -165,3 +165,91 @@ export function getSkillZipFile(id: string) {
   const client = getClient();
   return client.file(`skills/${id}/skill.zip`);
 }
+
+// ---------------------------------------------------------------------------
+// Skill profiles — saved BundledSkill specs that show up in the gallery
+// alongside the curated bundles. A profile is just the JSON shape from
+// build-config.ts, persisted as `profiles/<id>.json`.
+//
+// We intentionally don't model "private" profiles: the user's note in the
+// session was that everything saved is public, no auth, no per-user
+// isolation. If that changes, switch to a per-user prefix.
+// ---------------------------------------------------------------------------
+
+export interface ProfileMeta {
+  id: string;
+  name: string;
+  savedAt: string;
+}
+
+export function newProfileId(name: string): string {
+  const safe = name.replace(/[^a-z0-9-]/gi, "-").toLowerCase();
+  return `${safe}-${randomSuffix(6)}`;
+}
+
+export async function saveProfile(id: string, bundle: unknown): Promise<void> {
+  const client = getClient();
+  await client.write(
+    `profiles/${id}/profile.json`,
+    JSON.stringify(bundle, null, 2),
+    { type: "application/json" },
+  );
+  // Lightweight index file so listProfiles() doesn't need to fetch every
+  // profile.json just to render gallery cards.
+  const meta: ProfileMeta = {
+    id,
+    name: (bundle as { name?: string })?.name || id,
+    savedAt: new Date().toISOString(),
+  };
+  await client.write(
+    `profiles/${id}/meta.json`,
+    JSON.stringify(meta, null, 2),
+    { type: "application/json" },
+  );
+}
+
+export async function listProfiles(): Promise<
+  { meta: ProfileMeta; profile: unknown }[]
+> {
+  const client = getClient();
+  const result = await client.list({ prefix: "profiles/" });
+  const metaKeys =
+    result.contents
+      ?.map((o) => o.key)
+      .filter((k): k is string => !!k && k.endsWith("/meta.json")) || [];
+
+  const out = await Promise.all(
+    metaKeys.map(async (key) => {
+      try {
+        const meta = JSON.parse(await client.file(key).text()) as ProfileMeta;
+        const profile = JSON.parse(
+          await client.file(key.replace(/meta\.json$/, "profile.json")).text(),
+        );
+        return { meta, profile };
+      } catch {
+        return null;
+      }
+    }),
+  );
+  return out
+    .filter((x): x is { meta: ProfileMeta; profile: unknown } => x !== null)
+    .sort((a, b) => (a.meta.savedAt < b.meta.savedAt ? 1 : -1));
+}
+
+export async function getProfile(id: string): Promise<unknown | null> {
+  const client = getClient();
+  try {
+    return JSON.parse(await client.file(`profiles/${id}/profile.json`).text());
+  } catch {
+    return null;
+  }
+}
+
+export async function deleteProfile(id: string): Promise<void> {
+  const client = getClient();
+  // Best-effort delete; ignore errors on either object.
+  await Promise.all([
+    client.delete(`profiles/${id}/profile.json`).catch(() => {}),
+    client.delete(`profiles/${id}/meta.json`).catch(() => {}),
+  ]);
+}

@@ -59,3 +59,12 @@ test("rockumentation-print template chosen for community.rockrms.com URLs", asyn
   );
   expect(result.template.triggers?.some((t) => /rockrms/.test(t))).toBe(true);
 });
+
+test("content sniffer upgrades to rockumentation-print on custom domains", async () => {
+  const fixture = `<!doctype html><html><head><title>Custom</title></head><body><article><h1>X</h1><p>${"body ".repeat(50)}</p></article><script>$('article').Rockumentation();</script></body></html>`;
+  const result = await extractWithTemplate(
+    fixture,
+    "https://docs.example-church.org/manual",
+  );
+  expect(result.template.id).toBe("rockumentation-print");
+});

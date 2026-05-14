@@ -8,9 +8,15 @@
  *                /documentation bookshelf). Built by expanding the index
  *                server-side and looping per child URL.
  *
+ * Plus a separate set of `CURATED_BUNDLES` — multi-source skills built via
+ * /api/build-config. Bundles are role-shaped (e.g. customizer, developer)
+ * so end users only load the skills they need.
+ *
  * Keep this list short and high-signal. Anything else can still be built via
  * the "Custom URL" form.
  */
+import type { BundledSkill } from "./build-config";
+
 export interface CuratedRoot {
   /** Display label shown in the checklist. */
   label: string;
@@ -174,6 +180,252 @@ export const CURATED_ROOT_GROUPS: CuratedRootGroup[] = [
         label: "303 — Blast Off",
         url: "https://community.rockrms.com/developer/303---blast-off",
         kind: "single",
+      },
+    ],
+  },
+];
+
+/**
+ * Curated multi-source bundles. Each `BundledSkill` produces ONE skill
+ * folder with a flat `references/` directory aggregating every source
+ * URL listed under it. Built via /api/build-config.
+ *
+ * Roles in mind:
+ *   - rock-customization: Lava + theming + workflow building (no internal
+ *     C# / commit-discipline detail)
+ *   - rock-developer: full plugin/mobile/native development surface
+ *
+ * The user can edit/extend this list freely — it's plain TypeScript data.
+ * A `rock-core` end-user bundle would point at specific /documentation
+ * book URLs once those are catalogued.
+ */
+export const CURATED_BUNDLES: BundledSkill[] = [
+  {
+    name: "rock-planning",
+    description:
+      "Use when planning a Rock RMS implementation, choosing between self-hosted and Azure deployments, or scoping infrastructure. Bundles every 'Getting Started' manual from the Rock documentation index.",
+    sources: [
+      {
+        url: "https://community.rockrms.com/documentation/bookcontent/2/357",
+        label: "Planning for Rock",
+      },
+      {
+        url: "https://community.rockrms.com/documentation/bookcontent/1/358",
+        label: "Rock Solid Internal Hosting",
+      },
+      {
+        url: "https://community.rockrms.com/documentation/bookcontent/31/359",
+        label: "Rock Solid Azure Hosting",
+      },
+    ],
+  },
+  {
+    name: "rock-user-guides",
+    description:
+      "Use when answering end-user questions about how to use Rock RMS day to day — managing people and families, groups, finance, communications, events, prayer, reporting, check-in, and the LMS. Bundles every 'User Guides' manual.",
+    sources: [
+      {
+        url: "https://community.rockrms.com/documentation/bookcontent/5/360",
+        label: "Person & Family Field Guide",
+      },
+      {
+        url: "https://community.rockrms.com/documentation/bookcontent/7/361",
+        label: "Rock Your Groups",
+      },
+      {
+        url: "https://community.rockrms.com/documentation/bookcontent/39/362",
+        label: "Engagement",
+      },
+      {
+        url: "https://community.rockrms.com/documentation/bookcontent/8/363",
+        label: "Communicating With Rock",
+      },
+      {
+        url: "https://community.rockrms.com/documentation/bookcontent/6/364",
+        label: "Taking Off With Reporting",
+      },
+      {
+        url: "https://community.rockrms.com/documentation/bookcontent/29/365",
+        label: "Event & Calendar Guide",
+      },
+      {
+        url: "https://community.rockrms.com/documentation/bookcontent/11/366",
+        label: "Raising Up With Prayer",
+      },
+      {
+        url: "https://community.rockrms.com/documentation/bookcontent/15/367",
+        label: "Rock Solid Finances",
+      },
+      {
+        url: "https://community.rockrms.com/documentation/bookcontent/43/354",
+        label: "Learning Management System",
+      },
+    ],
+  },
+  {
+    name: "rock-administration",
+    description:
+      "Use when administering Rock RMS — running check-in, configuring workflows, building sites and themes, search, assessments, email templates, BI, and scaling. Bundles every 'Administration' manual.",
+    sources: [
+      {
+        url: "https://community.rockrms.com/documentation/bookcontent/9/368",
+        label: "Rock Admin Hero Guide",
+      },
+      {
+        url: "https://community.rockrms.com/documentation/bookcontent/12/369",
+        label: "Blasting Off With Workflows",
+      },
+      {
+        url: "https://community.rockrms.com/documentation/bookcontent/14/370",
+        label: "Designing and Building Websites Using Rock",
+      },
+      {
+        url: "https://community.rockrms.com/documentation/bookcontent/32/371",
+        label: "Universal Search",
+      },
+      {
+        url: "https://community.rockrms.com/documentation/bookcontent/10/372",
+        label: "Checking-out Check-in",
+      },
+      {
+        url: "https://community.rockrms.com/documentation/bookcontent/42/350",
+        label: "Checking-out Check-in - NextGen",
+      },
+      {
+        url: "https://community.rockrms.com/documentation/bookcontent/37/351",
+        label: "Assessments",
+      },
+      {
+        url: "https://community.rockrms.com/documentation/bookcontent/34/352",
+        label: "Email Template Survival Guide",
+      },
+      {
+        url: "https://community.rockrms.com/documentation/bookcontent/35/353",
+        label: "Business Intelligence",
+      },
+      {
+        url: "https://community.rockrms.com/documentation/bookcontent/40/344",
+        label: "Hyper Scaling Rock RMS",
+      },
+    ],
+  },
+  {
+    name: "rock-customization",
+    description:
+      "Use when authoring Lava templates, building Rock workflows, writing custom SQL reports, or theming Rock RMS. Covers Lava filters/tags/commands, every workflow action, SQL style guide, dynamic LINQ syntax, Lava shortcodes, and Rock styling/theming.",
+    sources: [
+      {
+        url: "https://community.rockrms.com/Lava",
+        label: "Lava",
+        note: "Filters, tags, commands, shortcodes — the templating language used everywhere in Rock.",
+      },
+      {
+        url: "https://community.rockrms.com/WorkflowActions",
+        label: "Workflow Actions",
+        note: "Every workflow action grouped by category (AI, Communications, Finance, etc.).",
+      },
+      {
+        url: "https://community.rockrms.com/styling",
+        label: "Styling",
+        note: "Rock's design system, theming, and CSS conventions.",
+      },
+      {
+        url: "https://community.rockrms.com/developer/sql-style-guide",
+        label: "SQL Style Guide",
+        note: "House style for SQL written against the Rock database.",
+      },
+      {
+        url: "https://community.rockrms.com/developer/dynamic-linq-syntax",
+        label: "Dynamic LINQ Syntax",
+        note: "Filter syntax used in dataviews, reports, and Lava `Where` filters.",
+      },
+      {
+        url: "https://community.rockrms.com/developer/the-long-short-on-shortcodes",
+        label: "Lava Shortcodes",
+        note: "Authoring custom Lava shortcodes.",
+      },
+    ],
+  },
+  {
+    name: "rock-developer",
+    description:
+      "Use when building Rock RMS plugins, mobile/TV apps, Obsidian (Vue 3) blocks, or working on Rock core. Bundles the Developer Codex (commit/coding/release standards), Helix, Mobile, Obsidian, Design System, AI Agents, Apple TV, Roku, Packaging Plugins & Themes, Slingshot, Realtime Visualizer, Quickstart Tutorials, Rock Branches, Changelog, and the 101/202/303 onboarding tracks.",
+    sources: [
+      {
+        url: "https://community.rockrms.com/developer/developer-codex",
+        label: "Developer Codex",
+        note: "Coding standards, commit discipline, release process, and core conventions.",
+      },
+      {
+        url: "https://community.rockrms.com/developer/helix",
+        label: "Helix",
+        note: "Helix block framework: HTMX, Lava applications, Lava commands, forms, strategies.",
+      },
+      {
+        url: "https://community.rockrms.com/developer/mobile-docs",
+        label: "Mobile Docs",
+        note: "Building Rock Mobile apps (iOS/Android via Xamarin/.NET MAUI).",
+      },
+      {
+        url: "https://community.rockrms.com/developer/obsidian",
+        label: "Obsidian",
+        note: "Vue 3 / TypeScript front-end framework powering modern Rock blocks.",
+      },
+      {
+        url: "https://community.rockrms.com/developer/design-system",
+        label: "Design System",
+        note: "Component library, design tokens, and patterns.",
+      },
+      {
+        url: "https://community.rockrms.com/developer/ai-agents",
+        label: "AI Agents",
+        note: "Building AI-powered features inside Rock.",
+      },
+      {
+        url: "https://community.rockrms.com/developer/apple-tv-docs",
+        label: "Apple TV Docs",
+      },
+      {
+        url: "https://community.rockrms.com/developer/roku-docs",
+        label: "Roku Docs",
+      },
+      {
+        url: "https://community.rockrms.com/developer/packaging-plugins-themes",
+        label: "Packaging Plugins & Themes",
+        note: "Plugin/theme manifest format and the Rock Shop publishing flow.",
+      },
+      {
+        url: "https://community.rockrms.com/developer/slingshot",
+        label: "Slingshot",
+        note: "Bulk-import format for migrating data into Rock.",
+      },
+      {
+        url: "https://community.rockrms.com/developer/realtime-visualizer",
+        label: "Realtime Visualizer",
+      },
+      {
+        url: "https://community.rockrms.com/developer/quickstart-tutorials",
+        label: "Quickstart Tutorials",
+      },
+      {
+        url: "https://community.rockrms.com/developer/rock-branches",
+        label: "Rock Branches",
+      },
+      {
+        url: "https://community.rockrms.com/developer/changelog",
+        label: "Changelog",
+      },
+      {
+        url: "https://community.rockrms.com/developer/101---launchpad",
+        label: "101 — Launchpad",
+      },
+      {
+        url: "https://community.rockrms.com/developer/202---ignition",
+        label: "202 — Ignition",
+      },
+      {
+        url: "https://community.rockrms.com/developer/303---blast-off",
+        label: "303 — Blast Off",
       },
     ],
   },

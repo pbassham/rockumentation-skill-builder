@@ -21,10 +21,24 @@ export async function extractWithTemplate(
   templateId?: string,
   cookie?: string,
 ): Promise<ExtractResult> {
-  const template =
+  let template =
     (templateId ? getById(templateId) : matchByUrl(url)) ??
     matchByUrl(url) ??
     getById("default-defuddle")!;
+
+  // Content-based override: the URL might be a custom domain (a church
+  // hosting Rockumentation on its own server) but the page is still a
+  // Rockumentation print page. The signature is `$("article").Rockumentation()`
+  // in an inline script. If the user didn't pin a specific template and we
+  // fell back to the generic defuddle, upgrade to `rockumentation-print`.
+  if (
+    !templateId &&
+    template.id === "default-defuddle" &&
+    looksLikeRockumentation(html)
+  ) {
+    const upgraded = getById("rockumentation-print");
+    if (upgraded) template = upgraded;
+  }
 
   const variables = await extractVariables(html, url);
 
@@ -60,3 +74,22 @@ export async function extractWithTemplate(
 }
 
 export { allTemplates, getById, matchByUrl };
+
+/**
+ * Heuristic content sniffer: returns true if `html` looks like a
+ * Rockumentation print/manual page regardless of the URL host. The
+ * defining marker is the inline `$("article").Rockumentation()` call
+ * (or the `data-article-id` attributes the plugin walks). Both are
+ * unique enough that false positives are unlikely.
+ */
+function looksLikeRockumentation(html: string): boolean {
+  // Look at the raw HTML rather than parsing — the script tag may be
+  // inline, in <head>, or generated, and we don't need a DOM.
+  if (/\.Rockumentation\s*\(/i.test(html)) return true;
+  // Print pages always have the article carousel container with
+  // multiple data-article-id attributes; require at least 2 to avoid
+  // matching pages that just happen to use that attribute name.
+  const matches = html.match(/data-article-id\s*=/gi);
+  if (matches && matches.length >= 2) return true;
+  return false;
+}

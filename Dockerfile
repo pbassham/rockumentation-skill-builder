@@ -3,7 +3,12 @@ FROM oven/bun:1-alpine
 WORKDIR /app
 
 # `zip` is required by the /api/zip route which spawns the system binary.
-RUN apk add --no-cache zip
+# `python3` + `pipx` host the upstream `skills-ref` validator
+# (https://pypi.org/project/skills-ref/) which `src/validate-skill.ts`
+# shells out to so we always run the canonical Agent Skills spec rules
+# instead of a hand-ported copy.
+RUN apk add --no-cache zip python3 py3-pip pipx \
+  && PIPX_HOME=/opt/pipx PIPX_BIN_DIR=/usr/local/bin pipx install skills-ref
 
 # Install dependencies first to leverage Docker layer caching.
 COPY package.json bun.lock ./
