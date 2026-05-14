@@ -1,1 +1,1 @@
-Use when users ask about Rock system requirements, hardware specifications, server configuration options, or infrastructure planning for Rock installations
+Use when user needs Windows Server requirements, hardware specifications, or deployment sizing guidance for Rock installations

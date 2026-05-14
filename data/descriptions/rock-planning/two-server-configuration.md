@@ -1,1 +1,1 @@
-Use when setting up a two-server Rock installation with separate database and web servers for improved performance, security, or PCI compliance
+Use when setting up Rock with separate database and web servers for performance, security, or PCI compliance requirements

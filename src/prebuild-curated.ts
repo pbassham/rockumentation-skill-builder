@@ -162,6 +162,7 @@ async function fillMissingDescriptions(
 async function prebuildOne(
   bundle: (typeof CURATED_BUNDLES)[number],
   apiKey: string | undefined,
+  uploadEnabled: boolean,
 ): Promise<PrebuildResult> {
   const result: PrebuildResult = {
     bundleName: bundle.name,
@@ -200,31 +201,35 @@ async function prebuildOne(
   }
 
   // Upload to S3 (deterministic id => overwrites previous artefact).
-  const id = result.id;
-  const zipBytes = await zipSkillDir(built.skillDir);
-  let pageTitle = built.skillName;
-  try {
-    const skillMd = await Bun.file(join(built.skillDir, "SKILL.md")).text();
-    const headingMatch = skillMd.match(/^#\s+(.+)$/m);
-    pageTitle = headingMatch?.[1]?.trim() || built.skillName;
-  } catch {}
+  // Skipped when storage isn't configured so the function still works
+  // locally as a description-cache populator.
+  if (uploadEnabled) {
+    const id = result.id;
+    const zipBytes = await zipSkillDir(built.skillDir);
+    let pageTitle = built.skillName;
+    try {
+      const skillMd = await Bun.file(join(built.skillDir, "SKILL.md")).text();
+      const headingMatch = skillMd.match(/^#\s+(.+)$/m);
+      pageTitle = headingMatch?.[1]?.trim() || built.skillName;
+    } catch {}
 
-  const sourceUrl = bundle.sources[0]?.url || "";
-  const meta: SkillMeta = {
-    id,
-    skillName: built.skillName,
-    pageTitle,
-    sourceUrl,
-    articleCount: built.refCount + 1,
-    refCount: built.refCount,
-    createdAt: new Date().toISOString(),
-    bundle,
-    curated: true,
-  };
-  await uploadSkill(id, zipBytes, meta);
-  const files = await collectSkillFiles(built.skillDir);
-  for (const f of files) {
-    await uploadSkillFile(id, f.path, f.content);
+    const sourceUrl = bundle.sources[0]?.url || "";
+    const meta: SkillMeta = {
+      id,
+      skillName: built.skillName,
+      pageTitle,
+      sourceUrl,
+      articleCount: built.refCount + 1,
+      refCount: built.refCount,
+      createdAt: new Date().toISOString(),
+      bundle,
+      curated: true,
+    };
+    await uploadSkill(id, zipBytes, meta);
+    const files = await collectSkillFiles(built.skillDir);
+    for (const f of files) {
+      await uploadSkillFile(id, f.path, f.content);
+    }
   }
 
   // Optional but cheap: validate post-upload so we surface obvious
@@ -266,13 +271,7 @@ export async function prebuildAllCurated(opts: {
       results,
     };
   }
-  if (!isStorageConfigured()) {
-    return {
-      startedAt: new Date().toISOString(),
-      durationMs: 0,
-      results: [],
-    };
-  }
+  const uploadEnabled = isStorageConfigured();
   const apiKey = opts.apiKey || process.env.ANTHROPIC_API_KEY;
   const startedAt = Date.now();
   lastPrebuildAt = startedAt;
@@ -280,7 +279,7 @@ export async function prebuildAllCurated(opts: {
     const out: PrebuildResult[] = [];
     for (const bundle of CURATED_BUNDLES) {
       try {
-        out.push(await prebuildOne(bundle, apiKey));
+        out.push(await prebuildOne(bundle, apiKey, uploadEnabled));
       } catch (err: any) {
         out.push({
           bundleName: bundle.name,
@@ -310,4 +309,27 @@ export function listCuratedPrebuiltIds(): Record<string, string> {
   const out: Record<string, string> = {};
   for (const b of CURATED_BUNDLES) out[b.name] = curatedId(b.name);
   return out;
+}
+
+// CLI: `bun src/prebuild-curated.ts` builds every curated bundle and
+// fills missing descriptions into data/descriptions/. Uploads to S3 if
+// AWS_* env vars are present, otherwise just populates the local cache
+// so the result can be committed to git.
+if (import.meta.main) {
+  const summary = await prebuildAllCurated();
+  const generated = summary.results.reduce(
+    (n, r) => n + r.generatedDescriptions,
+    0,
+  );
+  const failed = summary.results.filter((r) => r.errors.length > 0);
+  console.log(
+    `\nBuilt ${summary.results.length} curated bundle(s) in ${(summary.durationMs / 1000).toFixed(1)}s — ${generated} description(s) generated.`,
+  );
+  for (const r of summary.results) {
+    const tag = r.errors.length > 0 ? "✖" : "✓";
+    console.log(
+      `  ${tag} ${r.bundleName} — ${r.refCount} refs, ${r.generatedDescriptions} new descriptions${r.errors.length > 0 ? `; errors: ${r.errors.slice(0, 2).join("; ")}` : ""}`,
+    );
+  }
+  if (failed.length > 0) process.exit(1);
 }

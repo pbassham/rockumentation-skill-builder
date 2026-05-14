@@ -1,1 +1,1 @@
-Use when the user needs guidance on planning concepts, strategies, or best practices from Rock RMS documentation
+Use when users need guidance on planning strategies, best practices, or implementation steps from Rock RMS documentation

@@ -1,1 +1,1 @@
-Use when setting up Rock RMS installation, configuring database connections, creating admin accounts, or establishing organization URLs for internal hosting
+Use when setting up Rock RMS installation, configuring database connections, or performing initial Rock system setup on a server

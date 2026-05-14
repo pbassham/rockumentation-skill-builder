@@ -1,1 +1,1 @@
-Use when users need guidance on Azure hosting best practices, configuration, or troubleshooting for Rock RMS environments
+Use when learning about Azure hosting setup, configuration, and best practices from Rock RMS documentation

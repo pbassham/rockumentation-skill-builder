@@ -1,1 +1,1 @@
-Use when users ask about Rock system requirements, server specifications, hosting environment needs, or whether their infrastructure supports Rock deployment
+Use when users ask about server requirements, hardware specifications, or hosting environment setup for Rock installations

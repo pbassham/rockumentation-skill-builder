@@ -1,1 +1,1 @@
-Use when asking about Rock's pricing model, funding structure, or implementation costs like hosting and migration
+Use when users ask about Rock software costs, funding models, donation requirements, or implementation expenses for churches

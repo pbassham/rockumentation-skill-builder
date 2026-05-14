@@ -1,1 +1,1 @@
-Use when setting up or configuring Internet Information Services (IIS) for Rock application hosting, including app pool settings, recycling schedules, and SSL bindings
+Use when configuring Internet Information Services (IIS) settings for Rock, including application pools, recycling, preload, bindings, and SSL

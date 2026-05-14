@@ -1,1 +1,1 @@
-Use when setting up Azure infrastructure resources for Rock including resource groups, Web VMs, and SQL Server databases
+Use when setting up Azure infrastructure for Rock hosting, including creating resource groups, Web VMs, and SQL databases

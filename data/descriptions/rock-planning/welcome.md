@@ -1,1 +1,1 @@
-Use when users need an introduction to Rock software, overview of getting started, or general information about implementing Rock at their organization
+Use when a user needs an introduction to Rock software, overview of its purpose, or guidance on getting started with Rock implementation at their organization

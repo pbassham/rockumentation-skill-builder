@@ -1,1 +1,1 @@
-Use when user asks about Rock documentation, support options, help resources, or community tools for getting assistance
+Use when users need guidance on Rock documentation resources, community support options, or how to get help with Rock implementation questions

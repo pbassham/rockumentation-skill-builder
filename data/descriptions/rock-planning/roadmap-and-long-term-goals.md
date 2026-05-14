@@ -1,1 +1,1 @@
-Use when asking about Rock's feature release schedule, roadmap, long-term vision, extensibility plans, ecosystem partners, or plugin marketplace
+Use when asking about Rock's upcoming features, release timeline, roadmap direction, or long-term product vision

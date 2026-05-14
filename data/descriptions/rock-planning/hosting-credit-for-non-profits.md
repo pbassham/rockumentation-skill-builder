@@ -1,1 +1,1 @@
-Use when a non-profit organization needs to apply for or understand Microsoft Azure's $2,000 annual hosting credit eligibility and registration process
+Use when user asks about receiving or applying for Microsoft Azure nonprofit hosting credits and eligibility requirements
