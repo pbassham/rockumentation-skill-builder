@@ -122,6 +122,31 @@ textarea {
   line-height: 1.45;
 }
 
+/* Loading state shown while a gallery skill is being restored. */
+.restore-loading {
+  text-align: center;
+  padding: 2.5rem 1.5rem;
+}
+
+.restore-loading h3 {
+  margin: 0 0 0.5rem;
+  color: var(--accent);
+}
+
+.restore-spinner {
+  margin: 1.5rem auto 0;
+  width: 36px;
+  height: 36px;
+  border: 3px solid rgba(88, 166, 255, 0.18);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: restore-spin 0.85s linear infinite;
+}
+
+@keyframes restore-spin {
+  to { transform: rotate(360deg); }
+}
+
 button {
   display: inline-flex;
   align-items: center;
@@ -463,19 +488,20 @@ button.btn-secondary:hover:not(:disabled) {
 }
 
 .desc-body-preview {
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   color: var(--text-muted);
-  margin-top: 0.45rem;
+  margin-top: 0;
   padding: 0.5rem 0.65rem;
-  background: var(--bg-elev-1, rgba(0, 0, 0, 0.15));
+  background: transparent;
   border-left: 2px solid var(--border-subtle);
-  border-radius: 3px;
+  border-radius: 0;
   line-height: 1.45;
   font-family:
     "SF Mono", "Monaco", "Inconsolata", "Roboto Mono", "Source Code Pro",
     monospace;
   white-space: pre-wrap;
   word-break: break-word;
+  opacity: 0.75;
 }
 
 .preview-panel {
@@ -619,26 +645,48 @@ button.btn-secondary:hover:not(:disabled) {
   margin-top: 0.4rem;
 }
 
+.desc-edit-label {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.3rem;
+}
+
+.desc-edit-label-meta {
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  margin-left: 0.4rem;
+}
+
 .desc-edit-input {
   display: block;
   width: 100%;
   box-sizing: border-box;
   min-height: 3rem;
-  padding: 0.5rem 0.65rem;
+  padding: 0.55rem 0.7rem;
   resize: vertical;
-  border: 1px solid var(--border-subtle);
+  border: 1px solid rgba(88, 166, 255, 0.45);
   border-radius: 4px;
-  background: var(--bg-elev-2);
+  background: #0d1117;
+  box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.25);
   color: var(--text-strong, #e6edf3);
   font-family: inherit;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   line-height: 1.45;
 }
 
 .desc-edit-input:focus {
   outline: none;
   border-color: #58a6ff;
-  background: rgba(88, 166, 255, 0.04);
+  box-shadow:
+    inset 0 1px 0 rgba(0, 0, 0, 0.25),
+    0 0 0 3px rgba(88, 166, 255, 0.18);
 }
 
 .desc-edit-input.desc-edit-missing {
@@ -694,7 +742,26 @@ button.btn-secondary:hover:not(:disabled) {
 
 /* Expandable full-reference preview. */
 .desc-body-wrap {
-  margin-top: 0.45rem;
+  margin-top: 0.85rem;
+}
+
+.desc-body-label {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 0.3rem;
+}
+
+.desc-body-label-meta {
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.72rem;
+  margin-left: 0.4rem;
+  opacity: 0.85;
 }
 
 .desc-body-wrap .desc-body-preview {
@@ -925,6 +992,10 @@ button.btn-secondary:hover:not(:disabled) {
 }
 
 .file-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
   border-bottom: 1px solid #30363d;
   padding: 0.5rem 0.85rem;
   font-size: 0.85rem;
@@ -933,6 +1004,33 @@ button.btn-secondary:hover:not(:disabled) {
 
 .file-current {
   font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+}
+
+.file-view-toggle {
+  display: inline-flex;
+  border: 1px solid #30363d;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.file-view-btn {
+  padding: 0.3rem 0.7rem;
+  background: transparent;
+  color: #8b949e;
+  border: none;
+  border-radius: 0;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.file-view-btn:hover:not(:disabled) {
+  background: rgba(88, 166, 255, 0.08);
+  color: var(--text-strong, #e6edf3);
+}
+
+.file-view-btn.is-active {
+  background: rgba(88, 166, 255, 0.15);
+  color: var(--accent);
 }
 
 .file-content {

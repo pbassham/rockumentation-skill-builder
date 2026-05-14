@@ -103,7 +103,7 @@ app.innerHTML = `
     <h2 id="bundle-detail-name"></h2>
     <p class="hint bundle-detail-tagline">
       Customize this skill before building. Anything you change here is baked into the resulting <code>SKILL.md</code> &mdash; the
-      <strong>description</strong> and <strong>pre-text</strong> appear above the Topics list and are preserved across rebuilds and AI description regeneration.
+      <strong>description</strong> and <strong>skill instructions</strong> appear above the Topics list and are preserved across rebuilds and AI description regeneration.
     </p>
 
     <div class="form-group" id="bundle-name-group" style="display:none">
@@ -121,9 +121,9 @@ app.innerHTML = `
     </div>
 
     <div class="form-group">
-      <label for="bundle-edit-pretext">Pre-text <span class="form-meta">(markdown, optional)</span></label>
-      <textarea id="bundle-edit-pretext" rows="5" placeholder="Optional intro paragraph(s), usage notes, or hand-written context. Appears in SKILL.md above the Topics list."></textarea>
-      <p class="hint">Free markdown injected just above <code>## Topics</code>. Survives every rebuild and description regeneration.</p>
+      <label for="bundle-edit-pretext">Skill instructions <span class="form-meta">(markdown, optional)</span></label>
+      <textarea id="bundle-edit-pretext" rows="5" placeholder="Hand-written guidance for the agent: when to use this skill, important gotchas, project conventions. Appears in SKILL.md above the Topics list."></textarea>
+      <p class="hint">Free markdown injected just above <code>## Topics</code>. The agent reads this every time it loads the skill, so use it for anything that should always apply. Survives every rebuild and description regeneration.</p>
     </div>
 
     <h3 class="bundle-sources-heading">Sources <span id="bundle-detail-count" class="bundle-count"></span></h3>
@@ -1438,30 +1438,46 @@ loadCuratedRoots();
 // already-built files from the gallery and open the management view
 // (descriptions / split / publish) so the user can edit without
 // re-fetching the source documentation. They can still rebuild from
-// scratch via the "Rebuild from sources" button on the result row.
+// scratch via the bundle-detail "Build skill" button up top.
 (async () => {
   const params = new URLSearchParams(window.location.search);
   const bundleId = params.get("bundle");
   if (!bundleId) return;
   // Clean URL up-front so a refresh doesn't re-trigger.
   window.history.replaceState({}, "", window.location.pathname);
+
+  // Show a loading card immediately so the home view doesn't flash blank
+  // while we fetch metadata + restore files from object storage.
+  showView("detail");
+  bundleDetail.style.display = "none";
+  errorDiv.style.display = "none";
+  resultDiv.style.display = "none";
+  progressDiv.style.display = "block";
+  progressDiv.innerHTML = `
+    <div class=\"result-card restore-loading\">\n      <h3>Restoring skill from gallery\u2026</h3>\n      <p class=\"hint\" id=\"restore-progress-msg\">Fetching skill metadata\u2026</p>\n      <div class=\"restore-spinner\" aria-hidden=\"true\"></div>\n    </div>\n  `;
+  const progMsg = document.getElementById("restore-progress-msg");
+
   try {
     const metaRes = await fetch(
       `/api/public-skill/${encodeURIComponent(bundleId)}`,
     );
-    if (!metaRes.ok) return;
+    if (!metaRes.ok) throw new Error("Skill not found in gallery.");
     const data = (await metaRes.json()) as {
       meta?: { bundle?: BundledSkill };
     };
-    const bundle = data.meta?.bundle;
+    const bundle = data.meta?.bundle ?? null;
+
+    if (progMsg) progMsg.textContent = "Downloading built files\u2026";
 
     // Try restoring the built files from object storage. If that
-    // succeeds, drop the user straight into the management UI.
+    // succeeds, drop the user straight into the bundle-detail editor
+    // with the management view rendered below.
     const restoreRes = await fetch("/api/restore-from-gallery", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id: bundleId }),
     });
+
     if (restoreRes.ok) {
       const r = (await restoreRes.json()) as {
         skillDir: string;
@@ -1469,37 +1485,63 @@ loadCuratedRoots();
         bundle: BundledSkill | null;
         fileCount: number;
       };
+      const finalBundle = r.bundle ?? bundle;
+      progressDiv.style.display = "none";
+      progressDiv.innerHTML = "";
+      // Populate the bundle-detail editor (description, instructions,
+      // sources, Draft with AI, Build) using whatever bundle config is
+      // available. If the published skill has no bundle config, fall
+      // back to a stub so the form still surfaces.
+      if (finalBundle && finalBundle.sources && finalBundle.sources.length > 0) {
+        showBundleDetail(finalBundle, { editable: true });
+      } else {
+        showBundleDetail(
+          {
+            name: r.skillName,
+            description: "",
+            sources: [{ url: "", label: "" }],
+          } as BundledSkill,
+          { editable: true },
+        );
+      }
       renderRestoredSkill({
         skillDir: r.skillDir,
         skillName: r.skillName,
-        bundle: r.bundle ?? bundle ?? null,
       });
       return;
     }
 
     // Restore failed (e.g. storage misconfigured) — fall back to
     // opening the bundle config so the user can rebuild from sources.
+    progressDiv.style.display = "none";
+    progressDiv.innerHTML = "";
     if (bundle && bundle.sources && bundle.sources.length > 0) {
       showBundleDetail(bundle, { editable: true });
+    } else {
+      throw new Error("Could not restore skill.");
     }
-  } catch {
-    // Silent — leave user on the default home view.
+  } catch (err: any) {
+    progressDiv.style.display = "none";
+    progressDiv.innerHTML = "";
+    errorDiv.style.display = "block";
+    errorDiv.textContent = err.message || "Failed to restore skill.";
+    showView("gallery");
   }
 })();
 
 /**
- * Render a "restored from gallery" result row that mirrors what
- * `runCuratedBatch` produces when a fresh build completes — Download +
- * Manage skill links, plus a Rebuild-from-sources button that re-runs
- * the original bundle through the build pipeline. Auto-opens the
- * management panel so the user lands directly in the editor.
+ * Render a "restored from gallery" management card in the result area —
+ * Download + Manage skill links for the already-built files. Auto-opens
+ * the management panel so the user lands directly in the editor. The
+ * bundle-detail card above provides the rebuild/edit-and-rebuild flow
+ * via its own Build button, so we no longer surface a separate
+ * "Rebuild from sources" link here.
  */
 function renderRestoredSkill(opts: {
   skillDir: string;
   skillName: string;
-  bundle: BundledSkill | null;
 }) {
-  const { skillDir, skillName, bundle } = opts;
+  const { skillDir, skillName } = opts;
 
   showView("detail");
   errorDiv.style.display = "none";
@@ -1507,8 +1549,8 @@ function renderRestoredSkill(opts: {
   resultDiv.style.display = "block";
   resultDiv.innerHTML = `
     <div class="result-card">
-      <h3>Restored from gallery</h3>
-      <p class="hint">Loaded the previously built files for <strong>${escapeHtml(skillName)}</strong>. Edit descriptions, split, or republish below \u2014 no re-fetching required.</p>
+      <h3>Built skill files</h3>
+      <p class="hint">Loaded the previously built files for <strong>${escapeHtml(skillName)}</strong>. Edit descriptions, split, or republish below \u2014 no re-fetching required. Use the <strong>Build skill</strong> button above to re-fetch every source URL and regenerate from scratch.</p>
       <ul class="batch-list">
         <li class="batch-row" data-status="success">
           <span class="batch-status">\u2713</span>
@@ -1582,39 +1624,6 @@ function renderRestoredSkill(opts: {
   });
 
   div.append(" ", dl, " ", sep1, " ", md);
-
-  if (bundle && bundle.sources && bundle.sources.length > 0) {
-    const sep2 = document.createElement("span");
-    sep2.className = "batch-skill-sep";
-    sep2.textContent = "\u00B7";
-
-    const rebuild = document.createElement("a");
-    rebuild.className = "link-btn";
-    rebuild.href = "#";
-    rebuild.textContent = "Rebuild from sources";
-    rebuild.title =
-      "Re-fetch every source URL and regenerate the skill from scratch.";
-    rebuild.addEventListener("click", (e) => {
-      e.preventDefault();
-      if (
-        !confirm(
-          "Re-fetch every source URL and rebuild this skill from scratch? Your current edits to SKILL.md and references will be overwritten.",
-        )
-      ) {
-        return;
-      }
-      runCuratedBatch([
-        {
-          url: bundle.sources![0]!.url,
-          label: bundle.name || skillName,
-          kind: "bundle",
-          bundle,
-        },
-      ]);
-    });
-
-    div.append(" ", sep2, " ", rebuild);
-  }
 
   resultRow.appendChild(div);
   resultRow.appendChild(inline);
@@ -1831,7 +1840,9 @@ function renderDescriptionsPanel(refs: RefEntry[], skillMd?: string) {
               </div>
             </div>
             <div class="desc-edit-wrap" data-slug="${escapeHtml(ref.slug)}">
+              <label class="desc-edit-label" for="desc-input-${escapeHtml(ref.slug)}">Description <span class="desc-edit-label-meta">— saved automatically as you type</span></label>
               <textarea
+                id="desc-input-${escapeHtml(ref.slug)}"
                 class="desc-edit-input${ref.hasDescription ? "" : " desc-edit-missing"}"
                 data-slug="${escapeHtml(ref.slug)}"
                 rows="2"
@@ -1845,6 +1856,7 @@ function renderDescriptionsPanel(refs: RefEntry[], skillMd?: string) {
             ${
               ref.bodyPreview
                 ? `<div class="desc-body-wrap" data-slug="${escapeHtml(ref.slug)}">
+                    <div class="desc-body-label">Reference content <span class="desc-body-label-meta">— read-only preview</span></div>
                     <div class="desc-body-preview" data-mode="snippet">${escapeHtml(ref.bodyPreview)}</div>
                     <button type="button" class="desc-body-toggle" data-slug="${escapeHtml(ref.slug)}">Show full reference</button>
                   </div>`
