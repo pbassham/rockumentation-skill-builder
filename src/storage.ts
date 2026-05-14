@@ -172,6 +172,41 @@ export function getSkillZipFile(id: string) {
   return client.file(`skills/${id}/skill.zip`);
 }
 
+/** Check whether a curated/published skill exists without downloading it. */
+export async function skillExists(id: string): Promise<boolean> {
+  const meta = await getSkillMeta(id);
+  return meta !== null;
+}
+
+/**
+ * Read the timestamp of the last successful curated prebuild from S3.
+ * Used so a freshly-woken Fly machine can decide whether the weekly
+ * rebuild is due without scheduling a fresh run on every cold start.
+ */
+export async function readLastCuratedPrebuildAt(): Promise<string | null> {
+  if (!isStorageConfigured()) return null;
+  const client = getClient();
+  try {
+    const text = await client.file("meta/last-curated-prebuild.json").text();
+    const parsed = JSON.parse(text) as { at?: string };
+    return parsed.at ?? null;
+  } catch {
+    return null;
+  }
+}
+
+export async function writeLastCuratedPrebuildAt(
+  iso: string,
+): Promise<void> {
+  if (!isStorageConfigured()) return;
+  const client = getClient();
+  await client.write(
+    "meta/last-curated-prebuild.json",
+    JSON.stringify({ at: iso }, null, 2),
+    { type: "application/json" },
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Skill profiles — saved BundledSkill specs that show up in the gallery
 // alongside the curated bundles. A profile is just the JSON shape from

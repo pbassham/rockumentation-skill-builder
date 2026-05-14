@@ -333,9 +333,22 @@ async function loadCuratedRoots() {
       .forEach((btn) => {
         btn.addEventListener("click", () => {
           const i = Number(btn.dataset.bundleIndex);
+          const bundle = loadedBundles[i]!;
+          // If a curated prebuild exists in S3, route through the
+          // gallery restore flow (?bundle=<id>) so the user lands on a
+          // ready-to-manage skill rather than just the source-list
+          // panel. Falls through to plain showBundleDetail for
+          // saved-profile cards or when no prebuild is available yet.
+          const prebuiltId = prebuiltData.enabled
+            ? prebuiltData.ids[bundle.name]
+            : undefined;
+          if (prebuiltId && btn.dataset.saved !== "1") {
+            window.location.href = `/?bundle=${encodeURIComponent(prebuiltId)}`;
+            return;
+          }
           // Saved profiles get full editability so the user can tweak
           // and re-save; curated bundles keep URLs read-only.
-          showBundleDetail(loadedBundles[i]!, {
+          showBundleDetail(bundle, {
             editable: btn.dataset.saved === "1",
           });
         });

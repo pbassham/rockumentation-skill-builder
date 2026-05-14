@@ -25,7 +25,9 @@ import { generateDescription } from "./describe";
 import { writeCachedDescription, editUrlFor } from "./description-cache";
 import {
   prebuildAllCurated,
-  listCuratedPrebuiltIds,
+  listAvailableCuratedPrebuiltIds,
+  isPrebuildDue,
+  PREBUILD_MAX_AGE_MS,
 } from "./prebuild-curated";
 import { listCategories, splitSkill } from "./split-skill";
 import {
@@ -175,18 +177,57 @@ const server = Bun.serve({
     },
 
     /**
-     * Map of curated bundle name -> deterministic public skill id. The
-     * home page uses this so each curated tile can render a Download
-     * button that links straight to /s/<id>. Ids are stable; the
-     * artefact may not exist yet on a fresh deploy until the background
-     * prebuild has finished its first run.
+     * Map of curated bundle name -> deterministic public skill id,
+     * filtered to only include artefacts that actually exist in S3.
+     * The home page uses this to render a Download button per tile.
+     * On a fresh deploy (or before the weekly prebuild has run) the map
+     * may be empty — in that case the UI just hides the button.
      */
     "/api/curated-prebuilt": {
-      GET: () =>
-        Response.json({
-          enabled: isStorageConfigured(),
-          ids: listCuratedPrebuiltIds(),
-        }),
+      GET: async () => {
+        if (!isStorageConfigured()) {
+          return Response.json({ enabled: false, ids: {} });
+        }
+        const ids = await listAvailableCuratedPrebuiltIds();
+        return Response.json({ enabled: true, ids });
+      },
+    },
+
+    /**
+     * Manual trigger for the curated prebuild. Returns immediately and
+     * runs the build in the background; the response includes a hint
+     * about whether storage is configured. Protected by a shared token
+     * via PREBUILD_TRIGGER_TOKEN to keep stranger-traffic from burning
+     * Claude credits.
+     */
+    "/api/prebuild-curated": {
+      POST: async (req) => {
+        const expected = process.env.PREBUILD_TRIGGER_TOKEN;
+        if (expected) {
+          const got =
+            req.headers.get("x-prebuild-token") ||
+            new URL(req.url).searchParams.get("token");
+          if (got !== expected) {
+            return Response.json({ error: "Unauthorized" }, { status: 401 });
+          }
+        }
+        if (!isStorageConfigured()) {
+          return Response.json(
+            { error: "Storage is not configured." },
+            { status: 400 },
+          );
+        }
+        prebuildAllCurated()
+          .then((s) =>
+            console.log(
+              `[curated-prebuild manual] built ${s.results.length} bundle(s) in ${(s.durationMs / 1000).toFixed(1)}s`,
+            ),
+          )
+          .catch((err) =>
+            console.warn("[curated-prebuild manual] failed:", err),
+          );
+        return Response.json({ status: "started" });
+      },
     },
 
     "/api/templates": {
@@ -1707,10 +1748,20 @@ console.log(
 /**
  * Curated prebuild scheduler.
  *
- * Kicks off 30s after boot (so the server is ready first), then every
- * 24h. Disabled when CURATED_PREBUILD=0 or when storage isn't
- * configured. Each run is idempotent (deterministic ids overwrite the
- * same S3 object) and coalesced (overlapping triggers share one run).
+ * Fly machines auto-stop on idle and re-wake on traffic, so anything
+ * tied to setInterval or boot time effectively re-runs every cold
+ * start. To keep wakes snappy we:
+ *
+ *   - Check the timestamp of the last successful prebuild (stored in
+ *     S3 at meta/last-curated-prebuild.json) on startup. Only schedule
+ *     a fresh run when the cache is more than PREBUILD_MAX_AGE_MS old.
+ *   - Defer the run by 5 minutes so a quick wake-and-sleep cycle
+ *     (health checks, asset fetches) doesn't trigger an expensive
+ *     rebuild.
+ *   - Expose POST /api/prebuild-curated for explicit manual runs
+ *     (curl from a weekly cron, or call from the admin UI later).
+ *
+ * Disabled entirely with CURATED_PREBUILD=0.
  */
 const CURATED_PREBUILD_DISABLED = process.env.CURATED_PREBUILD === "0";
 if (!CURATED_PREBUILD_DISABLED && isStorageConfigured()) {
@@ -1734,6 +1785,21 @@ if (!CURATED_PREBUILD_DISABLED && isStorageConfigured()) {
       console.warn(`[curated-prebuild ${label}] failed:`, err);
     }
   };
-  setTimeout(() => runOnce("startup"), 30_000);
-  setInterval(() => runOnce("daily"), 24 * 60 * 60 * 1000);
+  (async () => {
+    try {
+      const due = await isPrebuildDue();
+      if (!due) {
+        console.log(
+          `[curated-prebuild] cache fresh (≤${(PREBUILD_MAX_AGE_MS / 86_400_000) | 0}d old), skipping startup run.`,
+        );
+        return;
+      }
+      console.log(
+        `[curated-prebuild] cache stale, scheduling background run in 5 minutes.`,
+      );
+      setTimeout(() => runOnce("weekly"), 5 * 60 * 1000);
+    } catch (err) {
+      console.warn("[curated-prebuild] startup check failed:", err);
+    }
+  })();
 }

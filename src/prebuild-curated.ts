@@ -33,6 +33,9 @@ import {
   isStorageConfigured,
   uploadSkill,
   uploadSkillFile,
+  skillExists,
+  readLastCuratedPrebuildAt,
+  writeLastCuratedPrebuildAt,
   type SkillMeta,
 } from "./storage";
 import { validateSkill } from "./validate-skill";
@@ -294,6 +297,11 @@ export async function prebuildAllCurated(opts: {
   })();
   try {
     const results = await prebuildInFlight;
+    if (uploadEnabled) {
+      await writeLastCuratedPrebuildAt(
+        new Date(startedAt).toISOString(),
+      ).catch(() => {});
+    }
     return {
       startedAt: new Date(startedAt).toISOString(),
       durationMs: Date.now() - startedAt,
@@ -304,11 +312,50 @@ export async function prebuildAllCurated(opts: {
   }
 }
 
-/** Map of bundleName -> curated S3 id. Used by the home page. */
+/**
+ * Map of bundleName -> curated S3 id, filtered to only include ids
+ * whose artefacts actually exist in S3 right now. Used by the home
+ * page so the Download button never points at a 404.
+ */
+export async function listAvailableCuratedPrebuiltIds(): Promise<
+  Record<string, string>
+> {
+  if (!isStorageConfigured()) return {};
+  const entries = await Promise.all(
+    CURATED_BUNDLES.map(async (b) => {
+      const id = curatedId(b.name);
+      return (await skillExists(id)) ? ([b.name, id] as const) : null;
+    }),
+  );
+  const out: Record<string, string> = {};
+  for (const e of entries) if (e) out[e[0]] = e[1];
+  return out;
+}
+
+/** Synchronous flavour: full deterministic id map without S3 lookups. */
 export function listCuratedPrebuiltIds(): Record<string, string> {
   const out: Record<string, string> = {};
   for (const b of CURATED_BUNDLES) out[b.name] = curatedId(b.name);
   return out;
+}
+
+/** ms in 7 days. */
+export const PREBUILD_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
+
+/**
+ * Returns true if the most recent successful prebuild is older than
+ * PREBUILD_MAX_AGE_MS (or has never run). Used by the startup hook to
+ * avoid kicking off a fresh build on every cold start — Fly machines
+ * sleep + wake constantly, and a full rebuild burns 15+ minutes per
+ * wake when there's nothing new to do.
+ */
+export async function isPrebuildDue(): Promise<boolean> {
+  if (!isStorageConfigured()) return false;
+  const last = await readLastCuratedPrebuildAt();
+  if (!last) return true;
+  const ts = Date.parse(last);
+  if (Number.isNaN(ts)) return true;
+  return Date.now() - ts >= PREBUILD_MAX_AGE_MS;
 }
 
 // CLI: `bun src/prebuild-curated.ts` builds every curated bundle and
