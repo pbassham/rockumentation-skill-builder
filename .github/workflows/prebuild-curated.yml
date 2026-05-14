@@ -1,27 +1,49 @@
 name: Prebuild curated bundles
 
+# Scheduled runs always target production. Manual runs can pick the
+# preview app (rsb-defuddle) via workflow_dispatch.
 on:
   schedule:
-    # Sundays at 09:00 UTC (~ early Sunday morning US time)
+    # Sundays at 09:00 UTC
     - cron: "0 9 * * 0"
   workflow_dispatch:
+    inputs:
+      target:
+        description: "Which app to rebuild"
+        required: true
+        default: "prod"
+        type: choice
+        options:
+          - prod
+          - preview
 
 jobs:
   trigger:
     runs-on: ubuntu-latest
     steps:
+      - name: Resolve target host
+        id: target
+        run: |
+          choice="${{ github.event.inputs.target }}"
+          if [ -z "$choice" ]; then choice="prod"; fi
+          if [ "$choice" = "preview" ]; then
+            echo "host=rsb-defuddle.fly.dev" >> "$GITHUB_OUTPUT"
+          else
+            echo "host=rockumentation-skill-builder.fly.dev" >> "$GITHUB_OUTPUT"
+          fi
+          echo "Target: $choice"
       - name: POST /api/prebuild-curated
         env:
           PREBUILD_TRIGGER_TOKEN: ${{ secrets.PREBUILD_TRIGGER_TOKEN }}
+          HOST: ${{ steps.target.outputs.host }}
         run: |
           set -euo pipefail
           response=$(curl -sS -o /tmp/body -w "%{http_code}" \
-            -X POST https://rsb-defuddle.fly.dev/api/prebuild-curated \
+            -X POST "https://$HOST/api/prebuild-curated" \
             -H "x-prebuild-token: $PREBUILD_TRIGGER_TOKEN")
           echo "HTTP $response"
           cat /tmp/body
           echo
-          # 200 (started) or 202 are fine; anything else fails the job.
           if [ "$response" -lt 200 ] || [ "$response" -ge 300 ]; then
             exit 1
           fi
