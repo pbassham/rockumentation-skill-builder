@@ -1616,6 +1616,44 @@ a:hover {
   letter-spacing: 0.04em;
 }
 
+/* Wrapper used so the editor-launcher button and the .zip download
+ * link can sit side-by-side as sibling interactive elements (cards
+ * cannot legally contain nested buttons/links). */
+.bundle-card-wrap {
+  display: flex;
+  flex-direction: column;
+}
+.bundle-card-wrap > .bundle-card {
+  flex: 1;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.bundle-card-wrap:has(> .bundle-card-download) > .bundle-card {
+  border-bottom: none;
+}
+.bundle-card-download {
+  display: block;
+  text-align: center;
+  padding: 0.55rem 0.9rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  background: rgba(88, 166, 255, 0.1);
+  color: var(--accent);
+  border: 1px solid var(--border);
+  border-top: 1px dashed rgba(88, 166, 255, 0.35);
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+.bundle-card-download:hover {
+  background: rgba(88, 166, 255, 0.18);
+  color: var(--text-strong);
+}
+
 .curated-singles-details {
   margin: 1.5rem 0 0.5rem;
   border-top: 1px solid var(--border-subtle);

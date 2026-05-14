@@ -281,15 +281,22 @@ async function loadCuratedRoots() {
   const singlesGroupsEl = document.getElementById("curated-singles-groups")!;
   const singlesActionsEl = document.getElementById("curated-singles-actions")!;
   try {
-    const [rootsRes, bundlesRes] = await Promise.all([
+    const [rootsRes, bundlesRes, prebuiltRes] = await Promise.all([
       fetch("/api/curated-roots"),
       fetch("/api/curated-bundles"),
+      fetch("/api/curated-prebuilt"),
     ]);
     if (!rootsRes.ok) throw new Error(`HTTP ${rootsRes.status}`);
     const data = (await rootsRes.json()) as { groups: CuratedRootGroup[] };
     const bundlesData = bundlesRes.ok
       ? ((await bundlesRes.json()) as { bundles: BundledSkill[] })
       : { bundles: [] };
+    const prebuiltData = prebuiltRes.ok
+      ? ((await prebuiltRes.json()) as {
+          enabled: boolean;
+          ids: Record<string, string>;
+        })
+      : { enabled: false, ids: {} };
     loading.style.display = "none";
 
     // Home page lists curated bundles only. Visitor-saved profiles are
@@ -300,16 +307,25 @@ async function loadCuratedRoots() {
       bundlesData.bundles.map((b) => ({ bundle: b, saved: false }));
     loadedBundles = combined.map((c) => c.bundle);
 
-    // Bundle cards \u2014 primary entry point.
+    // Bundle cards \u2014 primary entry point. Each card pairs the
+    // editor-launcher button with an inline Download link when the
+    // server has a curated prebuild ready in S3 (so visitors can grab
+    // the canonical zip without rebuilding).
     cardsEl.innerHTML = combined
-      .map(
-        (c, i) => `
-      <button type="button" class="bundle-card" data-bundle-index="${i}" data-saved="${c.saved ? "1" : "0"}">
-        <span class="bundle-card-name">${escapeHtml(c.bundle.name)}${c.saved ? ' <span class="bundle-card-badge">saved</span>' : ""}</span>
-        <span class="bundle-card-desc">${escapeHtml(c.bundle.description || "")}</span>
-        <span class="bundle-card-meta">${c.bundle.sources.length} source${c.bundle.sources.length === 1 ? "" : "s"}</span>
-      </button>`,
-      )
+      .map((c, i) => {
+        const prebuiltId = prebuiltData.enabled
+          ? prebuiltData.ids[c.bundle.name]
+          : undefined;
+        return `
+      <div class="bundle-card-wrap">
+        <button type="button" class="bundle-card" data-bundle-index="${i}" data-saved="${c.saved ? "1" : "0"}">
+          <span class="bundle-card-name">${escapeHtml(c.bundle.name)}${c.saved ? ' <span class="bundle-card-badge">saved</span>' : ""}</span>
+          <span class="bundle-card-desc">${escapeHtml(c.bundle.description || "")}</span>
+          <span class="bundle-card-meta">${c.bundle.sources.length} source${c.bundle.sources.length === 1 ? "" : "s"}</span>
+        </button>
+        ${prebuiltId ? `<a class="bundle-card-download" href="/s/${prebuiltId}" download title="Download the latest curated build">Download .zip</a>` : ""}
+      </div>`;
+      })
       .join("");
 
     cardsEl

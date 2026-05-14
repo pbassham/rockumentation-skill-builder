@@ -26,6 +26,9 @@ export interface SkillMeta {
   // Optional rebuildable bundle config captured at publish time so the
   // gallery can show the full source list and offer "Open in builder".
   bundle?: unknown;
+  // True for skills produced by the curated prebuild pipeline so the
+  // gallery / home tiles can distinguish them from user uploads.
+  curated?: boolean;
 }
 
 let cachedClient: S3Client | null = null;

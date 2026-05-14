@@ -23,6 +23,10 @@ import { buildBundle } from "./bundle-builder";
 import { parseFrontmatter, setDescription } from "./frontmatter";
 import { generateDescription } from "./describe";
 import { writeCachedDescription, editUrlFor } from "./description-cache";
+import {
+  prebuildAllCurated,
+  listCuratedPrebuiltIds,
+} from "./prebuild-curated";
 import { listCategories, splitSkill } from "./split-skill";
 import {
   isStorageConfigured,
@@ -168,6 +172,21 @@ const server = Bun.serve({
 
     "/api/storage-status": {
       GET: () => Response.json({ enabled: isStorageConfigured() }),
+    },
+
+    /**
+     * Map of curated bundle name -> deterministic public skill id. The
+     * home page uses this so each curated tile can render a Download
+     * button that links straight to /s/<id>. Ids are stable; the
+     * artefact may not exist yet on a fresh deploy until the background
+     * prebuild has finished its first run.
+     */
+    "/api/curated-prebuilt": {
+      GET: () =>
+        Response.json({
+          enabled: isStorageConfigured(),
+          ids: listCuratedPrebuiltIds(),
+        }),
     },
 
     "/api/templates": {
@@ -1684,3 +1703,37 @@ const server = Bun.serve({
 console.log(
   `\n🚀 Rockumentation Skill Builder UI running at http://localhost:${server.port}\n`,
 );
+
+/**
+ * Curated prebuild scheduler.
+ *
+ * Kicks off 30s after boot (so the server is ready first), then every
+ * 24h. Disabled when CURATED_PREBUILD=0 or when storage isn't
+ * configured. Each run is idempotent (deterministic ids overwrite the
+ * same S3 object) and coalesced (overlapping triggers share one run).
+ */
+const CURATED_PREBUILD_DISABLED = process.env.CURATED_PREBUILD === "0";
+if (!CURATED_PREBUILD_DISABLED && isStorageConfigured()) {
+  const runOnce = async (label: string) => {
+    try {
+      const summary = await prebuildAllCurated();
+      const failed = summary.results.filter((r) => r.errors.length > 0);
+      const generated = summary.results.reduce(
+        (n, r) => n + r.generatedDescriptions,
+        0,
+      );
+      console.log(
+        `[curated-prebuild ${label}] built ${summary.results.length} bundle(s) in ${(summary.durationMs / 1000).toFixed(1)}s — ${generated} description(s) generated, ${failed.length} with errors`,
+      );
+      for (const f of failed) {
+        console.warn(
+          `  · ${f.bundleName}: ${f.errors.slice(0, 3).join("; ")}`,
+        );
+      }
+    } catch (err) {
+      console.warn(`[curated-prebuild ${label}] failed:`, err);
+    }
+  };
+  setTimeout(() => runOnce("startup"), 30_000);
+  setInterval(() => runOnce("daily"), 24 * 60 * 60 * 1000);
+}
