@@ -463,7 +463,7 @@ function showBundleDetail(
   ) as HTMLButtonElement;
   const saveStatus = document.getElementById("bundle-save-status")!;
 
-  nameGroup.style.display = editable ? "block" : "none";
+  nameGroup.style.display = "block";
   detailNameEl.textContent = bundle.name;
   nameInput.value = bundle.name;
 
@@ -495,7 +495,7 @@ function showBundleDetail(
       const note = (
         li.querySelector('input[data-field="note"]') as HTMLInputElement | null
       )?.value;
-      if (url !== undefined && editable) s.url = url;
+      if (url !== undefined) s.url = url;
       if (label !== undefined) s.label = label.trim() || undefined;
       if (note !== undefined) s.note = note.trim() || undefined;
     });
@@ -509,9 +509,10 @@ function showBundleDetail(
     }
     list.innerHTML = draftSources
       .map((s, i) => {
-        const urlField = editable
-          ? `<input type="url" class="bundle-source-url-input" data-field="url" value="${escapeHtml(s.url)}" placeholder="https://\u2026" />`
-          : `<a href="${escapeHtml(s.url)}" target="_blank" rel="noopener" class="bundle-source-url-link">${escapeHtml(s.url)}</a>`;
+        // URL is always an input — adding a source needs to expose the
+        // field, and even on curated bundles the user may want to swap
+        // a URL before saving as their own profile.
+        const urlField = `<input type="url" class="bundle-source-url-input" data-field="url" value="${escapeHtml(s.url)}" placeholder="https://\u2026" />`;
         return `
         <li class="bundle-source-item bundle-source-edit" data-src-index="${i}">
           <div class="bundle-source-head">

@@ -22,6 +22,11 @@ COPY templates ./templates
 # on every build, written to by /api/describe on each generation.
 COPY data ./data
 
+# /app/output is the working directory for built skills. Pre-create it
+# with permissive ownership so the unprivileged `bun` user can write to
+# it (otherwise builds fail with EACCES on Fly's read-only base layers).
+RUN mkdir -p /app/output && chown -R bun:bun /app/output
+
 ENV PORT=8080
 EXPOSE 8080
 

@@ -204,10 +204,11 @@ const server = Bun.serve({
             profiles: items.map((x) => ({ ...x.meta, profile: x.profile })),
           });
         } catch (err: any) {
-          return Response.json(
-            { error: err.message || "Failed to list profiles" },
-            { status: 500 },
-          );
+          // An empty/new bucket (no profiles/ prefix yet) or a transient
+          // S3 error should not block the gallery from loading. Log and
+          // return an empty list so the UI degrades gracefully.
+          console.warn("listProfiles failed:", err?.message || err);
+          return Response.json({ enabled: true, profiles: [] });
         }
       },
       POST: async (req) => {
