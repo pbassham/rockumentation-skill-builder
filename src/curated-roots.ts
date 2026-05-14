@@ -191,17 +191,20 @@ export const CURATED_ROOT_GROUPS: CuratedRootGroup[] = [
  * URL listed under it. Built via /api/build-config.
  *
  * Roles in mind:
- *   - rock-customization: Lava + theming + workflow building (no internal
- *     C# / commit-discipline detail)
- *   - rock-developer: full plugin/mobile/native development surface
+ *   - rock-hosting: planning + infrastructure (one-time, pre-launch)
+ *   - rock-user: day-to-day end-user features
+ *   - rock-administration: admin configuration including workflow building
+ *   - rock-advanced: what a staff developer touches every day building
+ *     interfaces and tools inside Rock — Lava, theming, SQL, shortcodes
+ *   - rock-mobile: building a Rock Mobile app (its own deliverable)
+ *   - rock-developer: contributing to Rock core / writing native plugins
+ *     (mostly internal — coding standards, commit discipline, etc.)
  *
  * The user can edit/extend this list freely — it's plain TypeScript data.
- * A `rock-core` end-user bundle would point at specific /documentation
- * book URLs once those are catalogued.
  */
 export const CURATED_BUNDLES: BundledSkill[] = [
   {
-    name: "rock-planning",
+    name: "rock-hosting",
     description:
       "Use when planning a Rock RMS implementation, choosing between self-hosted and Azure deployments, or scoping infrastructure. Bundles every 'Getting Started' manual from the Rock documentation index.",
     sources: [
@@ -220,7 +223,7 @@ export const CURATED_BUNDLES: BundledSkill[] = [
     ],
   },
   {
-    name: "rock-user-guides",
+    name: "rock-user",
     description:
       "Use when answering end-user questions about how to use Rock RMS day to day — managing people and families, groups, finance, communications, events, prayer, reporting, check-in, and the LMS. Bundles every 'User Guides' manual.",
     sources: [
@@ -265,7 +268,7 @@ export const CURATED_BUNDLES: BundledSkill[] = [
   {
     name: "rock-administration",
     description:
-      "Use when administering Rock RMS — running check-in, configuring workflows, building sites and themes, search, assessments, email templates, BI, and scaling. Bundles every 'Administration' manual.",
+      "Use when administering Rock RMS — running check-in (legacy and NextGen), configuring and building workflows, designing assessments, sending email and SMS, running BI reports, scaling a Rock instance, and managing universal search. Bundles every 'Administration' manual plus the full Workflow Actions catalog (every action grouped by category — AI, Communications, Finance, etc.) and the Blasting Off With Workflows guide.",
     sources: [
       {
         url: "https://community.rockrms.com/documentation/bookcontent/9/368",
@@ -276,8 +279,9 @@ export const CURATED_BUNDLES: BundledSkill[] = [
         label: "Blasting Off With Workflows",
       },
       {
-        url: "https://community.rockrms.com/documentation/bookcontent/14/370",
-        label: "Designing and Building Websites Using Rock",
+        url: "https://community.rockrms.com/WorkflowActions",
+        label: "Workflow Actions",
+        note: "Every workflow action grouped by category (AI, Communications, Finance, etc.).",
       },
       {
         url: "https://community.rockrms.com/documentation/bookcontent/32/371",
@@ -310,9 +314,9 @@ export const CURATED_BUNDLES: BundledSkill[] = [
     ],
   },
   {
-    name: "rock-customization",
+    name: "rock-advanced",
     description:
-      "Use when authoring Lava templates, building Rock workflows, writing custom SQL reports, or theming Rock RMS. Covers Lava filters/tags/commands, every workflow action, SQL style guide, dynamic LINQ syntax, Lava shortcodes, and Rock styling/theming.",
+      "Use when a Rock RMS staff developer is building inside Rock day to day — authoring Lava templates and shortcodes, writing Helix blocks, designing and building Rock-powered websites, writing custom SQL reports or dataview filters, and theming/styling. Covers Lava (filters, tags, commands, shortcodes), Helix, Designing and Building Websites Using Rock, Styling, the SQL Style Guide, Dynamic LINQ syntax, and shortcode authoring.",
     sources: [
       {
         url: "https://community.rockrms.com/Lava",
@@ -320,9 +324,13 @@ export const CURATED_BUNDLES: BundledSkill[] = [
         note: "Filters, tags, commands, shortcodes — the templating language used everywhere in Rock.",
       },
       {
-        url: "https://community.rockrms.com/WorkflowActions",
-        label: "Workflow Actions",
-        note: "Every workflow action grouped by category (AI, Communications, Finance, etc.).",
+        url: "https://community.rockrms.com/developer/helix",
+        label: "Helix",
+        note: "Helix block framework: HTMX, Lava applications, Lava commands, forms, strategies.",
+      },
+      {
+        url: "https://community.rockrms.com/documentation/bookcontent/14/370",
+        label: "Designing and Building Websites Using Rock",
       },
       {
         url: "https://community.rockrms.com/styling",
@@ -347,24 +355,34 @@ export const CURATED_BUNDLES: BundledSkill[] = [
     ],
   },
   {
+    name: "rock-mobile",
+    description:
+      "Use when building a Rock Mobile app — iOS, Android, Apple TV, or Roku. Covers the Mobile Docs (shell setup, blocks, styling, deep links, push, app store submission), Apple TV docs, and Roku docs. This is the bundle to load whenever the question is about a native Rock-powered mobile or TV app.",
+    sources: [
+      {
+        url: "https://community.rockrms.com/developer/mobile-docs",
+        label: "Mobile Docs",
+        note: "Building Rock Mobile apps (iOS/Android via Xamarin/.NET MAUI).",
+      },
+      {
+        url: "https://community.rockrms.com/developer/apple-tv-docs",
+        label: "Apple TV Docs",
+      },
+      {
+        url: "https://community.rockrms.com/developer/roku-docs",
+        label: "Roku Docs",
+      },
+    ],
+  },
+  {
     name: "rock-developer",
     description:
-      "Use when building Rock RMS plugins, mobile/TV apps, Obsidian (Vue 3) blocks, or working on Rock core. Bundles the Developer Codex (commit/coding/release standards), Helix, Mobile, Obsidian, Design System, AI Agents, Apple TV, Roku, Packaging Plugins & Themes, Slingshot, Realtime Visualizer, Quickstart Tutorials, Rock Branches, Changelog, and the 101/202/303 onboarding tracks.",
+      "Use when contributing to Rock RMS itself or writing native C#/Vue plugins for Rock — coding standards, commit discipline, the release process, the Obsidian (Vue 3) block framework, the design system, AI agent integration, packaging plugins and themes for the Rock Shop, Slingshot bulk imports, the realtime visualizer, quickstart tutorials, branch model, changelog, and the 101/202/303 onboarding tracks. NOT for end-user, admin, Lava, or mobile-app questions — load rock-user / rock-administration / rock-advanced / rock-mobile for those.",
     sources: [
       {
         url: "https://community.rockrms.com/developer/developer-codex",
         label: "Developer Codex",
         note: "Coding standards, commit discipline, release process, and core conventions.",
-      },
-      {
-        url: "https://community.rockrms.com/developer/helix",
-        label: "Helix",
-        note: "Helix block framework: HTMX, Lava applications, Lava commands, forms, strategies.",
-      },
-      {
-        url: "https://community.rockrms.com/developer/mobile-docs",
-        label: "Mobile Docs",
-        note: "Building Rock Mobile apps (iOS/Android via Xamarin/.NET MAUI).",
       },
       {
         url: "https://community.rockrms.com/developer/obsidian",
@@ -380,14 +398,6 @@ export const CURATED_BUNDLES: BundledSkill[] = [
         url: "https://community.rockrms.com/developer/ai-agents",
         label: "AI Agents",
         note: "Building AI-powered features inside Rock.",
-      },
-      {
-        url: "https://community.rockrms.com/developer/apple-tv-docs",
-        label: "Apple TV Docs",
-      },
-      {
-        url: "https://community.rockrms.com/developer/roku-docs",
-        label: "Roku Docs",
       },
       {
         url: "https://community.rockrms.com/developer/packaging-plugins-themes",
