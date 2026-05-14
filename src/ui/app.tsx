@@ -137,10 +137,8 @@ app.innerHTML = `
 
     <div class="bundle-detail-actions">
       <button type="button" class="btn-sm btn-secondary" id="bundle-reset-btn">Reset</button>
-      <button type="button" class="btn-sm btn-secondary" id="bundle-save-profile-btn" title="Save this configuration to the public gallery so others can build it.">Save to gallery</button>
       <button type="button" class="btn-sm" id="bundle-build-btn">Build skill</button>
     </div>
-    <div id="bundle-save-status" class="ai-fill-status" style="display:none"></div>
   </section>
 
   <form id="build-form" class="card" style="display:none">
@@ -458,10 +456,6 @@ function showBundleDetail(
     "bundle-ai-meta-btn",
   ) as HTMLButtonElement;
   const aiStatus = document.getElementById("bundle-ai-meta-status")!;
-  const saveBtn = document.getElementById(
-    "bundle-save-profile-btn",
-  ) as HTMLButtonElement;
-  const saveStatus = document.getElementById("bundle-save-status")!;
 
   nameGroup.style.display = "block";
   detailNameEl.textContent = bundle.name;
@@ -550,7 +544,6 @@ function showBundleDetail(
     updateDescCount();
     renderSourceRows();
     aiStatus.style.display = "none";
-    saveStatus.style.display = "none";
   };
 
   applyDefaults();
@@ -650,51 +643,8 @@ function showBundleDetail(
   };
 
   // Save current configuration to the public gallery as a profile.
-  saveBtn.onclick = async () => {
-    const merged = buildMergedBundle();
-    if (
-      !merged.name ||
-      !/^[a-z0-9][a-z0-9-]{1,62}[a-z0-9]$/.test(merged.name)
-    ) {
-      saveStatus.style.display = "block";
-      saveStatus.className = "ai-fill-status is-error";
-      saveStatus.textContent =
-        "Skill name must be kebab-case (lowercase letters, digits, dashes, e.g. my-skill).";
-      return;
-    }
-    if (merged.sources.length === 0) {
-      saveStatus.style.display = "block";
-      saveStatus.className = "ai-fill-status is-error";
-      saveStatus.textContent = "Add at least one source URL first.";
-      return;
-    }
-    saveBtn.disabled = true;
-    const origText = saveBtn.textContent || "";
-    saveBtn.textContent = "Saving\u2026";
-    saveStatus.style.display = "block";
-    saveStatus.className = "ai-fill-status";
-    saveStatus.textContent = "Uploading to gallery\u2026";
-    try {
-      const res = await fetch("/api/saved-profiles", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ bundle: merged }),
-      });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error((err as any).error || `HTTP ${res.status}`);
-      }
-      saveStatus.className = "ai-fill-status is-saved";
-      saveStatus.textContent =
-        "\u2713 Saved. Visible in the gallery on next reload.";
-    } catch (err: any) {
-      saveStatus.className = "ai-fill-status is-error";
-      saveStatus.textContent = err.message || "Save failed.";
-    } finally {
-      saveBtn.disabled = false;
-      saveBtn.textContent = origText;
-    }
-  };
+  // (Moved into the post-build batch actions; the inline handler used to
+  // live here.)
 
   const buildBtn = document.getElementById(
     "bundle-build-btn",
@@ -702,9 +652,9 @@ function showBundleDetail(
   buildBtn.onclick = () => {
     const merged = buildMergedBundle();
     if (merged.sources.length === 0) {
-      saveStatus.style.display = "block";
-      saveStatus.className = "ai-fill-status is-error";
-      saveStatus.textContent = "Add at least one source URL first.";
+      aiStatus.style.display = "block";
+      aiStatus.className = "ai-fill-status is-error";
+      aiStatus.textContent = "Add at least one source URL first.";
       return;
     }
     runCuratedBatch([
@@ -1016,7 +966,7 @@ async function runCuratedBatch(items: BatchItem[]) {
   // wire-up pass here.
 
   if (producedSkillDirs.length > 0) {
-    renderBatchActions(producedSkillDirs, apiKey);
+    renderBatchActions(producedSkillDirs, apiKey, items);
   }
 
   if (buildBtn) {
@@ -1282,24 +1232,103 @@ async function downloadZipBundle(skillDirs: string[], filename = "skills") {
 }
 
 /**
+ * POST a bundle config to the saved-profiles endpoint and surface the
+ * result in the post-build batch-actions status slot. Shared by the
+ * post-build "Save to gallery" button.
+ */
+async function saveBundleProfile(bundle: BundledSkill) {
+  const btn = document.getElementById(
+    "bulk-save-profile-btn",
+  ) as HTMLButtonElement | null;
+  const status = document.getElementById("bulk-save-status");
+  if (!status) return;
+
+  if (
+    !bundle.name ||
+    !/^[a-z0-9][a-z0-9-]{1,62}[a-z0-9]$/.test(bundle.name)
+  ) {
+    status.style.display = "block";
+    status.className = "ai-fill-status is-error";
+    status.textContent =
+      "Skill name must be kebab-case (lowercase letters, digits, dashes, e.g. my-skill).";
+    return;
+  }
+  if (!bundle.sources || bundle.sources.length === 0) {
+    status.style.display = "block";
+    status.className = "ai-fill-status is-error";
+    status.textContent = "Bundle has no sources.";
+    return;
+  }
+
+  const origText = btn?.textContent || "Save to gallery";
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = "Saving\u2026";
+  }
+  status.style.display = "block";
+  status.className = "ai-fill-status";
+  status.textContent = "Uploading to gallery\u2026";
+  try {
+    const res = await fetch("/api/saved-profiles", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ bundle }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error((err as any).error || `HTTP ${res.status}`);
+    }
+    status.className = "ai-fill-status is-saved";
+    status.textContent =
+      "\u2713 Saved. Visible in the gallery on next reload.";
+    if (btn) btn.textContent = "Saved";
+  } catch (err: any) {
+    status.className = "ai-fill-status is-error";
+    status.textContent = err.message || "Save failed.";
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = origText;
+    }
+  }
+}
+
+/**
  * Render the bulk-action footer card under the batch result list. Offers
  * a single button to download all skills as one combined ZIP. (The
  * old "generate all missing descriptions" button was removed \u2014 it
  * didn't refresh the per-row editor and duplicated work that's already
  * available per-skill via Manage skill \u2192 Generate Missing.)
  */
-function renderBatchActions(skillDirs: string[], _apiKey: string | undefined) {
+function renderBatchActions(
+  skillDirs: string[],
+  _apiKey: string | undefined,
+  items: BatchItem[] = [],
+) {
   const host = document.getElementById("batch-actions");
   if (!host) return;
+  // If exactly one source was a bundle config, offer to save it to the
+  // public gallery alongside the download.
+  const bundleItem =
+    items.length === 1 && items[0]?.kind === "bundle" ? items[0] : null;
+  const bundle = bundleItem?.bundle;
+  const showSave = !!bundle && storageEnabled !== false;
   host.style.display = "block";
   host.innerHTML = `
     <div class="batch-actions-inner">
-      <div class="batch-actions-summary">When you're ready, download ${skillDirs.length === 1 ? "your skill" : "all " + skillDirs.length + " skills"}.</div>
+      <div class="batch-actions-summary">When you're ready, download ${skillDirs.length === 1 ? "your skill" : "all " + skillDirs.length + " skills"}${showSave ? " \u2014 or save this configuration to the gallery so others can build it." : "."}</div>
       <div class="batch-actions-buttons">
         <button class="btn btn-sm" id="bulk-download-btn">Download ${skillDirs.length === 1 ? "ZIP" : "all as ZIP"}</button>
+        ${showSave ? '<button class="btn btn-sm btn-secondary" id="bulk-save-profile-btn" title="Save this skill configuration (URLs, description, pre-text) to the public gallery.">Save to gallery</button>' : ""}
       </div>
+      <div id="bulk-save-status" class="ai-fill-status" style="display:none"></div>
     </div>
   `;
+
+  if (showSave && bundle) {
+    document
+      .getElementById("bulk-save-profile-btn")
+      ?.addEventListener("click", () => saveBundleProfile(bundle));
+  }
 
   document
     .getElementById("bulk-download-btn")
