@@ -195,9 +195,7 @@ export async function readLastCuratedPrebuildAt(): Promise<string | null> {
   }
 }
 
-export async function writeLastCuratedPrebuildAt(
-  iso: string,
-): Promise<void> {
+export async function writeLastCuratedPrebuildAt(iso: string): Promise<void> {
   if (!isStorageConfigured()) return;
   const client = getClient();
   await client.write(

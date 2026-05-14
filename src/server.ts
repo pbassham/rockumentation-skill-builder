@@ -1777,9 +1777,7 @@ if (!CURATED_PREBUILD_DISABLED && isStorageConfigured()) {
         `[curated-prebuild ${label}] built ${summary.results.length} bundle(s) in ${(summary.durationMs / 1000).toFixed(1)}s — ${generated} description(s) generated, ${failed.length} with errors`,
       );
       for (const f of failed) {
-        console.warn(
-          `  · ${f.bundleName}: ${f.errors.slice(0, 3).join("; ")}`,
-        );
+        console.warn(`  · ${f.bundleName}: ${f.errors.slice(0, 3).join("; ")}`);
       }
     } catch (err) {
       console.warn(`[curated-prebuild ${label}] failed:`, err);

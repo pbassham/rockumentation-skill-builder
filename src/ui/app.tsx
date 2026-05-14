@@ -1521,7 +1521,11 @@ loadCuratedRoots();
       // sources, Draft with AI, Build) using whatever bundle config is
       // available. If the published skill has no bundle config, fall
       // back to a stub so the form still surfaces.
-      if (finalBundle && finalBundle.sources && finalBundle.sources.length > 0) {
+      if (
+        finalBundle &&
+        finalBundle.sources &&
+        finalBundle.sources.length > 0
+      ) {
         showBundleDetail(finalBundle, { editable: true });
       } else {
         showBundleDetail(
@@ -1566,10 +1570,7 @@ loadCuratedRoots();
  * via its own Build button, so we no longer surface a separate
  * "Rebuild from sources" link here.
  */
-function renderRestoredSkill(opts: {
-  skillDir: string;
-  skillName: string;
-}) {
+function renderRestoredSkill(opts: { skillDir: string; skillName: string }) {
   const { skillDir, skillName } = opts;
 
   showView("detail");
@@ -1636,8 +1637,7 @@ function renderRestoredSkill(opts: {
     const descPanel = document.getElementById("descriptions");
     if (!descPanel) return;
     const isHere =
-      inline.style.display !== "none" &&
-      descPanel.parentElement === inline;
+      inline.style.display !== "none" && descPanel.parentElement === inline;
     if (isHere) {
       inline.style.display = "none";
       descPanel.style.display = "none";
@@ -1749,9 +1749,7 @@ function refreshBatchDescWarning(skillDir: string, refs: RefEntry[]) {
   // the fix. Only fire once per row so the user can collapse it again.
   const row = warn.closest(".batch-skill") as HTMLElement | null;
   if (row && !row.dataset.autoOpened) {
-    const manage = row.querySelector<HTMLAnchorElement>(
-      'a.link-btn',
-    );
+    const manage = row.querySelector<HTMLAnchorElement>("a.link-btn");
     const manageBtn = Array.from(
       row.querySelectorAll<HTMLAnchorElement>("a.link-btn"),
     ).find((a) => a.textContent?.trim() === "Manage skill");

@@ -204,25 +204,6 @@ export const CURATED_ROOT_GROUPS: CuratedRootGroup[] = [
  */
 export const CURATED_BUNDLES: BundledSkill[] = [
   {
-    name: "rock-hosting",
-    description:
-      "Use when planning a Rock RMS implementation, choosing between self-hosted and Azure deployments, or scoping infrastructure. Bundles every 'Getting Started' manual from the Rock documentation index.",
-    sources: [
-      {
-        url: "https://community.rockrms.com/documentation/bookcontent/2/357",
-        label: "Planning for Rock",
-      },
-      {
-        url: "https://community.rockrms.com/documentation/bookcontent/1/358",
-        label: "Rock Solid Internal Hosting",
-      },
-      {
-        url: "https://community.rockrms.com/documentation/bookcontent/31/359",
-        label: "Rock Solid Azure Hosting",
-      },
-    ],
-  },
-  {
     name: "rock-user",
     description:
       "Use when answering end-user questions about how to use Rock RMS day to day — managing people and families, groups, finance, communications, events, prayer, reporting, check-in, and the LMS. Bundles every 'User Guides' manual.",
@@ -371,6 +352,25 @@ export const CURATED_BUNDLES: BundledSkill[] = [
       {
         url: "https://community.rockrms.com/developer/roku-docs",
         label: "Roku Docs",
+      },
+    ],
+  },
+  {
+    name: "rock-hosting",
+    description:
+      "Use when planning a Rock RMS implementation, choosing between self-hosted and Azure deployments, or scoping infrastructure. Bundles every 'Getting Started' manual from the Rock documentation index.",
+    sources: [
+      {
+        url: "https://community.rockrms.com/documentation/bookcontent/2/357",
+        label: "Planning for Rock",
+      },
+      {
+        url: "https://community.rockrms.com/documentation/bookcontent/1/358",
+        label: "Rock Solid Internal Hosting",
+      },
+      {
+        url: "https://community.rockrms.com/documentation/bookcontent/31/359",
+        label: "Rock Solid Azure Hosting",
       },
     ],
   },
