@@ -1232,59 +1232,52 @@ async function downloadZipBundle(skillDirs: string[], filename = "skills") {
 }
 
 /**
- * POST a bundle config to the saved-profiles endpoint and surface the
- * result in the post-build batch-actions status slot. Shared by the
- * post-build "Save to gallery" button.
+ * Publish built skill files to the public /gallery. Does NOT save the
+ * bundle config to the home-page profile list \u2014 that flow is reserved
+ * for curated bundles to avoid letting visitors clutter the home page.
  */
-async function saveBundleProfile(bundle: BundledSkill) {
+async function saveBundleProfile(_bundle: BundledSkill, skillDir?: string) {
   const btn = document.getElementById(
     "bulk-save-profile-btn",
   ) as HTMLButtonElement | null;
   const status = document.getElementById("bulk-save-status");
   if (!status) return;
 
-  if (
-    !bundle.name ||
-    !/^[a-z0-9][a-z0-9-]{1,62}[a-z0-9]$/.test(bundle.name)
-  ) {
+  if (!skillDir) {
     status.style.display = "block";
     status.className = "ai-fill-status is-error";
-    status.textContent =
-      "Skill name must be kebab-case (lowercase letters, digits, dashes, e.g. my-skill).";
-    return;
-  }
-  if (!bundle.sources || bundle.sources.length === 0) {
-    status.style.display = "block";
-    status.className = "ai-fill-status is-error";
-    status.textContent = "Bundle has no sources.";
+    status.textContent = "No built skill found to publish.";
     return;
   }
 
   const origText = btn?.textContent || "Save to gallery";
   if (btn) {
     btn.disabled = true;
-    btn.textContent = "Saving\u2026";
+    btn.textContent = "Publishing\u2026";
   }
   status.style.display = "block";
   status.className = "ai-fill-status";
-  status.textContent = "Uploading to gallery\u2026";
+  status.textContent = "Uploading skill files to gallery\u2026";
+
   try {
-    const res = await fetch("/api/saved-profiles", {
+    const pubRes = await fetch("/api/publish", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ bundle }),
+      body: JSON.stringify({ skillDir }),
     });
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error((err as any).error || `HTTP ${res.status}`);
+    const pubData = (await pubRes.json().catch(() => ({}))) as any;
+    if (!pubRes.ok) {
+      throw new Error(pubData.error || `Publish failed: HTTP ${pubRes.status}`);
     }
+
     status.className = "ai-fill-status is-saved";
-    status.textContent =
-      "\u2713 Saved. Visible in the gallery on next reload.";
-    if (btn) btn.textContent = "Saved";
+    status.innerHTML = pubData.publicUrl
+      ? `\u2713 Published. <a href="${escapeHtml(pubData.publicUrl)}" target="_blank">View on gallery</a>.`
+      : "\u2713 Published. Visible in the gallery on next reload.";
+    if (btn) btn.textContent = "Published";
   } catch (err: any) {
     status.className = "ai-fill-status is-error";
-    status.textContent = err.message || "Save failed.";
+    status.textContent = err.message || "Publish failed.";
     if (btn) {
       btn.disabled = false;
       btn.textContent = origText;
@@ -1325,9 +1318,10 @@ function renderBatchActions(
   `;
 
   if (showSave && bundle) {
+    const skillDir = skillDirs[0];
     document
       .getElementById("bulk-save-profile-btn")
-      ?.addEventListener("click", () => saveBundleProfile(bundle));
+      ?.addEventListener("click", () => saveBundleProfile(bundle, skillDir));
   }
 
   document
