@@ -22,7 +22,12 @@ import { parseBuildConfig } from "./build-config";
 import { buildBundle } from "./bundle-builder";
 import { parseFrontmatter, setDescription } from "./frontmatter";
 import { generateDescription } from "./describe";
-import { commitBundleToGit, CURATED_TRACKED_DIR } from "./curated-tracked";
+import {
+  commitBundleToGit,
+  CURATED_TRACKED_DIR,
+  readCuratedBundleFromDisk,
+  readCuratedBundleFile,
+} from "./curated-tracked";
 
 /** Shared token gate for curated trigger endpoints. Returns true when allowed. */
 function requirePrebuildToken(req: Request): boolean {
@@ -606,6 +611,12 @@ const server = Bun.serve({
     "/api/public-skill/:id": {
       GET: async (req) => {
         const id = (req.params as { id: string }).id;
+        // Curated bundles are served from the tracked `curated-bundles/`
+        // dir (git == single source of truth). S3 may have a stale
+        // copy from older builds — always prefer disk.
+        const fromDisk = await readCuratedBundleFromDisk(id);
+        if (fromDisk) return Response.json(fromDisk);
+
         if (!isStorageConfigured()) {
           return Response.json(
             { error: "Public storage is not configured." },
@@ -628,6 +639,15 @@ const server = Bun.serve({
         if (!path) {
           return new Response("path query param required", { status: 400 });
         }
+        // Prefer disk for curated bundles (same reasoning as the meta
+        // endpoint above).
+        const diskText = await readCuratedBundleFile(id, path);
+        if (diskText !== null) {
+          return new Response(diskText, {
+            headers: { "Content-Type": "text/markdown; charset=utf-8" },
+          });
+        }
+
         if (!isStorageConfigured()) {
           return new Response("Public storage is not configured.", {
             status: 404,
@@ -722,16 +742,50 @@ const server = Bun.serve({
 
     "/api/restore-from-gallery": {
       POST: async (req) => {
+        const body = await req.json().catch(() => ({}));
+        const { id } = body as { id?: string };
+        if (!id) {
+          return Response.json({ error: "id is required" }, { status: 400 });
+        }
+
+        // Curated bundles: copy from the tracked disk dir straight
+        // into ./output/<name> so the editor has writable working
+        // copies. No S3 round-trip.
+        const fromDisk = await readCuratedBundleFromDisk(id);
+        if (fromDisk) {
+          const { meta, files } = fromDisk;
+          if (!/^[a-z0-9][a-z0-9-]{0,63}$/.test(meta.skillName)) {
+            return Response.json(
+              { error: "Skill has an invalid name and cannot be restored." },
+              { status: 400 },
+            );
+          }
+          const skillDir = resolve("./output", meta.skillName);
+          try {
+            for (const rel of files) {
+              const text = await readCuratedBundleFile(id, rel);
+              if (text === null) continue;
+              await Bun.write(join(skillDir, rel), text);
+            }
+            return Response.json({
+              skillDir,
+              skillName: meta.skillName,
+              bundle: meta.bundle ?? null,
+              fileCount: files.length,
+            });
+          } catch (err: any) {
+            return Response.json(
+              { error: err.message || "Restore failed" },
+              { status: 500 },
+            );
+          }
+        }
+
         if (!isStorageConfigured()) {
           return Response.json(
             { error: "Public storage is not configured." },
             { status: 400 },
           );
-        }
-        const body = await req.json().catch(() => ({}));
-        const { id } = body as { id?: string };
-        if (!id) {
-          return Response.json({ error: "id is required" }, { status: 400 });
         }
         const meta = await getSkillMeta(id);
         if (!meta) {
