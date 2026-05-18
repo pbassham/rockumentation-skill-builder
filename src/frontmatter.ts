@@ -86,8 +86,18 @@ export function buildFrontmatter(
 
 function yamlScalar(value: string): string {
   // Quote anything with YAML-significant characters or surrounding whitespace.
-  if (/[:#{}[\],&*?|>!%@`"\\\n]/.test(value) || /^\s|\s$/.test(value)) {
-    return `"${value.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
+  // Also quote and escape `---` because upstream skills-ref splits frontmatter
+  // with a naive `content.split("---", 2)` that breaks on URLs containing it.
+  if (
+    /[:#{}[\],&*?|>!%@`"\\\n]/.test(value) ||
+    /^\s|\s$/.test(value) ||
+    value.includes("---")
+  ) {
+    const escaped = value
+      .replace(/\\/g, "\\\\")
+      .replace(/"/g, '\\"')
+      .replace(/---/g, "\\u002D\\u002D\\u002D");
+    return `"${escaped}"`;
   }
   return value;
 }

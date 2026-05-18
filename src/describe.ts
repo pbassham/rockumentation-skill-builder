@@ -29,12 +29,27 @@ export async function generateDescription(
   apiKey?: string,
 ): Promise<string> {
   const settings = await resolveSettings(apiKey);
+  // The interpreter runs `prompt` through the template engine, which
+  // chokes on Liquid-style delimiters in user content (Lava docs are
+  // full of `{{ }}` / `{% %}`). Neutralize the markers — Claude still
+  // reads them as the same tokens visually.
+  const safeContent = ref.content
+    .slice(0, 3000)
+    .replace(/\{\{/g, "{ {")
+    .replace(/\}\}/g, "} }")
+    .replace(/\{%/g, "{ %")
+    .replace(/%\}/g, "% }");
+  const safeBreadcrumb = ref.breadcrumb
+    .replace(/\{\{/g, "{ {")
+    .replace(/\}\}/g, "} }")
+    .replace(/\{%/g, "{ %")
+    .replace(/%\}/g, "% }");
   const userPrompt = `Skill: "${context.skillName}" — ${context.pageTitle}
 Reference: "${ref.title}"
-Path: ${ref.breadcrumb}
+Path: ${safeBreadcrumb}
 
 Content (first 3000 chars):
-${ref.content.slice(0, 3000)}
+${safeContent}
 
 Write a concise description for when an AI agent should consult this reference.`;
 

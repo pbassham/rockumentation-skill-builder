@@ -15,7 +15,7 @@ import { fetchPage, looksLikeLoginPage } from "./fetch";
 import { rockLogin } from "./auth";
 import { ensureDir, slugify } from "./utils";
 import { buildFrontmatter, parseFrontmatter } from "./frontmatter";
-import { readCachedDescription } from "./description-cache";
+import { mergeReferenceMarkdown, mergeSkillMarkdown } from "./merge-curated";
 import { enumerateDocumentationIndex } from "./curated-roots";
 import type { ArticleSection } from "./convert-types";
 import type { BundledSkill, BundledSource } from "./build-config";
@@ -43,6 +43,12 @@ export interface BundleResult {
     note?: string;
     refCount: number;
   }>;
+  /**
+   * `references/<slug>.md` paths that existed before this build but
+   * were pruned (no longer referenced by any source). Surfaced so a
+   * downstream save step can include them as git deletions.
+   */
+  deletedRefs: string[];
 }
 
 export interface BuildBundleOptions {
@@ -58,6 +64,15 @@ export interface BuildBundleOptions {
    * Defaults to 50.
    */
   mergeThreshold?: number;
+  /**
+   * `"fresh"` (default) writes every reference and SKILL.md from
+   * scratch. `"refresh"` preserves user-editable regions of each
+   * file — frontmatter descriptions and any hand-written prose above
+   * `## Topics` in SKILL.md — by merging the freshly-generated output
+   * against whatever already exists on disk under `outputDir/<name>/`.
+   * See `src/merge-curated.ts`.
+   */
+  mode?: "fresh" | "refresh";
 }
 
 export async function buildBundle(
@@ -224,8 +239,7 @@ export async function buildBundle(
   // descMap is keyed by finalSlug and used both to seed the new ref
   // frontmatter and to populate the SKILL.md TOC. Lookup order:
   //   1. existing on-disk frontmatter (preserves manual edits)
-  //   2. repo-tracked description cache (data/descriptions/<skill>/<slug>.md)
-  //   3. extractSummary fallback (used only at TOC-render time)
+  //   2. extractSummary fallback (used only at TOC-render time)
   const descMap = new Map<string, string>();
   const wroteSlugs = new Set<string>();
   for (const {
@@ -253,13 +267,9 @@ export async function buildBundle(
     } catch {
       // file didn't exist — fine.
     }
-    if (!description) {
-      const cached = await readCachedDescription(opts.skill.name, finalSlug);
-      if (cached) description = cached;
-    }
     if (description) descMap.set(finalSlug, description);
 
-    const content = buildFrontmatter(
+    let content = buildFrontmatter(
       {
         description,
         source: sourceUrl,
@@ -267,16 +277,28 @@ export async function buildBundle(
       },
       body,
     );
+    if (opts.mode === "refresh") {
+      const existingContent = await Bun.file(filepath)
+        .text()
+        .catch(() => null as string | null);
+      content = mergeReferenceMarkdown(existingContent, content);
+      // Re-read the (possibly preserved) description so it flows into
+      // the SKILL.md topics table below.
+      const finalDesc = parseFrontmatter(content).description;
+      if (finalDesc) descMap.set(finalSlug, finalDesc);
+    }
     await writeFile(filepath, content, "utf-8");
     wroteSlugs.add(finalSlug);
   }
 
   // Clean up stale refs from previous builds.
   const existing = await readdir(refsDir).catch(() => [] as string[]);
+  const deletedRefs: string[] = [];
   for (const name of existing) {
     if (!name.endsWith(".md")) continue;
     if (!wroteSlugs.has(name.replace(/\.md$/, ""))) {
       await unlink(join(refsDir, name));
+      deletedRefs.push(`references/${name}`);
     }
   }
 
@@ -292,7 +314,7 @@ export async function buildBundle(
     refCount: plan.filter((p) => p.sourceLabel === ex.label).length,
   }));
 
-  const skillMd = renderBundleSkillMd({
+  let skillMd = renderBundleSkillMd({
     skill,
     description,
     plan,
@@ -300,7 +322,14 @@ export async function buildBundle(
     author: opts.author,
     descMap,
   });
-  await writeFile(join(skillDir, "SKILL.md"), skillMd, "utf-8");
+  const skillMdPath = join(skillDir, "SKILL.md");
+  if (opts.mode === "refresh") {
+    const existingSkillMd = await Bun.file(skillMdPath)
+      .text()
+      .catch(() => null as string | null);
+    skillMd = mergeSkillMarkdown(existingSkillMd, skillMd);
+  }
+  await writeFile(skillMdPath, skillMd, "utf-8");
 
   send({
     step: 4,
@@ -313,6 +342,7 @@ export async function buildBundle(
     skillName: skill.name,
     refCount: plan.length,
     sources: sourcesMeta,
+    deletedRefs,
   };
 }
 
@@ -458,8 +488,20 @@ async function expandSources(
 }
 
 function yamlEscape(value: string): string {
-  if (/[:#{}[\],&*?|>!%@`]/.test(value) || value.includes("\n")) {
-    return `"${value.replace(/"/g, '\\"')}"`;
+  // Force quoting (and escape `---` as \u002D\u002D\u002D) when the value
+  // contains `---`, because upstream skills-ref's parser does a naive
+  // `content.split("---", 2)` over the frontmatter — any literal `---`
+  // substring (e.g. inside a URL like `/developer/101---launchpad`) breaks
+  // frontmatter extraction.
+  if (
+    /[:#{}[\],&*?|>!%@`]/.test(value) ||
+    value.includes("\n") ||
+    value.includes("---")
+  ) {
+    const escaped = value
+      .replace(/"/g, '\\"')
+      .replace(/---/g, "\\u002D\\u002D\\u002D");
+    return `"${escaped}"`;
   }
   return value;
 }

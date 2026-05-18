@@ -4,7 +4,6 @@ import { ensureDir } from "./utils";
 import type { ArticleSection } from "./convert";
 import { buildTree, type HierarchyNode, type TocEntry } from "./hierarchy";
 import { buildFrontmatter, parseFrontmatter } from "./frontmatter";
-import { readCachedDescription } from "./description-cache";
 
 interface GenerateOptions {
   skillName: string;
@@ -67,28 +66,19 @@ export async function generateSkill(opts: GenerateOptions): Promise<string> {
 
   const mergedIds = new Set(mergeMap.keys());
 
-  // Collect existing AI-generated descriptions from reference files,
-  // falling back to the repo-tracked cache at
-  // `data/descriptions/<skill-name>/<slug>.md` when an extracted file is
-  // brand new (or had its frontmatter stripped). The on-disk file always
-  // wins so manual edits in `output/...` aren't reverted by the cache.
+  // Collect existing AI-generated descriptions from reference files.
+  // The on-disk frontmatter is the source of truth — manual edits in
+  // `output/...` survive a re-extract.
   const descriptionMap = new Map<string, string>();
   for (const article of childArticles) {
     if (mergedIds.has(article.articleId)) continue;
-    let onDisk: string | undefined;
     try {
       const file = Bun.file(join(refsDir, `${article.slug}.md`));
       if (await file.exists()) {
         const { description } = parseFrontmatter(await file.text());
-        if (description) onDisk = description;
+        if (description) descriptionMap.set(article.articleId, description);
       }
     } catch {}
-    if (onDisk) {
-      descriptionMap.set(article.articleId, onDisk);
-      continue;
-    }
-    const cached = await readCachedDescription(opts.skillName, article.slug);
-    if (cached) descriptionMap.set(article.articleId, cached);
   }
 
   // Build slug map for all articles (needed for TOC and merge targets)
@@ -525,8 +515,19 @@ export async function updateSkillMdDescriptions(
 }
 
 function yamlEscape(value: string): string {
-  if (/[:#{}[\],&*?|>!%@`]/.test(value) || value.includes("\n")) {
-    return `"${value.replace(/"/g, '\\"')}"`;
+  // Force quoting (and escape `---` as \u002D\u002D\u002D) when the value
+  // contains `---`, because upstream skills-ref's parser does a naive
+  // `content.split("---", 2)` over the frontmatter — any literal `---`
+  // substring (e.g. inside a URL) breaks frontmatter extraction.
+  if (
+    /[:#{}[\],&*?|>!%@`]/.test(value) ||
+    value.includes("\n") ||
+    value.includes("---")
+  ) {
+    const escaped = value
+      .replace(/"/g, '\\"')
+      .replace(/---/g, "\\u002D\\u002D\\u002D");
+    return `"${escaped}"`;
   }
   return value;
 }
