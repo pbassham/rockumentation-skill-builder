@@ -27,6 +27,7 @@ import {
   CURATED_TRACKED_DIR,
   readCuratedBundleFromDisk,
   readCuratedBundleFile,
+  bundleNameForId,
 } from "./curated-tracked";
 
 /** Shared token gate for curated trigger endpoints. Returns true when allowed. */
@@ -587,6 +588,29 @@ const server = Bun.serve({
     "/s/:id": {
       GET: async (req) => {
         const id = (req.params as { id: string }).id;
+
+        // Curated bundles: zip the tracked disk dir on the fly so the
+        // download always matches what's in git (single source of
+        // truth), not whatever stale artefact lives in S3.
+        const bundleName = bundleNameForId(id);
+        if (bundleName) {
+          const bundleDir = join(CURATED_TRACKED_DIR, bundleName);
+          try {
+            const zipBytes = await zipSkillDir(bundleDir);
+            return new Response(zipBytes as BodyInit, {
+              headers: {
+                "Content-Type": "application/zip",
+                "Content-Disposition": `attachment; filename="${bundleName}.zip"`,
+              },
+            });
+          } catch (err: any) {
+            return new Response(
+              `Curated bundle zip failed: ${err.message || err}`,
+              { status: 500 },
+            );
+          }
+        }
+
         if (!isStorageConfigured()) {
           return new Response("Public storage is not configured.", {
             status: 404,
