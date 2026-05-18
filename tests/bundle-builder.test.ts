@@ -138,9 +138,75 @@ test("buildBundle assembles multi-source skill with flat references", async () =
     // Each source contributed at least one ref.
     expect(result!.sources[0]!.refCount).toBeGreaterThanOrEqual(1);
     expect(result!.sources[1]!.refCount).toBeGreaterThanOrEqual(1);
+
+    // Each ref file should carry its origin URL in frontmatter so the
+    // file can be traced back to the page it was extracted from.
+    const refSamplePath = join(
+      result!.skillDir,
+      "references",
+      refs.find((r) => r.endsWith(".md"))!,
+    );
+    const refSample = await readFile(refSamplePath, "utf-8");
+    expect(refSample).toMatch(/^source:\s*"?https:\/\/example\.org/m);
   } finally {
     await rm(out, { recursive: true, force: true });
     // Restore the real fetch module so later test files aren't poisoned.
+    mock.module("../src/fetch", () => ({
+      fetchPage: realFetchPage,
+      looksLikeLoginPage: realLooksLikeLoginPage,
+    }));
+  }
+});
+
+test("buildBundle merges tiny same-source articles below mergeThreshold", async () => {
+  // Two short articles inside one source. With a high threshold both
+  // should collapse into a single reference file (anchor + merged child),
+  // rather than becoming two single-paragraph refs.
+  const SHORT = `<p>One short paragraph of fixture copy. Enough to extract cleanly.</p>`;
+  const html = `<!doctype html><html><head><title>Tiny Bundle</title></head>
+<body><article>
+<h1>Tiny Bundle</h1>
+<h2 id="alpha">Alpha</h2>
+${SHORT}
+<h2 id="beta">Beta</h2>
+${SHORT}
+</article></body></html>`;
+
+  const realFetch = await import("../src/fetch");
+  const realFetchPage = realFetch.fetchPage;
+  const realLooksLikeLoginPage = realFetch.looksLikeLoginPage;
+  mock.module("../src/fetch", () => ({
+    fetchPage: async () => html,
+    looksLikeLoginPage: realLooksLikeLoginPage,
+  }));
+
+  const { buildBundle } = await import("../src/bundle-builder");
+  const out = await mkdtemp(join(tmpdir(), "bundle-merge-"));
+  try {
+    const result = await buildBundle({
+      skill: {
+        name: "rock-merge-test",
+        description: "Test merging.",
+        sources: [{ url: "https://example.org/tiny", label: "Tiny" }],
+      },
+      outputDir: out,
+      mergeThreshold: 200,
+      send: () => {},
+    });
+    expect(result).not.toBeNull();
+    const refs = await readdir(join(result!.skillDir, "references"));
+    // Both Alpha + Beta should fit in a single reference file.
+    expect(refs.length).toBe(1);
+    const combined = await readFile(
+      join(result!.skillDir, "references", refs[0]!),
+      "utf-8",
+    );
+    // Source URL lands in frontmatter and Beta's content is preserved
+    // either as a merged-child anchor or inline within the page body.
+    expect(combined).toMatch(/^source:\s*"?https:\/\/example\.org\/tiny/m);
+    expect(combined).toMatch(/Beta/);
+  } finally {
+    await rm(out, { recursive: true, force: true });
     mock.module("../src/fetch", () => ({
       fetchPage: realFetchPage,
       looksLikeLoginPage: realLooksLikeLoginPage,

@@ -947,6 +947,7 @@ const server = Bun.serve({
           outputDir?: string;
           generateDescriptions?: boolean;
           apiKey?: string;
+          mergeThreshold?: number;
         };
         let config;
         try {
@@ -961,6 +962,8 @@ const server = Bun.serve({
         const resolvedOutput = resolve(body.outputDir || "./output");
         const apiKey = body.apiKey?.trim() || process.env.ANTHROPIC_API_KEY;
         const doGenerateDescriptions = body.generateDescriptions === true;
+        const mergeThreshold =
+          typeof body.mergeThreshold === "number" ? body.mergeThreshold : 50;
 
         const encoder = new TextEncoder();
         const stream = new ReadableStream({
@@ -987,6 +990,7 @@ const server = Bun.serve({
                   skill,
                   outputDir: resolvedOutput,
                   author: config.author,
+                  mergeThreshold,
                   send: (e) => baseSend({ ...tag, ...e }),
                 });
 

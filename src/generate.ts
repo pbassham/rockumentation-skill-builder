@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { ensureDir } from "./utils";
 import type { ArticleSection } from "./convert";
 import { buildTree, type HierarchyNode, type TocEntry } from "./hierarchy";
-import { parseFrontmatter } from "./frontmatter";
+import { buildFrontmatter, parseFrontmatter } from "./frontmatter";
 import { readCachedDescription } from "./description-cache";
 
 interface GenerateOptions {
@@ -142,24 +142,28 @@ export async function generateSkill(opts: GenerateOptions): Promise<string> {
     const breadcrumb = article.toc.breadcrumb.join(" > ");
     const summary = extractSummary(article.content);
     const descLine = summary ? `\n> ${summary}\n` : "";
-    let content = `> **Path:** ${breadcrumb}${descLine}\n${article.content}\n`;
+    let body = `> **Path:** ${breadcrumb}${descLine}\n${article.content}\n`;
 
     // Append merged children content
     const children = mergedChildren.get(article.articleId);
     if (children) {
       for (const child of children) {
         const childBreadcrumb = child.toc.breadcrumb.join(" > ");
-        content += `\n---\n\n## ${child.title} {#${child.slug}}\n\n`;
-        content += `> **Path:** ${childBreadcrumb}\n\n`;
-        content += `${child.content}\n`;
+        body += `\n---\n\n## ${child.title} {#${child.slug}}\n\n`;
+        body += `> **Path:** ${childBreadcrumb}\n\n`;
+        body += `${child.content}\n`;
       }
     }
 
-    // Preserve existing AI-generated description in frontmatter
-    const existingDesc = descriptionMap.get(article.articleId);
-    if (existingDesc) {
-      content = `---\ndescription: "${existingDesc.replace(/"/g, '\\"')}"\n---\n${content}`;
-    }
+    // Frontmatter: preserve any existing AI description + tag the
+    // origin URL so the file can be traced back to its source page.
+    const content = buildFrontmatter(
+      {
+        description: descriptionMap.get(article.articleId),
+        source: article.toc.url || opts.sourceUrl,
+      },
+      body,
+    );
 
     await writeFile(filepath, content, "utf-8");
     console.log(

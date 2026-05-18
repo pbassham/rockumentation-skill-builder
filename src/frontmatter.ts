@@ -1,8 +1,12 @@
 /**
- * Parse YAML frontmatter from a markdown file, extracting the description field.
+ * Parse YAML frontmatter from a markdown file, extracting commonly-used
+ * scalar fields. Only handles flat string fields — we deliberately do not
+ * pull in a full YAML parser for reference files.
  */
 export function parseFrontmatter(content: string): {
   description?: string;
+  source?: string;
+  sourceLabel?: string;
   body: string;
 } {
   if (!content.startsWith("---\n")) {
@@ -17,23 +21,73 @@ export function parseFrontmatter(content: string): {
   const yaml = content.slice(4, endIndex);
   const body = content.slice(endIndex + 5);
 
-  const descMatch =
-    yaml.match(/^description:\s*"((?:[^"\\]|\\.)*)"/m) ||
-    yaml.match(/^description:\s*(.+)$/m);
-
   return {
-    description: descMatch
-      ? descMatch[1]!.replace(/\\"/g, '"').trim()
-      : undefined,
+    description: readScalar(yaml, "description"),
+    source: readScalar(yaml, "source"),
+    sourceLabel: readScalar(yaml, "sourceLabel"),
     body,
   };
 }
 
+function readScalar(yaml: string, key: string): string | undefined {
+  const quoted = yaml.match(
+    new RegExp(`^${key}:\\s*"((?:[^"\\\\]|\\\\.)*)"`, "m"),
+  );
+  if (quoted) return quoted[1]!.replace(/\\"/g, '"').trim();
+  const bare = yaml.match(new RegExp(`^${key}:\\s*(.+)$`, "m"));
+  return bare ? bare[1]!.trim() : undefined;
+}
+
 /**
- * Set or update the description in a file's YAML frontmatter.
+ * Set or update the description in a file's YAML frontmatter, preserving
+ * any other known fields (source, sourceLabel).
  */
 export function setDescription(content: string, description: string): string {
-  const { body } = parseFrontmatter(content);
-  const escaped = description.replace(/"/g, '\\"');
-  return `---\ndescription: "${escaped}"\n---\n${body}`;
+  const parsed = parseFrontmatter(content);
+  return buildFrontmatter(
+    {
+      description,
+      source: parsed.source,
+      sourceLabel: parsed.sourceLabel,
+    },
+    parsed.body,
+  );
+}
+
+/**
+ * Build a frontmatter block + body. Fields with `undefined` / empty values
+ * are skipped. Always emits in a stable order: description, source, sourceLabel.
+ */
+export function buildFrontmatter(
+  fields: {
+    description?: string;
+    source?: string;
+    sourceLabel?: string;
+  },
+  body: string,
+): string {
+  const lines: string[] = ["---"];
+  const order: Array<keyof typeof fields> = [
+    "description",
+    "source",
+    "sourceLabel",
+  ];
+  let any = false;
+  for (const key of order) {
+    const value = fields[key];
+    if (!value) continue;
+    any = true;
+    lines.push(`${key}: ${yamlScalar(value)}`);
+  }
+  if (!any) return body;
+  lines.push("---", "");
+  return lines.join("\n") + body;
+}
+
+function yamlScalar(value: string): string {
+  // Quote anything with YAML-significant characters or surrounding whitespace.
+  if (/[:#{}[\],&*?|>!%@`"\\\n]/.test(value) || /^\s|\s$/.test(value)) {
+    return `"${value.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
+  }
+  return value;
 }

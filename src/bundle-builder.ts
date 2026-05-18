@@ -14,7 +14,8 @@ import { extractWithTemplate } from "./extract";
 import { fetchPage, looksLikeLoginPage } from "./fetch";
 import { rockLogin } from "./auth";
 import { ensureDir, slugify } from "./utils";
-import { parseFrontmatter } from "./frontmatter";
+import { buildFrontmatter, parseFrontmatter } from "./frontmatter";
+import { readCachedDescription } from "./description-cache";
 import { enumerateDocumentationIndex } from "./curated-roots";
 import type { ArticleSection } from "./convert-types";
 import type { BundledSkill, BundledSource } from "./build-config";
@@ -50,6 +51,13 @@ export interface BuildBundleOptions {
   send: (e: BundleBuilderEvent) => void;
   /** Author/version override applied to the SKILL.md `metadata` block. */
   author?: string;
+  /**
+   * Merge same-source articles whose content is shorter than this many
+   * lines into an adjacent sibling so the bundle doesn't end up with
+   * many useless single-paragraph reference files. 0 disables merging.
+   * Defaults to 50.
+   */
+  mergeThreshold?: number;
 }
 
 export async function buildBundle(
@@ -169,11 +177,15 @@ export async function buildBundle(
   // prefix with the source label slug. On further collision, append
   // -2, -3, ... Track the final slug per article so the SKILL.md TOC
   // links match disk.
+  const mergeThreshold = opts.mergeThreshold ?? 50;
   const usedSlugs = new Set<string>();
   const plan: Array<{
     sourceLabel: string;
+    sourceUrl: string;
     article: ArticleSection;
     finalSlug: string;
+    /** Articles merged into this one (rendered as sub-sections in the file). */
+    mergedChildren: ArticleSection[];
   }> = [];
 
   for (const ex of extracted) {
@@ -183,10 +195,14 @@ export async function buildBundle(
     // bundles the depth-0 article often IS the whole source page —
     // dropping it would yield an empty references/ folder.
     const refArticles = ex.articles.filter((a) => !a.toc.isSection);
-    for (const a of refArticles) {
-      let candidate = a.slug;
+    // Apply merge threshold within this source so we don't end up with
+    // a pile of one-paragraph reference files. See `mergeSmallArticles`.
+    const merged = mergeSmallArticles(refArticles, mergeThreshold);
+
+    for (const m of merged) {
+      let candidate = m.anchor.slug;
       if (usedSlugs.has(candidate)) {
-        candidate = `${sourceSlug}-${a.slug}`;
+        candidate = `${sourceSlug}-${m.anchor.slug}`;
       }
       let n = 2;
       let final = candidate;
@@ -194,28 +210,63 @@ export async function buildBundle(
         final = `${candidate}-${n++}`;
       }
       usedSlugs.add(final);
-      plan.push({ sourceLabel: ex.label, article: a, finalSlug: final });
+      plan.push({
+        sourceLabel: ex.label,
+        sourceUrl: ex.source.url,
+        article: m.anchor,
+        finalSlug: final,
+        mergedChildren: m.children,
+      });
     }
   }
 
   // ----- 3. Write reference files --------------------------------------
+  // descMap is keyed by finalSlug and used both to seed the new ref
+  // frontmatter and to populate the SKILL.md TOC. Lookup order:
+  //   1. existing on-disk frontmatter (preserves manual edits)
+  //   2. repo-tracked description cache (data/descriptions/<skill>/<slug>.md)
+  //   3. extractSummary fallback (used only at TOC-render time)
+  const descMap = new Map<string, string>();
   const wroteSlugs = new Set<string>();
-  for (const { article, finalSlug } of plan) {
+  for (const {
+    article,
+    finalSlug,
+    sourceUrl,
+    sourceLabel,
+    mergedChildren,
+  } of plan) {
     const filename = `${finalSlug}.md`;
     const filepath = join(refsDir, filename);
     const breadcrumb = article.toc.breadcrumb.join(" > ");
-    let content = `> **Path:** ${breadcrumb}\n\n${article.content}\n`;
-    // Preserve any existing AI description in frontmatter on the existing
-    // file (so re-builds don't blow it away).
+    let body = `> **Path:** ${breadcrumb}\n\n${article.content}\n`;
+    for (const child of mergedChildren) {
+      const childCrumb = child.toc.breadcrumb.join(" > ");
+      body += `\n---\n\n## ${child.title} {#${child.slug}}\n\n`;
+      if (childCrumb) body += `> **Path:** ${childCrumb}\n\n`;
+      body += `${child.content}\n`;
+    }
+
+    let description: string | undefined;
     try {
       const existing = await Bun.file(filepath).text();
-      const { description } = parseFrontmatter(existing);
-      if (description) {
-        content = `---\ndescription: "${description.replace(/"/g, '\\"')}"\n---\n${content}`;
-      }
+      description = parseFrontmatter(existing).description;
     } catch {
       // file didn't exist — fine.
     }
+    if (!description) {
+      const cached = await readCachedDescription(opts.skill.name, finalSlug);
+      if (cached) description = cached;
+    }
+    if (description) descMap.set(finalSlug, description);
+
+    const content = buildFrontmatter(
+      {
+        description,
+        source: sourceUrl,
+        sourceLabel,
+      },
+      body,
+    );
     await writeFile(filepath, content, "utf-8");
     wroteSlugs.add(finalSlug);
   }
@@ -247,6 +298,7 @@ export async function buildBundle(
     plan,
     sources: sourcesMeta,
     author: opts.author,
+    descMap,
   });
   await writeFile(join(skillDir, "SKILL.md"), skillMd, "utf-8");
 
@@ -269,8 +321,10 @@ function renderBundleSkillMd(args: {
   description: string;
   plan: Array<{
     sourceLabel: string;
+    sourceUrl: string;
     article: ArticleSection;
     finalSlug: string;
+    mergedChildren: ArticleSection[];
   }>;
   sources: Array<{
     url: string;
@@ -279,8 +333,9 @@ function renderBundleSkillMd(args: {
     refCount: number;
   }>;
   author?: string;
+  descMap: Map<string, string>;
 }): string {
-  const { skill, description, plan, sources, author } = args;
+  const { skill, description, plan, sources, author, descMap } = args;
   const lines: string[] = [
     "---",
     `name: ${skill.name}`,
@@ -329,9 +384,12 @@ function renderBundleSkillMd(args: {
     }
     const items = plan.filter((p) => p.sourceLabel === s.label);
     for (const p of items) {
-      const summary = extractSummary(p.article.content);
-      const desc = summary ? ` — ${summary}` : "";
-      lines.push(`- [${p.article.title}](references/${p.finalSlug}.md)${desc}`);
+      const desc =
+        descMap.get(p.finalSlug) || extractSummary(p.article.content);
+      const suffix = desc ? ` — ${desc}` : "";
+      lines.push(
+        `- [${p.article.title}](references/${p.finalSlug}.md)${suffix}`,
+      );
     }
     lines.push("");
   }
@@ -429,4 +487,83 @@ function extractSummary(markdown: string): string {
     return s;
   }
   return "";
+}
+
+interface MergedGroup {
+  /** The article whose slug/title/url anchors the final reference file. */
+  anchor: ArticleSection;
+  /** Smaller articles folded under the anchor as sub-sections. */
+  children: ArticleSection[];
+}
+
+/**
+ * Combine adjacent same-source articles whose content is below `threshold`
+ * lines into a single reference file so the skill doesn't end up with a
+ * dozen single-paragraph references. Returns groups in input order; each
+ * group becomes one reference file. Threshold of 0 disables merging.
+ *
+ * Strategy:
+ *   - Walk articles left to right.
+ *   - Any article >= threshold becomes its own group (anchor).
+ *   - A small article attaches to the previous group when present;
+ *     otherwise it's held as a pending group until either (a) a larger
+ *     article arrives and absorbs it, or (b) the source ends, in which
+ *     case the pending small article ships as its own group.
+ *   - Once a group's total line count crosses the threshold, the next
+ *     small article starts a new pending group instead of growing it
+ *     unbounded.
+ */
+function mergeSmallArticles(
+  articles: ArticleSection[],
+  threshold: number,
+): MergedGroup[] {
+  if (threshold <= 0 || articles.length <= 1) {
+    return articles.map((a) => ({ anchor: a, children: [] }));
+  }
+
+  const lineCount = (a: ArticleSection) => a.content.split("\n").length;
+  const groups: MergedGroup[] = [];
+  let pending: MergedGroup | null = null;
+  let pendingLines = 0;
+
+  const flushPending = () => {
+    if (pending) {
+      groups.push(pending);
+      pending = null;
+      pendingLines = 0;
+    }
+  };
+
+  for (const article of articles) {
+    const lines = lineCount(article);
+    const isLarge = lines >= threshold;
+
+    if (isLarge) {
+      flushPending();
+      groups.push({ anchor: article, children: [] });
+      continue;
+    }
+
+    // Small article. Prefer absorbing into the previous group if it
+    // still has room; otherwise start (or grow) a pending group.
+    const prev = groups[groups.length - 1];
+    if (prev && !pending) {
+      prev.children.push(article);
+      continue;
+    }
+    if (!pending) {
+      pending = { anchor: article, children: [] };
+      pendingLines = lines;
+    } else if (pendingLines + lines < threshold) {
+      pending.children.push(article);
+      pendingLines += lines;
+    } else {
+      flushPending();
+      pending = { anchor: article, children: [] };
+      pendingLines = lines;
+    }
+  }
+
+  flushPending();
+  return groups;
 }
