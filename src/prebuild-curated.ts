@@ -33,6 +33,7 @@ import {
   isStorageConfigured,
   uploadSkill,
   uploadSkillFile,
+  pruneSkillFiles,
   skillExists,
   readLastCuratedPrebuildAt,
   writeLastCuratedPrebuildAt,
@@ -175,17 +176,41 @@ async function prebuildOne(
     errors: [],
   };
 
+  const tag = `[prebuild ${bundle.name}]`;
+  const t0 = Date.now();
+  console.log(
+    `${tag} start (${bundle.sources.length} source${bundle.sources.length === 1 ? "" : "s"})`,
+  );
   const built = await buildBundle({
     skill: bundle,
     outputDir: PREBUILD_OUTPUT_DIR,
-    send: () => {},
+    send: (msg: any) => {
+      // Only log meaningful state transitions to keep prod logs readable.
+      if (
+        msg &&
+        (msg.status === "running" ||
+          msg.status === "done" ||
+          msg.status === "error" ||
+          msg.status === "auth-required")
+      ) {
+        const prefix =
+          msg.sourceIndex && msg.sourceTotal
+            ? `${tag} step ${msg.step} [${msg.sourceIndex}/${msg.sourceTotal}]`
+            : `${tag} step ${msg.step}`;
+        console.log(`${prefix} ${msg.status}: ${msg.message ?? ""}`);
+      }
+    },
   });
   if (!built) {
     result.errors.push("buildBundle returned no result");
+    console.error(`${tag} buildBundle returned no result`);
     return result;
   }
 
   result.refCount = built.refCount;
+  console.log(
+    `${tag} built ${built.refCount} refs in ${((Date.now() - t0) / 1000).toFixed(1)}s`,
+  );
 
   if (apiKey) {
     try {
@@ -233,6 +258,20 @@ async function prebuildOne(
     for (const f of files) {
       await uploadSkillFile(id, f.path, f.content);
     }
+    // Drop any stale files from previous builds (e.g. references that
+    // merged away). Without this, the UI's per-file listing keeps
+    // showing orphans long after the refCount in meta.json has
+    // shrunk.
+    const pruned = await pruneSkillFiles(
+      id,
+      files.map((f) => f.path),
+    ).catch((err) => {
+      console.warn(`${tag} prune failed: ${err?.message || err}`);
+      return [] as string[];
+    });
+    console.log(
+      `${tag} uploaded ${files.length} files, pruned ${pruned.length} stale`,
+    );
   }
 
   // Optional but cheap: validate post-upload so we surface obvious
@@ -247,6 +286,9 @@ async function prebuildOne(
     }
   } catch {}
 
+  console.log(
+    `${tag} done in ${((Date.now() - t0) / 1000).toFixed(1)}s — refs=${result.refCount}, descriptions=${result.generatedDescriptions}, errors=${result.errors.length}`,
+  );
   return result;
 }
 

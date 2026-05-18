@@ -119,6 +119,26 @@ export async function listSkillFiles(id: string): Promise<string[]> {
   );
 }
 
+/**
+ * Delete any files under `skills/${id}/files/` that aren't in the
+ * provided keep-set. Used when re-uploading a regenerated skill so
+ * stale references from previous builds don't linger in S3.
+ * Returns the list of deleted relative paths.
+ */
+export async function pruneSkillFiles(
+  id: string,
+  keepRelativePaths: Iterable<string>,
+): Promise<string[]> {
+  const client = getClient();
+  const keep = new Set(keepRelativePaths);
+  const existing = await listSkillFiles(id);
+  const stale = existing.filter((p) => !keep.has(p));
+  await Promise.all(
+    stale.map((p) => client.delete(`skills/${id}/files/${p}`).catch(() => {})),
+  );
+  return stale;
+}
+
 export async function getSkillFileText(
   id: string,
   relativePath: string,
