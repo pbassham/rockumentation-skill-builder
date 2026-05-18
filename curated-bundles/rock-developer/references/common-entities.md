@@ -1,6 +1,6 @@
 ---
 description: "Use when you need to understand Rock's Person entity structure, properties, and relationships for developer tasks"
-source: "https://community.rockrms.com/developer/202---ignition"
+source: "https://community.rockrms.com/developer/202\u002D\u002D\u002Dignition"
 sourceLabel: 202 — Ignition
 ---
 > **Path:** 

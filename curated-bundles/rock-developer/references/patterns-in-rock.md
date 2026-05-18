@@ -1,6 +1,6 @@
 ---
 description: "Use when implementing flexible, schema-agnostic data storage on Rock models that may evolve without database migrations"
-source: "https://community.rockrms.com/developer/303---blast-off"
+source: "https://community.rockrms.com/developer/303\u002D\u002D\u002Dblast-off"
 sourceLabel: 303 — Blast Off
 ---
 > **Path:** 

@@ -1,6 +1,6 @@
 ---
 description: "Use when developer needs to simplify data migration code using Rock's helper methods for adding/updating blocks, pages, attributes, groups, and defined types"
-source: "https://community.rockrms.com/developer/202---ignition"
+source: "https://community.rockrms.com/developer/202\u002D\u002D\u002Dignition"
 sourceLabel: 202 — Ignition
 ---
 > **Path:** 

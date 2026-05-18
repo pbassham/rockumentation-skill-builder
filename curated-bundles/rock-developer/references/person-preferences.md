@@ -1,6 +1,6 @@
 ---
 description: "Use when implementing user preference storage and retrieval for blocks, such as remembering filter, sort, or display settings per person"
-source: "https://community.rockrms.com/developer/101---launchpad"
+source: "https://community.rockrms.com/developer/101\u002D\u002D\u002Dlaunchpad"
 sourceLabel: 101 — Launchpad
 ---
 > **Path:** 

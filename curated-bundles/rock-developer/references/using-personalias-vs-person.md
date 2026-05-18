@@ -1,6 +1,6 @@
 ---
 description: Use when storing person references in custom data models to understand why PersonAlias IDs should be used instead of Person IDs
-source: "https://community.rockrms.com/developer/101---launchpad"
+source: "https://community.rockrms.com/developer/101\u002D\u002D\u002Dlaunchpad"
 sourceLabel: 101 — Launchpad
 ---
 > **Path:** 

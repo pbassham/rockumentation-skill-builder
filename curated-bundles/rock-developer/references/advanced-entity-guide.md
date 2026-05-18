@@ -1,6 +1,6 @@
 ---
 description: "Use when understanding less common Rock entities like Attendance records, Attributes, and AttributeValues for data modeling"
-source: "https://community.rockrms.com/developer/202---ignition"
+source: "https://community.rockrms.com/developer/202\u002D\u002D\u002Dignition"
 sourceLabel: 202 — Ignition
 ---
 > **Path:** 

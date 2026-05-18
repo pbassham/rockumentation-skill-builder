@@ -1,6 +1,6 @@
 ---
 description: "Use when a Rock developer needs to implement logging, configure logging levels, or understand Rock's logging engine and best practices"
-source: "https://community.rockrms.com/developer/303---blast-off"
+source: "https://community.rockrms.com/developer/303\u002D\u002D\u002Dblast-off"
 sourceLabel: 303 — Blast Off
 ---
 > **Path:** 

@@ -1,6 +1,6 @@
 ---
 description: "Use when a developer needs to understand Rock block fundamentals, structure, markup, code-behind files, or how to create a basic reusable block component"
-source: "https://community.rockrms.com/developer/101---launchpad"
+source: "https://community.rockrms.com/developer/101\u002D\u002D\u002Dlaunchpad"
 sourceLabel: 101 — Launchpad
 ---
 > **Path:** 

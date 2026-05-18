@@ -1,6 +1,6 @@
 ---
 description: "Use when learning how to create or modify database tables, schema, and data migrations for Rock plugins"
-source: "https://community.rockrms.com/developer/202---ignition"
+source: "https://community.rockrms.com/developer/202\u002D\u002D\u002Dignition"
 sourceLabel: 202 — Ignition
 ---
 > **Path:** 

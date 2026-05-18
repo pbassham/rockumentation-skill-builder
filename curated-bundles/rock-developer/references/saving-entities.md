@@ -1,6 +1,6 @@
 ---
 description: "Use when saving new or updated entities to Rock database, or handling entity relationships after save operations"
-source: "https://community.rockrms.com/developer/101---launchpad"
+source: "https://community.rockrms.com/developer/101\u002D\u002D\u002Dlaunchpad"
 sourceLabel: 101 — Launchpad
 ---
 > **Path:** 

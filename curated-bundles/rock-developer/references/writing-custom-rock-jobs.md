@@ -1,6 +1,6 @@
 ---
 description: "Use when a user needs to create, configure, or implement scheduled jobs that run custom code periodically in Rock RMS"
-source: "https://community.rockrms.com/developer/303---blast-off"
+source: "https://community.rockrms.com/developer/303\u002D\u002D\u002Dblast-off"
 sourceLabel: 303 — Blast Off
 ---
 > **Path:** 

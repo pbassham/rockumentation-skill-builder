@@ -1,6 +1,6 @@
 ---
 description: "Use when implementing data grids, sortable tables, or filtering interfaces in Rock blocks"
-source: "https://community.rockrms.com/developer/101---launchpad"
+source: "https://community.rockrms.com/developer/101\u002D\u002D\u002Dlaunchpad"
 sourceLabel: 101 — Launchpad
 ---
 > **Path:** 

@@ -1,6 +1,6 @@
 ---
 description: Use when implementing custom data view filters in Rock to retrieve data based on conditions not available in existing filters
-source: "https://community.rockrms.com/developer/303---blast-off"
+source: "https://community.rockrms.com/developer/303\u002D\u002D\u002Dblast-off"
 sourceLabel: 303 — Blast Off
 ---
 > **Path:** 

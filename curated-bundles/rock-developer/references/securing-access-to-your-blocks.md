@@ -1,6 +1,6 @@
 ---
 description: "Use when implementing security checks in Rock blocks to authorize user actions like View, Edit, and Administrate"
-source: "https://community.rockrms.com/developer/101---launchpad"
+source: "https://community.rockrms.com/developer/101\u002D\u002D\u002Dlaunchpad"
 sourceLabel: 101 — Launchpad
 ---
 > **Path:** 

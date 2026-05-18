@@ -1,6 +1,6 @@
 ---
 description: "Use when customizing Rock block configuration UI, security settings, inter-block data sharing, or implementing entity-level permissions in grids"
-source: "https://community.rockrms.com/developer/303---blast-off"
+source: "https://community.rockrms.com/developer/303\u002D\u002D\u002Dblast-off"
 sourceLabel: 303 — Blast Off
 ---
 > **Path:** 

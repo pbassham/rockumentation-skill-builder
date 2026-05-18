@@ -1,6 +1,6 @@
 ---
 description: Use when implementing custom breadcrumb navigation trails in Rock blocks or controlling breadcrumb display settings on pages
-source: "https://community.rockrms.com/developer/101---launchpad"
+source: "https://community.rockrms.com/developer/101\u002D\u002D\u002Dlaunchpad"
 sourceLabel: 101 — Launchpad
 ---
 > **Path:** 

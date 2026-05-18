@@ -1,6 +1,6 @@
 ---
 description: "Use when developer needs to follow naming conventions for Rock CMS projects, blocks, tables, stored procedures, attributes, and other code components"
-source: "https://community.rockrms.com/developer/101---launchpad"
+source: "https://community.rockrms.com/developer/101\u002D\u002D\u002Dlaunchpad"
 sourceLabel: 101 — Launchpad
 ---
 > **Path:** 

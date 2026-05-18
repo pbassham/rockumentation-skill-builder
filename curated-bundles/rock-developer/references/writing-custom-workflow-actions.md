@@ -1,6 +1,6 @@
 ---
 description: Use when developers need to create custom workflow actions in Rock RMS beyond the built-in options
-source: "https://community.rockrms.com/developer/303---blast-off"
+source: "https://community.rockrms.com/developer/303\u002D\u002D\u002Dblast-off"
 sourceLabel: 303 — Blast Off
 ---
 > **Path:** 

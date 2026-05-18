@@ -1,6 +1,6 @@
 ---
 description: "Use when optimizing Rock code performance, leveraging caches to reduce database queries, or improving LINQ query efficiency"
-source: "https://community.rockrms.com/developer/303---blast-off"
+source: "https://community.rockrms.com/developer/303\u002D\u002D\u002Dblast-off"
 sourceLabel: 303 — Blast Off
 ---
 > **Path:** 

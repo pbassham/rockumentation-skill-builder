@@ -1,6 +1,6 @@
 ---
 description: Use when loading existing entities from Rock database using Service classes and LINQ queries
-source: "https://community.rockrms.com/developer/101---launchpad"
+source: "https://community.rockrms.com/developer/101\u002D\u002D\u002Dlaunchpad"
 sourceLabel: 101 — Launchpad
 ---
 > **Path:** 

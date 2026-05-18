@@ -1,6 +1,6 @@
 ---
 description: "Use when integrating with Rock's REST API, authenticating requests, or accessing Rock data from external applications"
-source: "https://community.rockrms.com/developer/303---blast-off"
+source: "https://community.rockrms.com/developer/303\u002D\u002D\u002Dblast-off"
 sourceLabel: 303 — Blast Off
 ---
 > **Path:** 

@@ -1,6 +1,6 @@
 ---
 description: Use when implementing custom Rock blocks or plugins that need to execute data views programmatically with best practices for caching and performance
-source: "https://community.rockrms.com/developer/303---blast-off"
+source: "https://community.rockrms.com/developer/303\u002D\u002D\u002Dblast-off"
 sourceLabel: 303 — Blast Off
 ---
 > **Path:** 

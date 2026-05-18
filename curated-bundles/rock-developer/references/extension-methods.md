@@ -1,6 +1,6 @@
 ---
 description: "Use when you need to extend .NET classes with helper methods for booleans, controls, dates, dictionaries, enums, and other common data types in Rock applications"
-source: "https://community.rockrms.com/developer/101---launchpad"
+source: "https://community.rockrms.com/developer/101\u002D\u002D\u002Dlaunchpad"
 sourceLabel: 101 — Launchpad
 ---
 > **Path:** 

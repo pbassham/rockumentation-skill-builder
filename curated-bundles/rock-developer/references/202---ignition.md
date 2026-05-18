@@ -1,6 +1,6 @@
 ---
 description: "Use when understanding Rock's core entity framework, data models, and how entities like Person manage data properties and relationships"
-source: "https://community.rockrms.com/developer/202---ignition"
+source: "https://community.rockrms.com/developer/202\u002D\u002D\u002Dignition"
 sourceLabel: 202 — Ignition
 ---
 > **Path:** 

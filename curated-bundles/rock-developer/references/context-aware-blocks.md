@@ -1,6 +1,6 @@
 ---
 description: Use when developing custom Rock blocks that need to access and respond to entities in the user's current context
-source: "https://community.rockrms.com/developer/303---blast-off"
+source: "https://community.rockrms.com/developer/303\u002D\u002D\u002Dblast-off"
 sourceLabel: 303 — Blast Off
 ---
 > **Path:** 

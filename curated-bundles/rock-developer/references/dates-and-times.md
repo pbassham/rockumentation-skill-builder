@@ -1,6 +1,6 @@
 ---
 description: "Use when handling dates and times in Rock development, including time zone conversions, formatting for international audiences, and date range comparisons"
-source: "https://community.rockrms.com/developer/101---launchpad"
+source: "https://community.rockrms.com/developer/101\u002D\u002D\u002Dlaunchpad"
 sourceLabel: 101 — Launchpad
 ---
 > **Path:** 

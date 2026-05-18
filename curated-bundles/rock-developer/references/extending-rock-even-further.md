@@ -1,6 +1,6 @@
 ---
 description: Use when building custom FieldTypes and Field Attributes in Rock to extend data model functionality
-source: "https://community.rockrms.com/developer/303---blast-off"
+source: "https://community.rockrms.com/developer/303\u002D\u002D\u002Dblast-off"
 sourceLabel: 303 — Blast Off
 ---
 > **Path:** 

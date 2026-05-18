@@ -1,6 +1,6 @@
 ---
 description: Use when a developer needs to create custom database entities in Rock using Entity Framework and the code-first approach
-source: "https://community.rockrms.com/developer/202---ignition"
+source: "https://community.rockrms.com/developer/202\u002D\u002D\u002Dignition"
 sourceLabel: 202 — Ignition
 ---
 > **Path:** 

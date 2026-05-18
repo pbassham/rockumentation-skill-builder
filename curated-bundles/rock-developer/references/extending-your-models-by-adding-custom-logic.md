@@ -1,6 +1,6 @@
 ---
 description: "Use when implementing custom business logic, validation, or cascading deletes in Rock model classes using PreSaveChanges and PostSaveChanges hooks"
-source: "https://community.rockrms.com/developer/303---blast-off"
+source: "https://community.rockrms.com/developer/303\u002D\u002D\u002Dblast-off"
 sourceLabel: 303 — Blast Off
 ---
 > **Path:** 
