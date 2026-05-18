@@ -82,11 +82,27 @@ import {
 import { generateSkillMeta } from "./describe-skill-meta";
 
 async function zipSkillDir(skillDir: string): Promise<Uint8Array> {
-  const proc = Bun.spawn(["zip", "-r", "-q", "-", "SKILL.md", "references"], {
-    cwd: skillDir,
-    stdout: "pipe",
-    stderr: "pipe",
-  });
+  // claude.ai's uploader requires SKILL.md to live inside a single
+  // top-level folder within the zip (e.g. `rock-mobile/SKILL.md`), so
+  // zip from the parent dir and include the folder name in the
+  // archive entries instead of zipping the contents flat.
+  const parentDir = resolve(skillDir, "..");
+  const folderName = skillDir.split("/").pop() || "skill";
+  const proc = Bun.spawn(
+    [
+      "zip",
+      "-r",
+      "-q",
+      "-",
+      `${folderName}/SKILL.md`,
+      `${folderName}/references`,
+    ],
+    {
+      cwd: parentDir,
+      stdout: "pipe",
+      stderr: "pipe",
+    },
+  );
   const bytes = new Uint8Array(await new Response(proc.stdout).arrayBuffer());
   const exitCode = await proc.exited;
   if (exitCode !== 0) {
