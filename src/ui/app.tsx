@@ -324,7 +324,7 @@ async function loadCuratedRoots() {
         }
         if (prebuiltData.enabled && !c.saved) {
           footerBits.push(
-            `<button type="button" class="bundle-card-rebuild" data-bundle-name="${escapeHtml(c.bundle.name)}" title="Re-fetch every source and regenerate the public artefact (requires token)">Rebuild</button>`,
+            `<button type="button" class="bundle-card-rebuild" data-bundle-name="${escapeHtml(c.bundle.name)}" title="Re-fetch sources, merge into the tracked bundle (descriptions preserved), commit any changes to git, and refresh the public artefact (requires token)">Refresh from source</button>`,
           );
         }
         const footer =
@@ -476,12 +476,12 @@ async function triggerCuratedRebuild(
   if (!token) {
     token =
       window.prompt(
-        `Enter the rebuild token for "${bundleName}".\n(Saved in this browser only.)`,
+        `Enter the refresh token for "${bundleName}".\n(Saved in this browser only.)`,
       ) || "";
     if (!token) return;
     localStorage.setItem(PREBUILD_TOKEN_KEY, token);
   }
-  const origText = btn.textContent || "Rebuild";
+  const origText = btn.textContent || "Refresh";
   btn.disabled = true;
   btn.textContent = "Starting\u2026";
   try {
@@ -495,7 +495,7 @@ async function triggerCuratedRebuild(
     if (res.status === 401) {
       localStorage.removeItem(PREBUILD_TOKEN_KEY);
       btn.textContent = "Bad token";
-      window.alert("Token rejected. Click Rebuild again to re-enter.");
+      window.alert("Token rejected. Click Refresh again to re-enter.");
       return;
     }
     if (!res.ok) {
@@ -504,7 +504,7 @@ async function triggerCuratedRebuild(
     }
     btn.textContent = "Started \u2713";
     window.alert(
-      `Rebuild started for "${bundleName}".\nIt runs in the background on the server (usually 1\u20133 min).\nRefresh the page in a moment to pick up the new download.`,
+      `Refresh started for "${bundleName}".\nFetches sources, merges into the tracked bundle, auto-commits any changes to git, and updates the public artefact.\nUsually 1\u20133 min. Refresh the page in a moment.`,
     );
   } catch (err: any) {
     btn.textContent = "Error";

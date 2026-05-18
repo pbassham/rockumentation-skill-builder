@@ -18,9 +18,10 @@ RUN bun install --frozen-lockfile
 COPY tsconfig.json ./
 COPY src ./src
 COPY templates ./templates
-# Curated description cache — read by generate.ts to seed reference frontmatter
-# on every build, written to by /api/describe on each generation.
-COPY data ./data
+# Tracked curated bundles — source of truth for descriptions and any
+# hand-written prose. The refresh flow reads/writes these on disk and
+# commits diffs back to GitHub when GITHUB_TOKEN + GITHUB_REPO are set.
+COPY curated-bundles ./curated-bundles
 
 # /app/output is the working directory for built skills. Pre-create it
 # with permissive ownership so the unprivileged `bun` user can write to

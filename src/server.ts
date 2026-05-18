@@ -22,9 +22,36 @@ import { parseBuildConfig } from "./build-config";
 import { buildBundle } from "./bundle-builder";
 import { parseFrontmatter, setDescription } from "./frontmatter";
 import { generateDescription } from "./describe";
-import { writeCachedDescription, editUrlFor } from "./description-cache";
+import { commitBundleToGit, CURATED_TRACKED_DIR } from "./curated-tracked";
+
+/** Shared token gate for curated trigger endpoints. Returns true when allowed. */
+function requirePrebuildToken(req: Request): boolean {
+  const expected = process.env.PREBUILD_TRIGGER_TOKEN;
+  if (!expected) return true;
+  const got =
+    req.headers.get("x-prebuild-token") ||
+    new URL(req.url).searchParams.get("token");
+  return got === expected;
+}
+
+/**
+ * Build a GitHub edit URL for a curated reference's frontmatter so the
+ * UI can offer "Suggest improvement" links. Descriptions live in the
+ * ref file's YAML frontmatter (previously in data/descriptions/).
+ */
+function curatedEditUrl(skillName: string, slug: string): string {
+  const repo =
+    process.env.GITHUB_REPO ||
+    process.env.DESCRIPTION_CACHE_REPO ||
+    "pbassham/rockumentation-skill-builder";
+  const branch = process.env.GITHUB_BRANCH || "main";
+  return `https://github.com/${repo}/edit/${branch}/curated-bundles/${safe(skillName)}/references/${safe(slug)}.md`;
+}
+function safe(s: string): string {
+  return s.replace(/[^a-z0-9._-]+/gi, "-").replace(/^\.+/, "");
+}
 import {
-  prebuildAllCurated,
+  refreshAllCurated,
   listAvailableCuratedPrebuiltIds,
   isPrebuildDue,
   PREBUILD_MAX_AGE_MS,
@@ -142,9 +169,6 @@ async function generateMissingDescriptions(
       );
       const updated = setDescription(content, desc);
       await Bun.write(filepath, updated);
-      // Persist to the repo-tracked cache so curated descriptions are
-      // shared across builds and contributors.
-      await writeCachedDescription(skillName, slug, desc).catch(() => {});
       updatedDescs.set(slug, desc);
       generated++;
     } catch (err: any) {
@@ -202,14 +226,8 @@ const server = Bun.serve({
      */
     "/api/prebuild-curated": {
       POST: async (req) => {
-        const expected = process.env.PREBUILD_TRIGGER_TOKEN;
-        if (expected) {
-          const got =
-            req.headers.get("x-prebuild-token") ||
-            new URL(req.url).searchParams.get("token");
-          if (got !== expected) {
-            return Response.json({ error: "Unauthorized" }, { status: 401 });
-          }
+        if (!requirePrebuildToken(req)) {
+          return Response.json({ error: "Unauthorized" }, { status: 401 });
         }
         if (!isStorageConfigured()) {
           return Response.json(
@@ -219,7 +237,7 @@ const server = Bun.serve({
         }
         const bundleName =
           new URL(req.url).searchParams.get("bundle") || undefined;
-        prebuildAllCurated({ bundleName })
+        refreshAllCurated({ bundleName })
           .then((s) =>
             console.log(
               `[curated-prebuild manual${bundleName ? ` ${bundleName}` : ""}] built ${s.results.length} bundle(s) in ${(s.durationMs / 1000).toFixed(1)}s`,
@@ -247,6 +265,124 @@ const server = Bun.serve({
             hasInterpreterPipeline: (t.interpreterPipeline?.length ?? 0) > 0,
           })),
         }),
+    },
+
+    /**
+     * Re-extract a curated bundle from source, merging into the
+     * tracked `curated-bundles/<name>/` directory so descriptions and
+     * hand-written prose are preserved.
+     *
+     * Body: { bundleName: string, commit?: boolean }
+     *   - commit=false (default, UI mode): refresh on disk only so the
+     *     editor can preview the diff before pushing.
+     *   - commit=true (cron mode): also push to git + S3 in one shot.
+     *
+     * Token-gated via PREBUILD_TRIGGER_TOKEN.
+     */
+    "/api/curated/refresh": {
+      POST: async (req) => {
+        if (!requirePrebuildToken(req)) {
+          return Response.json({ error: "Unauthorized" }, { status: 401 });
+        }
+        const body = await req.json().catch(() => ({}) as any);
+        const bundleName: string | undefined = body?.bundleName;
+        const commit: boolean = !!body?.commit;
+        if (!bundleName) {
+          return Response.json(
+            { error: "bundleName is required" },
+            { status: 400 },
+          );
+        }
+        const bundle = CURATED_BUNDLES.find((b) => b.name === bundleName);
+        if (!bundle) {
+          return Response.json(
+            { error: `Unknown bundle: ${bundleName}` },
+            { status: 404 },
+          );
+        }
+        try {
+          const result = await buildBundle({
+            skill: bundle,
+            outputDir: CURATED_TRACKED_DIR,
+            mode: "refresh",
+            send: () => {},
+          });
+          if (!result) {
+            return Response.json(
+              { error: "buildBundle returned no result" },
+              { status: 500 },
+            );
+          }
+          if (!commit) {
+            return Response.json({
+              ok: true,
+              refCount: result.refCount,
+              deletedRefs: result.deletedRefs,
+              committed: false,
+            });
+          }
+          const commitRes = await commitBundleToGit(
+            bundleName,
+            result.deletedRefs,
+            `chore(curated): ${bundleName} refresh`,
+          );
+          return Response.json({
+            ok: true,
+            refCount: result.refCount,
+            deletedRefs: result.deletedRefs,
+            committed: true,
+            commit: commitRes,
+          });
+        } catch (err: any) {
+          return Response.json(
+            { error: err.message || String(err) },
+            { status: 500 },
+          );
+        }
+      },
+    },
+
+    /**
+     * Commit the current `curated-bundles/<name>/` snapshot to git.
+     * Reads the tracked directory verbatim \u2014 callers are responsible
+     * for staging changes there first (via the editor or
+     * /api/curated/refresh).
+     *
+     * Body: { bundleName: string, deletedRefs?: string[], message?: string }
+     * Token-gated via PREBUILD_TRIGGER_TOKEN.
+     */
+    "/api/curated/save": {
+      POST: async (req) => {
+        if (!requirePrebuildToken(req)) {
+          return Response.json({ error: "Unauthorized" }, { status: 401 });
+        }
+        const body = await req.json().catch(() => ({}) as any);
+        const bundleName: string | undefined = body?.bundleName;
+        const deletedRefs: string[] = Array.isArray(body?.deletedRefs)
+          ? body.deletedRefs
+          : [];
+        const message: string =
+          body?.message || `chore(curated): ${bundleName} save`;
+        if (!bundleName) {
+          return Response.json(
+            { error: "bundleName is required" },
+            { status: 400 },
+          );
+        }
+        try {
+          const commitRes = await commitBundleToGit(
+            bundleName,
+            deletedRefs,
+            message,
+          );
+          return Response.json({ ok: true, commit: commitRes });
+        } catch (err: any) {
+          return Response.json(
+            { error: err.message || String(err) },
+            { status: 500 },
+          );
+        }
+      },
     },
 
     "/api/curated-roots": {
@@ -1473,11 +1609,6 @@ const server = Bun.serve({
           const updated = setDescription(raw, trimmed);
           await Bun.write(refPath, updated);
           await updateSkillMdDescriptions(skillDir, new Map([[slug, trimmed]]));
-          if (skillName) {
-            await writeCachedDescription(skillName, slug, trimmed).catch(
-              () => {},
-            );
-          }
           return Response.json({ ok: true, slug, description: trimmed });
         } catch (err: any) {
           return Response.json(
@@ -1584,7 +1715,7 @@ const server = Bun.serve({
               hasDescription: !!description,
               bodyPreview,
               editUrl: skillName
-                ? editUrlFor(skillName, filename.replace(".md", ""))
+                ? curatedEditUrl(skillName, filename.replace(".md", ""))
                 : null,
             };
           }),
@@ -1686,12 +1817,6 @@ const server = Bun.serve({
 
                 const updated = setDescription(content, description);
                 await Bun.write(filepath, updated);
-                // Persist to the repo-tracked cache as well.
-                await writeCachedDescription(
-                  skillName,
-                  slug,
-                  description,
-                ).catch(() => {});
 
                 updatedDescs.set(slug, description);
                 generated++;
@@ -1776,7 +1901,7 @@ const CURATED_PREBUILD_DISABLED = process.env.CURATED_PREBUILD === "0";
 if (!CURATED_PREBUILD_DISABLED && isStorageConfigured()) {
   const runOnce = async (label: string) => {
     try {
-      const summary = await prebuildAllCurated();
+      const summary = await refreshAllCurated();
       const failed = summary.results.filter((r) => r.errors.length > 0);
       const generated = summary.results.reduce(
         (n, r) => n + r.generatedDescriptions,

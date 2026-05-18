@@ -21,14 +21,15 @@
  *   - Daily setInterval thereafter
  *   - Idempotent: if the upload-meta hash matches, the run is a no-op.
  */
-import { resolve, join } from "node:path";
+import { join } from "node:path";
 import { readdir } from "node:fs/promises";
 import { CURATED_BUNDLES } from "./curated-roots";
 import { buildBundle } from "./bundle-builder";
 import { generateDescription } from "./describe";
-import { writeCachedDescription } from "./description-cache";
 import { parseFrontmatter, setDescription } from "./frontmatter";
 import { updateSkillMdDescriptions } from "./generate";
+import { CURATED_TRACKED_DIR, commitBundleToGit } from "./curated-tracked";
+import { isGitPushConfigured } from "./github-push";
 import {
   isStorageConfigured,
   uploadSkill,
@@ -46,14 +47,38 @@ interface PrebuildResult {
   id: string;
   refCount: number;
   generatedDescriptions: number;
+  deletedRefs: string[];
+  /** Set to the commit URL when this run produced a git commit. */
+  commitUrl?: string;
   errors: string[];
 }
 
-const PREBUILD_OUTPUT_DIR = resolve("./output/_curated");
+/**
+ * Legacy `output/_curated` lives next to user-built scratch outputs.
+ * The cron + UI both target the tracked `curated-bundles/` directory
+ * via `CURATED_TRACKED_DIR` so descriptions and hand-written prose
+ * survive a refresh (see `src/merge-curated.ts`).
+ */
+const PREBUILD_OUTPUT_DIR = CURATED_TRACKED_DIR;
 
 /** Deterministic id so re-runs overwrite the same artefact in S3. */
 function curatedId(bundleName: string): string {
   return `curated-${bundleName.replace(/[^a-z0-9-]/gi, "-").toLowerCase()}`;
+}
+
+function buildCommitMessage(
+  bundleName: string,
+  removed: number,
+  newDescriptions: number,
+): string {
+  const parts: string[] = [];
+  if (removed > 0) parts.push(`${removed} removed`);
+  if (newDescriptions > 0)
+    parts.push(
+      `${newDescriptions} new description${newDescriptions === 1 ? "" : "s"}`,
+    );
+  const suffix = parts.length ? ` \u2014 ${parts.join(", ")}` : "";
+  return `chore(curated): ${bundleName} refresh${suffix}`;
 }
 
 async function zipSkillDir(skillDir: string): Promise<Uint8Array> {
@@ -146,7 +171,6 @@ async function fillMissingDescriptions(
       }
       const updated = setDescription(raw, desc);
       await Bun.write(filepath, updated);
-      await writeCachedDescription(skillName, slug, desc).catch(() => {});
       updatedDescs.set(slug, desc);
       generated++;
     } catch {
@@ -173,6 +197,7 @@ async function prebuildOne(
     id: curatedId(bundle.name),
     refCount: 0,
     generatedDescriptions: 0,
+    deletedRefs: [],
     errors: [],
   };
 
@@ -184,6 +209,7 @@ async function prebuildOne(
   const built = await buildBundle({
     skill: bundle,
     outputDir: PREBUILD_OUTPUT_DIR,
+    mode: "refresh",
     send: (msg: any) => {
       // Only log meaningful state transitions to keep prod logs readable.
       if (
@@ -208,8 +234,9 @@ async function prebuildOne(
   }
 
   result.refCount = built.refCount;
+  result.deletedRefs = built.deletedRefs;
   console.log(
-    `${tag} built ${built.refCount} refs in ${((Date.now() - t0) / 1000).toFixed(1)}s`,
+    `${tag} built ${built.refCount} refs (${built.deletedRefs.length} removed) in ${((Date.now() - t0) / 1000).toFixed(1)}s`,
   );
 
   if (apiKey) {
@@ -228,9 +255,39 @@ async function prebuildOne(
     }
   }
 
+  // Push the refreshed tracked-dir contents to git so descriptions and
+  // any source-driven body changes survive container restarts. This
+  // runs BEFORE the S3 upload so commits and the read cache stay in
+  // step. No-op when `GITHUB_TOKEN` + `GITHUB_REPO` aren't set.
+  if (isGitPushConfigured()) {
+    try {
+      const message = buildCommitMessage(
+        bundle.name,
+        built.deletedRefs.length,
+        result.generatedDescriptions,
+      );
+      const commit = await commitBundleToGit(
+        bundle.name,
+        built.deletedRefs,
+        message,
+      );
+      if (commit.ok) {
+        result.commitUrl = commit.commitUrl;
+        console.log(
+          `${tag} git commit ${commit.commitSha.slice(0, 7)} — ${commit.filesChanged} files, ${commit.deletions} deletions`,
+        );
+      } else if (commit.skipped !== "no changes") {
+        console.log(`${tag} git skipped: ${commit.skipped}`);
+      }
+    } catch (err: any) {
+      result.errors.push(`git push failed: ${err.message || err}`);
+      console.warn(`${tag} git push failed: ${err.message || err}`);
+    }
+  }
+
   // Upload to S3 (deterministic id => overwrites previous artefact).
   // Skipped when storage isn't configured so the function still works
-  // locally as a description-cache populator.
+  // locally for description backfill.
   if (uploadEnabled) {
     const id = result.id;
     const zipBytes = await zipSkillDir(built.skillDir);
@@ -305,7 +362,7 @@ export interface PrebuildSummary {
  * Build every curated bundle and upload to S3. Coalesces concurrent
  * callers — only one run at a time, returns the same promise to all.
  */
-export async function prebuildAllCurated(
+export async function refreshAllCurated(
   opts: {
     apiKey?: string;
     /** If set, only rebuild this bundle name (e.g. "rock-user"). */
@@ -338,6 +395,7 @@ export async function prebuildAllCurated(
           id: curatedId(bundle.name),
           refCount: 0,
           generatedDescriptions: 0,
+          deletedRefs: [],
           errors: [err.message || String(err)],
         });
       }
@@ -414,7 +472,7 @@ export async function isPrebuildDue(): Promise<boolean> {
 // AWS_* env vars are present, otherwise just populates the local cache
 // so the result can be committed to git.
 if (import.meta.main) {
-  const summary = await prebuildAllCurated();
+  const summary = await refreshAllCurated();
   const generated = summary.results.reduce(
     (n, r) => n + r.generatedDescriptions,
     0,

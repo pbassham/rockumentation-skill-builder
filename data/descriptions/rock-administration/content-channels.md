@@ -1,1 +1,0 @@
-Use when you need to understand how to create and manage structured content containers, define data patterns for repeated content types, or set up channels for blogs, promotions, bulletins, and other dynamic website content in Rock

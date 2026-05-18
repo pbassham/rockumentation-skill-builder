@@ -159,6 +159,25 @@ fly secrets set ANTHROPIC_API_KEY=sk-ant-...
 fly deploy
 ```
 
+### Curated bundle git-tracking (optional)
+
+Curated bundles live in [`curated-bundles/`](curated-bundles/) and are
+treated as the source of truth for descriptions and any hand-written
+prose. The weekly cron and the "Refresh from source" button both run a
+merge-aware refresh (fresh source markdown + preserved descriptions /
+custom text) and then auto-commit any diff back to GitHub. To enable:
+
+```bash
+fly secrets set GITHUB_REPO=owner/rockumentation-skill-builder
+fly secrets set GITHUB_TOKEN=<fine-grained PAT with Contents: read/write>
+fly secrets set GITHUB_BRANCH=main   # optional, defaults to main
+```
+
+The deploy workflow has `paths-ignore: ['curated-bundles/**', 'output/**', '**.md']`
+so bot commits never trigger a redeploy loop. Without these secrets the
+refresh still updates the S3 read cache; the change just isn't persisted
+to git.
+
 ## Updating the Hosted App
 
 The hosted instance auto-deploys via the [`Fly Deploy` GitHub Action](.github/workflows/fly-deploy.yml) on every push to `main`.

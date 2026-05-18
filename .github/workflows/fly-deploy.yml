@@ -5,11 +5,18 @@ on:
   push:
     branches:
       - main
+    # Skip redeploys for bot commits that only touch tracked content.
+    # The running container picks those up directly from git + S3 via
+    # the refresh endpoint, so there's no need to rebuild the image.
+    paths-ignore:
+      - "curated-bundles/**"
+      - "output/**"
+      - "**.md"
 jobs:
   deploy:
     name: Deploy app
     runs-on: ubuntu-latest
-    concurrency: deploy-group    # optional: ensure only one action runs at a time
+    concurrency: deploy-group # optional: ensure only one action runs at a time
     steps:
       - uses: actions/checkout@v4
       - uses: superfly/flyctl-actions/setup-flyctl@master
