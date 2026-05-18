@@ -228,7 +228,10 @@ const server = Bun.serve({
           .catch((err) =>
             console.warn("[curated-prebuild manual] failed:", err),
           );
-        return Response.json({ status: "started", bundle: bundleName ?? "all" });
+        return Response.json({
+          status: "started",
+          bundle: bundleName ?? "all",
+        });
       },
     },
 

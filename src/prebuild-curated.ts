@@ -263,11 +263,13 @@ export interface PrebuildSummary {
  * Build every curated bundle and upload to S3. Coalesces concurrent
  * callers — only one run at a time, returns the same promise to all.
  */
-export async function prebuildAllCurated(opts: {
-  apiKey?: string;
-  /** If set, only rebuild this bundle name (e.g. "rock-user"). */
-  bundleName?: string;
-} = {}): Promise<PrebuildSummary> {
+export async function prebuildAllCurated(
+  opts: {
+    apiKey?: string;
+    /** If set, only rebuild this bundle name (e.g. "rock-user"). */
+    bundleName?: string;
+  } = {},
+): Promise<PrebuildSummary> {
   if (prebuildInFlight) {
     const results = await prebuildInFlight;
     return {
@@ -305,9 +307,9 @@ export async function prebuildAllCurated(opts: {
     // Only refresh the global "last prebuild" timestamp on a full run;
     // a single-bundle rebuild shouldn't reset the weekly cron clock.
     if (uploadEnabled && !opts.bundleName) {
-      await writeLastCuratedPrebuildAt(
-        new Date(startedAt).toISOString(),
-      ).catch(() => {});
+      await writeLastCuratedPrebuildAt(new Date(startedAt).toISOString()).catch(
+        () => {},
+      );
     }
     return {
       startedAt: new Date(startedAt).toISOString(),
