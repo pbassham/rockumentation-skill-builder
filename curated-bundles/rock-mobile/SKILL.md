@@ -3,7 +3,7 @@ name: rock-mobile
 description: "Use when building a Rock Mobile app — iOS, Android, Apple TV, or Roku. Covers the Mobile Docs (shell setup, blocks, styling, deep links, push, app store submission), Apple TV docs, and Roku docs. This is the bundle to load whenever the question is about a native Rock-powered mobile or TV app."
 metadata:
   generator: rockumentation-skill-builder
-  generatedAt: 2026-05-18T18:18:52.790Z
+  generatedAt: 2026-05-18T18:23:30.741Z
   sources:
     - url: "https://community.rockrms.com/developer/mobile-docs"
       label: Mobile Docs
@@ -87,7 +87,7 @@ This skill bundles 119 references from 3 sources. Load topics on demand via the 
 - [Scan Code](references/scan-code.md) — Use when implementing barcode scanning functionality in Rock mobile apps, including camera modes, scan triggers, and passing scanned values to commands
 - [Blur Effect](references/blur-effect.md) — Use when implementing blur effects on iOS visual elements like cards, layouts, or navigation components in Rock Mobile apps
 - [Safe Area Padding Behavior](references/safe-area-padding-behavior.md) — Use when handling notches, rounded corners, or safe area padding on mobile screens to keep content visible in safe zones
-- [Attribute Value Editor](references/attribute-value-editor.md) — Inherits from Xamarin.Forms.ContentView
+- [Attribute Value Editor](references/attribute-value-editor.md) — Use when building custom mobile forms that need to render attribute fields with proper Rock field type handling and validation
 - [Date Picker](references/date-picker.md) — Use when building mobile forms that require date selection inputs, email validation fields, or read-only label displays in Rock mobile applications
 - [Text Box](references/text-box.md) — Use when implementing single-line or multi-line text input fields in Rock mobile forms with validation and styling requirements
 - [On Device Platform](references/on-device-platform.md) — Use when customizing Rock Mobile UI elements to display different content or styles based on the device's operating system platform or device type
