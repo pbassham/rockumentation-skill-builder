@@ -3,7 +3,7 @@ name: rock-developer
 description: "Use when contributing to Rock RMS itself or writing native C#/Vue plugins for Rock — coding standards, commit discipline, the release process, the Obsidian (Vue 3) block framework, the design system, AI agent integration, packaging plugins and themes for the Rock Shop, Slingshot bulk imports, the realtime visualizer, quickstart tutorials, branch model, changelog, and the 101/202/303 onboarding tracks. NOT for end-user, admin, Lava, or mobile-app questions — load rock-user / rock-administration / rock-advanced / rock-mobile for those."
 metadata:
   generator: rockumentation-skill-builder
-  generatedAt: 2026-05-18T18:29:51.867Z
+  generatedAt: 2026-05-18T18:31:51.167Z
   sources:
     - url: "https://community.rockrms.com/developer/developer-codex"
       label: Developer Codex
@@ -31,11 +31,11 @@ metadata:
       label: Rock Branches
     - url: "https://community.rockrms.com/developer/changelog"
       label: Changelog
-    - url: "https://community.rockrms.com/developer/101---launchpad"
+    - url: "https://community.rockrms.com/developer/101\u002D\u002D\u002Dlaunchpad"
       label: 101 — Launchpad
-    - url: "https://community.rockrms.com/developer/202---ignition"
+    - url: "https://community.rockrms.com/developer/202\u002D\u002D\u002Dignition"
       label: 202 — Ignition
-    - url: "https://community.rockrms.com/developer/303---blast-off"
+    - url: "https://community.rockrms.com/developer/303\u002D\u002D\u002Dblast-off"
       label: 303 — Blast Off
 ---
 
