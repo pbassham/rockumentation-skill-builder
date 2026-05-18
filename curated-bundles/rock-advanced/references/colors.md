@@ -13,7 +13,7 @@ Rock includes an expertly-crafted default color palette, inspired by [Tailwind C
 
 *\*Class is only available in v. 19.0*
 
-#### [Background Color](#collapse1-id-7fea554c-24d2-4175-8f0d-3329fdd10115)
+#### [Background Color](#collapse1-id-b91c1721-b400-4915-90ac-0dc517154dbd)
 
 ```
 bg-primary
@@ -403,7 +403,7 @@ bg-pink-800
 bg-pink-900
 ```
 
-#### [Text Color](#collapse2-id-7fea554c-24d2-4175-8f0d-3329fdd10115)
+#### [Text Color](#collapse2-id-b91c1721-b400-4915-90ac-0dc517154dbd)
 
 ```
 text-primary
@@ -820,7 +820,7 @@ text-pink-800
 text-pink-900
 ```
 
-#### [Border Color](#collapse3-id-7fea554c-24d2-4175-8f0d-3329fdd10115)
+#### [Border Color](#collapse3-id-b91c1721-b400-4915-90ac-0dc517154dbd)
 
 ```
 border-primary

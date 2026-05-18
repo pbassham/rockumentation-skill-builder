@@ -1,4 +1,5 @@
 ---
+description: "Use when formatting Lava code, configuring indentation and whitespace, naming variables, or styling comments and HTML attributes"
 source: "https://community.rockrms.com/Lava"
 sourceLabel: Lava
 ---

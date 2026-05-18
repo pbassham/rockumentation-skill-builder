@@ -1,4 +1,5 @@
 ---
+description: "Use when you need to manipulate text strings like appending, capitalizing, converting case, encrypting/decrypting, or setting default values"
 source: "https://community.rockrms.com/Lava"
 sourceLabel: Lava
 ---

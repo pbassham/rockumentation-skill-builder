@@ -3,7 +3,7 @@ name: rock-advanced
 description: "Use when a Rock RMS staff developer is building inside Rock day to day — authoring Lava templates and shortcodes, writing Helix blocks, designing and building Rock-powered websites, writing custom SQL reports or dataview filters, and theming/styling. Covers Lava (filters, tags, commands, shortcodes), Helix, Designing and Building Websites Using Rock, Styling, the SQL Style Guide, Dynamic LINQ syntax, and shortcode authoring."
 metadata:
   generator: rockumentation-skill-builder
-  generatedAt: 2026-05-18T18:18:17.767Z
+  generatedAt: 2026-05-18T18:22:53.401Z
   sources:
     - url: "https://community.rockrms.com/Lava"
       label: Lava
@@ -36,8 +36,8 @@ This skill bundles 73 references from 7 sources. Load topics on demand via the i
 > Filters, tags, commands, shortcodes — the templating language used everywhere in Rock.
 
 - [Lava](references/lava.md) — Use when you need to understand Lava templating syntax, output markup, filters, tags, or how to dynamically generate content in Rock
-- [Lava Style Guide](references/lava-style-guide.md) — Consistent style and formatting are key to create maintainable projects. By keeping our code style consistent, we...
-- [Text Filters](references/text-filters.md) — Text filters allow you to do creative adjustments to strings of text. They are placed within an output tag {{ }} and...
+- [Lava Style Guide](references/lava-style-guide.md) — Use when formatting Lava code, configuring indentation and whitespace, naming variables, or styling comments and HTML attributes
+- [Text Filters](references/text-filters.md) — Use when you need to manipulate text strings like appending, capitalizing, converting case, encrypting/decrypting, or setting default values
 - [Date Filters](references/date-filters.md) — Use when converting dates to UTC format or formatting dates with custom patterns like day/month/year/time elements
 - [Numeric Filters](references/numeric-filters.md) — Use when you need to perform mathematical operations on numbers like absolute value, rounding, division, min/max limits, or converting integers to enum values
 - [Color Filters](references/color-filters.md) — Use when applying dynamic color transformations like hue adjustment, lightening, darkening, desaturation, opacity changes, or grayscale conversion to UI elements
