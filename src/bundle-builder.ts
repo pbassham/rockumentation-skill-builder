@@ -507,8 +507,10 @@ interface MergedGroup {
  *   - Any article >= threshold becomes its own group (anchor).
  *   - A small article attaches to the previous group when present;
  *     otherwise it's held as a pending group until either (a) a larger
- *     article arrives and absorbs it, or (b) the source ends, in which
- *     case the pending small article ships as its own group.
+ *     article arrives and absorbs it as trailing sub-sections (so we
+ *     never ship a leading short article as its own tiny file), or (b)
+ *     the source ends with no large article in sight, in which case the
+ *     pending small article ships as its own group.
  *   - Once a group's total line count crosses the threshold, the next
  *     small article starts a new pending group instead of growing it
  *     unbounded.
@@ -526,7 +528,7 @@ function mergeSmallArticles(
   let pending: MergedGroup | null = null;
   let pendingLines = 0;
 
-  const flushPending = () => {
+  const flushPendingSolo = () => {
     if (pending) {
       groups.push(pending);
       pending = null;
@@ -534,13 +536,25 @@ function mergeSmallArticles(
     }
   };
 
+  /** Absorb the current `pending` group's articles as trailing children
+   *  of `target`. Use this when a large article arrives after one or
+   *  more leading small articles — better than shipping the leaders as
+   *  one-paragraph standalone files. */
+  const absorbPendingInto = (target: MergedGroup) => {
+    if (!pending) return;
+    target.children.push(pending.anchor, ...pending.children);
+    pending = null;
+    pendingLines = 0;
+  };
+
   for (const article of articles) {
     const lines = lineCount(article);
     const isLarge = lines >= threshold;
 
     if (isLarge) {
-      flushPending();
-      groups.push({ anchor: article, children: [] });
+      const group: MergedGroup = { anchor: article, children: [] };
+      absorbPendingInto(group);
+      groups.push(group);
       continue;
     }
 
@@ -558,12 +572,12 @@ function mergeSmallArticles(
       pending.children.push(article);
       pendingLines += lines;
     } else {
-      flushPending();
+      flushPendingSolo();
       pending = { anchor: article, children: [] };
       pendingLines = lines;
     }
   }
 
-  flushPending();
+  flushPendingSolo();
   return groups;
 }

@@ -213,3 +213,56 @@ ${SHORT}
     }));
   }
 });
+
+test("buildBundle absorbs leading small articles into the next large group", async () => {
+  // A short intro chapter (Welcome) followed by a large chapter. The
+  // intro must NOT ship as its own tiny reference file — it should
+  // become a sub-section of the large chapter that follows.
+  const SHORT = `<p>Welcome paragraph.</p>`;
+  const LONG_BODY = Array.from(
+    { length: 80 },
+    (_, i) => `<p>Sentence ${i + 1} of the long chapter body content.</p>`,
+  ).join("\n");
+  const html = `<!doctype html><html><head><title>Leading Small</title></head>
+<body><article>
+<h1>Leading Small Book</h1>
+<h2 id="welcome">Welcome</h2>
+${SHORT}
+<h2 id="big-chapter">Big Chapter</h2>
+${LONG_BODY}
+</article></body></html>`;
+
+  const realFetch = await import("../src/fetch");
+  const realFetchPage = realFetch.fetchPage;
+  const realLooksLikeLoginPage = realFetch.looksLikeLoginPage;
+  mock.module("../src/fetch", () => ({
+    fetchPage: async () => html,
+    looksLikeLoginPage: realLooksLikeLoginPage,
+  }));
+
+  const { buildBundle } = await import("../src/bundle-builder");
+  const out = await mkdtemp(join(tmpdir(), "bundle-leading-"));
+  try {
+    const result = await buildBundle({
+      skill: {
+        name: "rock-leading-test",
+        description: "Test leading small merging.",
+        sources: [{ url: "https://example.org/leading", label: "Leading" }],
+      },
+      outputDir: out,
+      mergeThreshold: 50,
+      send: () => {},
+    });
+    expect(result).not.toBeNull();
+    const refs = await readdir(join(result!.skillDir, "references"));
+    // Welcome should NOT exist as its own file — it must have been
+    // absorbed into another group rather than shipping as a tiny ref.
+    expect(refs).not.toContain("welcome.md");
+  } finally {
+    await rm(out, { recursive: true, force: true });
+    mock.module("../src/fetch", () => ({
+      fetchPage: realFetchPage,
+      looksLikeLoginPage: realLooksLikeLoginPage,
+    }));
+  }
+});

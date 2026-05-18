@@ -316,6 +316,21 @@ async function loadCuratedRoots() {
         const prebuiltId = prebuiltData.enabled
           ? prebuiltData.ids[c.bundle.name]
           : undefined;
+        const footerBits: string[] = [];
+        if (prebuiltId) {
+          footerBits.push(
+            `<a class="bundle-card-download" href="/s/${prebuiltId}" download title="Download the latest curated build">Download .zip</a>`,
+          );
+        }
+        if (prebuiltData.enabled && !c.saved) {
+          footerBits.push(
+            `<button type="button" class="bundle-card-rebuild" data-bundle-name="${escapeHtml(c.bundle.name)}" title="Re-fetch every source and regenerate the public artefact (requires token)">Rebuild</button>`,
+          );
+        }
+        const footer =
+          footerBits.length > 0
+            ? `<div class="bundle-card-actions">${footerBits.join("")}</div>`
+            : "";
         return `
       <div class="bundle-card-wrap">
         <button type="button" class="bundle-card" data-bundle-index="${i}" data-saved="${c.saved ? "1" : "0"}">
@@ -323,10 +338,21 @@ async function loadCuratedRoots() {
           <span class="bundle-card-desc">${escapeHtml(c.bundle.description || "")}</span>
           <span class="bundle-card-meta">${c.bundle.sources.length} source${c.bundle.sources.length === 1 ? "" : "s"}</span>
         </button>
-        ${prebuiltId ? `<a class="bundle-card-download" href="/s/${prebuiltId}" download title="Download the latest curated build">Download .zip</a>` : ""}
+        ${footer}
       </div>`;
       })
       .join("");
+
+    cardsEl
+      .querySelectorAll<HTMLButtonElement>(".bundle-card-rebuild")
+      .forEach((btn) => {
+        btn.addEventListener("click", (ev) => {
+          ev.stopPropagation();
+          ev.preventDefault();
+          const name = btn.dataset.bundleName!;
+          triggerCuratedRebuild(name, btn);
+        });
+      });
 
     cardsEl
       .querySelectorAll<HTMLButtonElement>(".bundle-card")
@@ -432,6 +458,65 @@ async function loadCuratedRoots() {
  * clone the curated bundle and overlay the user's edits before posting
  * to /api/build-config, so the curated defaults are never mutated.
  */
+const PREBUILD_TOKEN_KEY = "rockumentation:prebuild-token";
+
+/**
+ * Kick off a server-side rebuild of a single curated bundle. The
+ * server runs the prebuild in the background and re-uploads the
+ * resulting artefact to S3 under the same deterministic id, so the
+ * Download button picks up the fresh content automatically. Gated by
+ * PREBUILD_TRIGGER_TOKEN to avoid burning Claude / fetch budget on
+ * stranger traffic.
+ */
+async function triggerCuratedRebuild(
+  bundleName: string,
+  btn: HTMLButtonElement,
+): Promise<void> {
+  let token = localStorage.getItem(PREBUILD_TOKEN_KEY) || "";
+  if (!token) {
+    token =
+      window.prompt(
+        `Enter the rebuild token for "${bundleName}".\n(Saved in this browser only.)`,
+      ) || "";
+    if (!token) return;
+    localStorage.setItem(PREBUILD_TOKEN_KEY, token);
+  }
+  const origText = btn.textContent || "Rebuild";
+  btn.disabled = true;
+  btn.textContent = "Starting\u2026";
+  try {
+    const res = await fetch(
+      `/api/prebuild-curated?bundle=${encodeURIComponent(bundleName)}`,
+      {
+        method: "POST",
+        headers: { "x-prebuild-token": token },
+      },
+    );
+    if (res.status === 401) {
+      localStorage.removeItem(PREBUILD_TOKEN_KEY);
+      btn.textContent = "Bad token";
+      window.alert("Token rejected. Click Rebuild again to re-enter.");
+      return;
+    }
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}) as any);
+      throw new Error(err.error || `HTTP ${res.status}`);
+    }
+    btn.textContent = "Started \u2713";
+    window.alert(
+      `Rebuild started for "${bundleName}".\nIt runs in the background on the server (usually 1\u20133 min).\nRefresh the page in a moment to pick up the new download.`,
+    );
+  } catch (err: any) {
+    btn.textContent = "Error";
+    window.alert(`Rebuild failed: ${err.message || err}`);
+  } finally {
+    setTimeout(() => {
+      btn.disabled = false;
+      btn.textContent = origText;
+    }, 4000);
+  }
+}
+
 function showBundleDetail(
   bundle: BundledSkill,
   options: { editable?: boolean } = {},

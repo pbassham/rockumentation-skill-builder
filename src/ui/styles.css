@@ -1633,6 +1633,56 @@ a:hover {
 .bundle-card-wrap:has(> .bundle-card-download) > .bundle-card {
   border-bottom: none;
 }
+.bundle-card-wrap:has(> .bundle-card-actions) > .bundle-card {
+  border-bottom: none;
+}
+.bundle-card-actions {
+  display: flex;
+  gap: 0;
+  border-top: 1px dashed rgba(88, 166, 255, 0.35);
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  overflow: hidden;
+}
+.bundle-card-actions > .bundle-card-download,
+.bundle-card-actions > .bundle-card-rebuild {
+  border: none;
+  border-radius: 0;
+  flex: 1;
+  min-width: 0;
+}
+.bundle-card-actions > .bundle-card-download + .bundle-card-rebuild,
+.bundle-card-actions > .bundle-card-rebuild + .bundle-card-download {
+  border-left: 1px solid var(--border);
+}
+.bundle-card-rebuild {
+  display: block;
+  text-align: center;
+  padding: 0.55rem 0.9rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  background: transparent;
+  color: var(--text-muted, var(--text));
+  border: 1px solid var(--border);
+  border-top: 1px dashed rgba(88, 166, 255, 0.35);
+  cursor: pointer;
+  font-family: inherit;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+.bundle-card-rebuild:hover:not(:disabled) {
+  background: rgba(88, 166, 255, 0.08);
+  color: var(--accent);
+}
+.bundle-card-rebuild:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
 .bundle-card-download {
   display: block;
   text-align: center;
