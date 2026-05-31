@@ -139,6 +139,8 @@ Default Confirmation Email
 
 We all appreciate reminders. Especially for events we may have registered for long ago. On this screen you can edit the reminder emails. When you create the registration instance (discussed next), you will configure when this email will be sent. Like the other communications, these settings are only visible if you enable *Show Communication Settings* at the bottom of the page under the 'Terms/Text' section.
 
+Keep in mind that reminder emails go out to everyone who completed a registration, including those on the waitlist.
+
 ![](https://rockrms.blob.core.windows.net/documentation/Books/29/1.17.0/images/registration-template-reminder-email-settings-v13.png)
 
 Reminder Email Settings

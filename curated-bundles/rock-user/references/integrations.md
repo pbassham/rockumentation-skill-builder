@@ -124,7 +124,7 @@ That's it! Now you’re set to send SMS messages from the Rock communications fe
 
 # Twilio's Impact Access Project for Non-Profit Organizations
 
-Twilio offers a $500 kickstart credit to non-profit organizations. To learn more, visit [www.twilio.org](https://www.twilio.org/).
+Twilio offers a $100 kickstart credit to non-profit organizations. To learn more, visit [www.twilio.org](https://www.twilio.org/).
 
 # Twilio, Short Codes and MMS Messages
 
