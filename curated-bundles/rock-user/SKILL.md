@@ -3,7 +3,7 @@ name: rock-user
 description: "Use when answering end-user questions about how to use Rock RMS day to day — managing people and families, groups, finance, communications, events, prayer, reporting, check-in, and the LMS. Bundles every 'User Guides' manual."
 metadata:
   generator: rockumentation-skill-builder
-  generatedAt: 2026-05-31T15:20:30.274Z
+  generatedAt: 2026-05-31T17:47:00.846Z
   sources:
     - url: "https://community.rockrms.com/documentation/bookcontent/5/360"
       label: "Person & Family Field Guide"
