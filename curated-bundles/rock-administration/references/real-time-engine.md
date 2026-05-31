@@ -53,6 +53,8 @@ As you're going through the setup process, you'll be prompted to select a *Servi
 
 Once you’re signed up with Azure, you’ll come to Rock under Admin Tools \> Settings \> System Configuration and add your Endpoint and AccessKey.
 
+When copying your credentials from the Azure portal, make sure to copy the Host name value, not the "Endpoint" URL. Rock's Endpoint field expects the hostname only and does not support the https:// prefix. For example, use your-signalr-name.service.signalr.net instead of https://your-signalr-name.service.signalr.net. Using the full URL will cause errors and prevent SignalR from functioning.
+
 ![System Configuration](https://rockrms.blob.core.windows.net/documentation/Books/9/1.18.0/images/system-configuration-azure-signalr-v18.png)
 
 System Configuration

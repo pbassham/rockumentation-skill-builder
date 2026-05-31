@@ -82,9 +82,11 @@ You also have the option of including up to three attachments. First, upload the
 
 The subject line, from address, and body of the email can contain Lava merge fields, so be creative. Also note that the email can be configured to be saved to the recipient's history.
 
-In v14, we made have added new fields for From Name, this is displayed as the email sender's Name when the email is sentv14.1 If one is not provided and the From Email is derived from a Person then their fullname is used.
+In v14, we made have added new fields for From Name, this is displayed as the email sender's Name when the email is sent. If one is not provided and the From Email is derived from a Person then their fullname is used.
 
-![](https://community.rockrms.com/GetImage.ashx?Guid=54d389ea-962d-4fc9-bfef-9202191c2227)
+In v20 a new setting allows you to select the Communication Topic for the email. This workflow action setting is a list of *Defined Values*.
+
+![](https://community.rockrms.com/GetImage.ashx?Guid=17ed5e50-c594-4a59-8816-bb97264fa21d)
 
  # Email Send (System Email)
 
@@ -134,7 +136,9 @@ The above only applies if the workflow is still Active. Inactive workflows will 
 
 The subject line, from address and body of the email can contain Lava merge fields, so be creative.
 
-![](https://community.rockrms.com/GetImage.ashx?Guid=2bf2bdff-c732-4d8f-ad06-989ae62bc324)
+In v20 a new setting allows you to select the Communication Topic for the email. This workflow action setting is a list of *Defined Values*.
+
+![](https://community.rockrms.com/GetImage.ashx?Guid=53047d2c-b024-406d-80dd-78739911b3ff)
 
  # Push Notification Send
 
