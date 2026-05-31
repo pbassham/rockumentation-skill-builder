@@ -131,6 +131,55 @@ This block consisted of mostly fields, please refer to this [style guide](https
 
 ---
 
+## Voice Agent {#cms-voice-agent}
+
+C19.0S19.0
+
+The conversational surface of the [Voice Agent feature](https://community.rockrms.com/developer/mobile-docs/essentials/features/voice-agent). It opens a live realtime audio session with the configured provider, streams the microphone up, plays the assistant's spoken response back, and renders an optional on-screen transcript. It also exposes a per-person settings sheet for voice, speed, push-to-talk, and subtitles.
+
+## What it does
+
+- Opens a realtime audio session with the provider detected from the API key and streams the microphone up.
+- Plays the assistant's spoken response back through the device.
+- Renders a running transcript as on-screen bubbles when subtitles are on.
+- Provides a center mic control (open-mic or press-and-hold, depending on Push to Talk) and a Stop button.
+- Exposes a Settings cover sheet (gear icon, bottom-left) for per-person voice, speed, push-to-talk, and subtitle preferences.
+- Requests microphone permission on load and keeps the screen awake for the duration of the session.
+
+## Settings
+
+| Setting | What it does |
+| --- | --- |
+| API Key | The key obtained from the OpenAI or xAI developer portal. The prefix (`sk-` or `xai-`) determines which provider the block talks to. The key is never sent to the device; the server exchanges it for a short-lived token. |
+| Model | The realtime model used for audio interactions (for example `gpt-realtime-2` or the xAI realtime model name). Must be a model the provider recognizes; an invalid value causes the block to replace its UI with an inline "Voice agent unavailable" error. |
+| Instructions | The system prompt that defines how the assistant should behave during conversations: persona, scope, tone, and what it is and is not allowed to share. Sent to OpenAI only; xAI sessions start without a server-side instruction payload. |
+| Stop Action | The navigation action to perform when the person taps the in-block Stop button. If the block is shown inside a cover sheet, the cover sheet is dismissed in addition to (or instead of) this action. |
+| Rock MCP (Model Context Protocol) | Pick a Rock AI Agent of type "MCP" to expose its tools to the voice session. The block builds the MCP URL automatically using the public application root and a per-person API key. |
+| External MCP | A value list of fully-qualified MCP server URLs from outside Rock that should also be available to the agent. |
+
+## Personal settings
+
+In addition to the admin-controlled block settings above, the block exposes an in-app Settings cover sheet (gear icon in the bottom-left of the block) that lets each person choose:
+
+- Voice. The synthesized voice used for the assistant's responses. Available voices depend on the active provider. A preview button plays a short sample phrase using the current person's nickname.
+- Speed. Playback speed for the assistant's voice. Typical range is roughly 0.5x to 1.5x; 1.0 is normal speed. (Only available on OpenAI.)
+- Push to Talk. When on, the microphone is muted by default and the center button becomes a press-and-hold button. When off (hands-free), the mic stays open whenever it has not been explicitly muted.
+- Subtitles. Toggles the on-screen transcript bubbles.
+
+Each of these is persisted as a per-person block preference and restored the next time the block loads, so each person keeps their own preferred voice and interaction style.
+
+## Permissions
+
+The block requests microphone permission via the platform permission helper on load. If the person denies the request, the block does not start a session and surfaces nothing further; the rest of the page renders normally. Microphone permissions can then be enabled within the OS settings. The display is kept awake for the duration of the session and released on unload.
+
+## Notes
+
+- Requires an authenticated person. The block will not start a session for an anonymous visitor.
+- Give it a navbar-free surface. Place the block on a page or cover sheet with no host navbar so its own controls own the screen.
+- Switching providers resets an incompatible voice. If the API key is changed from one provider to the other, a saved per-person voice that no longer matches the active provider is replaced with that provider's default on the next launch.
+
+---
+
 ## Check-in {#blocks-check-in}
 
 This section refers to the 'CMS' mobile block group.

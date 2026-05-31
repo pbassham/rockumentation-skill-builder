@@ -9,23 +9,17 @@ Using Auth0 for your Rock mobile application login.
 
 M v5.0 C v15.1
 
-![](https://community.rockrms.com/GetImage.ashx?Id=66839)
-
-![](https://community.rockrms.com/GetImage.ashx?Id=66840)
-
-Note
-
-If you are building your app utilizing the orange/blue Rock Mobile application and would like to test Auth0, you should coordinate your efforts with the App Factory publishing service.  
-
 ### What is Auth0?
 
-Auth0 is a cloud-based identity and access management (IAM) platform that provides developers and organizations with secure and easy-to-use solutions for authenticating and authorizing user access to applications. Auth0 offers a range of authentication methods such as username and password, social identity providers, multi-factor authentication, and more.
+[Auth0](https://auth0.com/) is a cloud-based identity and access management (IAM) platform that provides developers and organizations with secure and easy-to-use solutions for authenticating and authorizing user access to applications. Auth0 offers a range of authentication methods such as username and password, social identity providers, multi-factor authentication, and more.
 
 With Auth0, developers can add authentication and authorization capabilities to their applications quickly and easily. Check out their website to learn more about the services they offer.
 
-[Auth0](https://auth0.com/)
+Note
 
-### Setup
+To test Auth0, set up your shell through App Factory and mention Auth0 in the notes. The team will send you everything you need from there.
+
+### Configuration
 
 To ensure Auth0 works seamlessly in Rock Mobile, follow this step-by-step guide to configure a new Auth0 application for Rock Mobile. In this guide, we will:
 
@@ -55,11 +49,15 @@ You cannot use the same application you've configured for Rock Web, since it req
 
 3\. Head into the `Settings` of the Application. You can ignore the Quick Start guide that they typically start you on. Note down the `Client ID` and `Domain` of your Auth0 application.  
 
-![  Note down the Client ID and Domain of your Auth0 application.  ](https://community.rockrms.com/GetImage.ashx?Id=66842)
+![Note down the Client ID and Domain of your Auth0 application.](https://community.rockrms.com/GetImage.ashx?Id=66842)
 
 4.  Make sure you have your app's `Bundle ID` (iOS) and `Package Name` (android) available. If you are unsure of these values or where to retrieve them you should contact the AppFactory publishing service.   
 
 5\. In the `Allowed Callback URLs` of the Auth0 application, add an entry in the following format. If your package name and bundle identifier differ, you will require two URLs, one for each.  
+
+Note
+
+This value is provided by App Factory when they create your shell.
 
 ```
 <Bundle Identifier/Package Name>://auth0/callback
@@ -69,7 +67,7 @@ You cannot use the same application you've configured for Rock Web, since it req
 
 6.  Under `Credentials`, ensure the `Token Endpoint Authentication Method` is set to `None`. Mobile apps use a different form of authentication in comparison to web applications.  
 
-![  Ensure Token Endpoint Authentication Method is set toNone.  ](https://community.rockrms.com/GetImage.ashx?Id=66844)
+![Ensure Token Endpoint Authentication Method is set to None.](https://community.rockrms.com/GetImage.ashx?Id=66844)
 
 Great! We should now have all of the basic configuration finished.
 
@@ -203,7 +201,7 @@ The entire file looks like this if you want to copy and paste the entire example
 
 Once finished, paste it into the HTML section into the box. Ensure the preview looks correct.
 
-### (optional) Pass in Additional Information to your Rock Instance
+### Pass in Additional Information to your Rock Instance (optional)
 
 This part of the tutorial utilizes an [Auth0 Action](https://auth0.com/docs/customize/actions), which is not part of the free Auth0 plan. If you don't want or need to pass down custom fields such as `Gender`, feel free to skip to [Configuring Rock Mobile](https://community.rockrms.com/developer/mobile-docs/essentials/blocks/cms/login/using-auth0#configuring-rock-mobile).
 
@@ -285,11 +283,11 @@ There are a couple of configuration steps for Rock Mobile.
 
 1.  In your mobile application (`Cms Configuration > Mobile Applications`), look for the `Auth0 Client ID` and `Auth0 Domain` settings. Update them with your application values.  
 
-![Auth0 Client ID and Domaun mobile settings.](https://community.rockrms.com/GetImage.ashx?Id=66856)
+![Auth0 Client ID and Domain mobile settings.](https://community.rockrms.com/GetImage.ashx?Id=66856)
 
 2. Enable Auth Login in the Login block.
 
-![  Login block settings. ](https://community.rockrms.com/GetImage.ashx?Id=66857)
+![Login block settings.](https://community.rockrms.com/GetImage.ashx?Id=66857)
 
 Hooray! You should now be fully capable of handling Auth0-related logins.
 

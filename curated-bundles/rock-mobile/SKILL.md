@@ -3,7 +3,7 @@ name: rock-mobile
 description: "Use when building a Rock Mobile app — iOS, Android, Apple TV, or Roku. Covers the Mobile Docs (shell setup, blocks, styling, deep links, push, app store submission), Apple TV docs, and Roku docs. This is the bundle to load whenever the question is about a native Rock-powered mobile or TV app."
 metadata:
   generator: rockumentation-skill-builder
-  generatedAt: 2026-05-18T18:23:30.741Z
+  generatedAt: 2026-05-31T17:49:48.782Z
   sources:
     - url: "https://community.rockrms.com/developer/mobile-docs"
       label: Mobile Docs
@@ -24,6 +24,10 @@ This skill bundles 119 references from 3 sources. Load topics on demand via the 
 
 - [App Configuration](references/app-configuration.md) — Use when configuring Rock mobile app settings like application name, type, orientation, pages, and API key
 - [Deploying Your App](references/deploying-your-app.md) — Use when user needs guidance on deploying Rock mobile apps, testing with the Rock Mobile Core app, or configuring app switcher settings with API credentials
+- [Advanced Topics](references/advanced-topics.md) — Use when building DataViews with dynamic JSON content sources or creating reusable DataTemplates as static resources in Rock Mobile layouts
+- [Dynamic Content](references/dynamic-content.md) — Use when building interactive content blocks that respond to user actions like button taps or form submissions using Callbacks
+- [Deep Linking](references/deep-linking.md) — Use when configuring deep links to route external URLs directly into a Rock mobile application on iOS or Android
+- [Proximity Attendance](references/proximity-attendance.md) — Use when configuring automatic check-in/check-out via Bluetooth beacons or implementing proximity-based attendance tracking in mobile apps
 - [Animations](references/animations.md) — Use when building UI animations in Rock Mobile to respond to user actions or view loading events
 - [Content](references/content.md) — Use when building Rock Mobile app layouts that display dynamic or static content using Lava and XAML markup
 - [Content Collection View](references/content-collection-view.md) — Use when helping users search, filter, and sort content across multiple content collection sources in Rock Mobile
@@ -91,16 +95,14 @@ This skill bundles 119 references from 3 sources. Load topics on demand via the 
 - [Date Picker](references/date-picker.md) — Use when building mobile forms that require date selection inputs, email validation fields, or read-only label displays in Rock mobile applications
 - [Text Box](references/text-box.md) — Use when implementing single-line or multi-line text input fields in Rock mobile forms with validation and styling requirements
 - [On Device Platform](references/on-device-platform.md) — Use when customizing Rock Mobile UI elements to display different content or styles based on the device's operating system platform or device type
+- [Outreach Toolbox](references/outreach-toolbox.md) — Use when users ask about setting up personal contact lists, prayer reminders, relationship tracking, or the Outreach Toolbox mobile features for spiritual engagement
+- [Voice Agent](references/features-voice-agent.md) — Use when the user wants to add a hands-free voice conversation feature to their mobile app or needs guidance on implementing voice-based interaction with an AI agent
 - [Lava](references/lava.md) — Use when building Rock Mobile experiences with Lava templating, filters, whitespace optimization, or accessing shell variables like PageParameter and CurrentPerson
 - [Performance](references/performance.md) — Use when optimizing XAML layout performance, choosing between layout types, or reducing view hierarchy overhead in Rock Mobile apps
 - [Tips and Tricks](references/tips-and-tricks.md) — Use when customizing spacing, margins, and layout properties in Rock Mobile, or implementing device-specific UI variations for phone and tablet displays
 - [Custom Site Attributes](references/custom-site-attributes.md) — Use when configuring custom entity attributes for Rock mobile applications accessible via Lava in XAML components
 - [Migrating to .NET MAUI (V6)](references/migrating-to-net-maui-v6.md) — Use when users need guidance on upgrading Rock Mobile applications from Xamarin Forms V5 to .NET MAUI V6, including layout changes and migration steps
 - [Page Anchors](references/page-anchors.md) — Use when implementing deep linking or navigation that scrolls to specific page elements using anchor fragments or AnchorScrollParameters
-- [Advanced Topics](references/advanced-topics.md) — Use when building DataViews with dynamic JSON content sources or creating reusable DataTemplates as static resources in Rock Mobile layouts
-- [Dynamic Content](references/dynamic-content.md) — Use when building interactive content blocks that respond to user actions like button taps or form submissions using Callbacks
-- [Deep Linking](references/deep-linking.md) — Use when configuring deep links to route external URLs directly into a Rock mobile application on iOS or Android
-- [Proximity Attendance](references/proximity-attendance.md) — Use when configuring automatic check-in/check-out via Bluetooth beacons or implementing proximity-based attendance tracking in mobile apps
 - [Walkthrough](references/walkthrough.md) — Use when building responsive mobile UI layouts with Rock Mobile styling utilities, typography, colors, and component styling for XAML views
 - [Colors](references/style-guide-colors.md) — Use when customizing colors, implementing dark mode responsiveness, or applying color utility classes in Rock Mobile applications
 - [Typography](references/typography.md) — Use when building Rock Mobile interfaces and need to configure fonts, font weights, or text sizes across iOS and Android platforms

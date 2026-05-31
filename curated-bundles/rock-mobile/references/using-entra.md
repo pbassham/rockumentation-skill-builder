@@ -11,8 +11,6 @@ M v6.0 C v16.3
 
 ### What is Microsoft Entra
 
-If you are building your app utilizing the orange/blue Rock Mobile application and would like to test Entra, you should coordinate your efforts with the [App Factory](https://community.rockrms.com/developer/mobile-docs/app-factory) publishing service.
-
 [Microsoft Entra ID](https://www.bing.com/search?q=microsoft+entra&cvid=1e6618deb54e427fbe0b517685f7bbbc&gs_lcrp=EgZjaHJvbWUyBggAEEUYOdIBCDE2MDVqMGo0qAIAsAIA&FORM=ANAB01&PC=DCTS) is a cloud-based identity and access management service that is typically used for employees. It can be used to effectively manage authentication, security and much more at an extremely scalable level.
 
 ### Setup
@@ -44,7 +42,9 @@ This is really up to you. If you're limiting Entra login to staff, then the `Acc
 
 **Redirect URI**
 
-If you need assistance acquiring the <BundleId/PackageName\> please reach out to the App Factory team.
+Note
+
+The BundleId/PackageName is provided by App Factory when they create your shell. If you are unable to locate it, please reach out to the App Factory Team.
 
 This is important. This needs to be formatted like `<BundleId/PackageName>://entra/callback`, otherwise authentication won't work. If your bundle identifier and package name differ, you'll have to add a Redirect URI for both (`App Registrations > Your App > Authentication`).
 
@@ -56,11 +56,11 @@ We need to ensure that our mobile application has permission to see the necessar
 
 a. Navigate to your newly created app registration, then to `API permissions > Add a permission`.
 
-![Add a permission button.  ](https://community.rockrms.com/GetImage.ashx?Id=66864)
+![Add a permission button.](https://community.rockrms.com/GetImage.ashx?Id=66864)
 
-b. Select `Microsoft Graph`.
+b. Select `Microsoft Graph`
 
-![  Select Microsoft Graph as the API.  ](https://community.rockrms.com/GetImage.ashx?Id=66865)
+![Select Microsoft Graph as the API.](https://community.rockrms.com/GetImage.ashx?Id=66865)
 
 c. Select `Delgated permissions`, check `email`, `openid` and `profile` permissions. Press `Add permissions`.
 
@@ -76,11 +76,11 @@ Out of the box, Entra will not return the first name and last name of an authent
 
 a. Under your newly created app registration, navigate to `Token configuration > Add optional claim`.
 
-![  The Add Optional Claim button.  ](https://community.rockrms.com/GetImage.ashx?Id=66867)
+![The Add Optional Claim button.](https://community.rockrms.com/GetImage.ashx?Id=66867)
 
 b. Select `ID` as the `Token type`, and check `email`, `family_name` (last name) and `given_name` (first name). Press `Add`.
 
-![  Select the email, family_name & given_name claims.  ](https://community.rockrms.com/GetImage.ashx?Id=66868)
+![Select the email, family_name & given_name claims.](https://community.rockrms.com/GetImage.ashx?Id=66868)
 
 ### 4\. Configuring Rock Mobile
 

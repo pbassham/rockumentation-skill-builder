@@ -78,6 +78,14 @@ In the opportunity template, you have access to these objects:
 | ConnectionRequestCounts | Dictionary<int, Dictionary<string, object\>\> | A dictionary containing the total amount of requests for the type, and the amount of requests that are particular to you. |
 | DetailPage | Guid | A Guid pertaining to the detail page that is navigated to when a connection opportunity is clicked. |
 
+#### ConnectionRequestCounts Item
+
+| Field | Type | Description |
+| --- | --- | --- |
+| AssignedToYouCount | int | The count of the request that are assign to you as the connector in the connection type. |
+| YourDueSoonCount | int | The count of the request that are due soon in the connection type. |
+| YourOverdueCount | int | The count of the request that are over due in the connection type. |
+
 ### No Requests Content
 
 You may have noticed in some other blocks there is a block setting to provide content when there is nothing to display. Often seen as something like a:

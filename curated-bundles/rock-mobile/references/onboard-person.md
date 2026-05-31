@@ -7,10 +7,6 @@ sourceLabel: Mobile Docs
 
 M v2.0 [Integrated Scroll](https://community.rockrms.com/page/3516?slug=essentials%2fblocks#integrated-scroll)
 
-Warning
-
-Rock Security Settings are utilized to limit account access via passwordless login. The disabling of duplicate checking and passwordless login for specific profile protection levels is recommended.
-
 This is a powerful block (commonly referred to as "account onboarding") with many configuration options, so we'll explain all of the screens below and the settings available for each. The purpose of this block is to walk users through a step-by-step process of creating an account (or signing in) and confirming demographic information, campus, and notification preferences.
 
 ## Hello Screen
