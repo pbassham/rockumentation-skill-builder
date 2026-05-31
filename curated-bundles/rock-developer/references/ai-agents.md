@@ -98,6 +98,8 @@ Important
 **Don't Forget About Security**  
 Don't assume that marking an agent as Public is all you need to do to keep things secure. What one organization considers safe for public access, another might treat as sensitive. Security isn't one size fits all. Make sure you also configure security on the agent's skills and tools individually.
 
+New agents default to *RSR - Rock Administrator* security. This is intentional - agents have write access to data, so they are locked down until you explicitly open them. Before staff can use a new agent, grant View access to the appropriate role. *RSR - Staff Workers* is a typical starting point for a staff-facing agent.
+
 ## Chat vs MCP
 
 An agent can be configured as either a Chat agent or an [MCP (Model Context Protocol)](#) agent. Chat agents keep the conversation inside Rock and can use [Context Anchors](https://community.rockrms.com/developer/ai-agents/agents/context-anchors) to pin the current person or group. On the other side, *Model Context Protocol* agents expose tools to external clients. They do not support context anchors. See the *[Model Context Protocol](#)* guide for the full setup.

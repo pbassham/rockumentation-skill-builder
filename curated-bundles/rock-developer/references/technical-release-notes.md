@@ -20,6 +20,10 @@ While we make a huge effort to not break things during updates, when something c
 - **Extension Methods Moved to Rock.Common**
 	If your projects use the core extension methods, you will need to add a reference to `Rock.Common`.
 
+### 20.0.3 May 21, 2026
+
+- The public enum `Rock.Model.AddressStatus` was moved to `Rock.Enums.dll`.
+
 ### 20.0.2 April 29, 2026
 
 - All string, date, dictionary, JSON, decimal, etc. extension methods that were marked Obsolete in v13 in the `Rock.dll` assembly were moved to `Rock.Common.dll` where they still reside. These obsolete items in the `Rock.dll` have been removed so you will need to use the `Rock.Common.dll` to use those extensions.
@@ -465,7 +469,7 @@ While we make a huge effort to not break things during updates, when something c
 	- `Rock.Model.ConnectionRequest.CelebrationText` (property)
 	The public enum `Rock.Model.ReminderNotificationType` was moved to Rock.Enums (should not be a breaking change).
 
-## Rock 19.0 Released May 5, 2026
+## Rock 19.1 Released May 20, 2026
 
 ---
 
@@ -497,100 +501,6 @@ While we make a huge effort to not break things during updates, when something c
 		- The public class `Rock.Tasks.UpdateDigitalSignatureDocument` was removed.
 		- The public class `Rock.Transactions.SendDigitalSignatureRequestTransaction` was removed.
 		- The public class `Rock.Transactions.UpdateDigitalSignatureDocumentTransaction` was removed.
-
-### 19.0.8
-
-- The following legacy "Electronic Signature" methods, properties or classes -- originally obsoleted in Rock v14 -- were removed from the Rock:
-	- `Rock.Model.SignatureDocumentTemplateService.CancelDocument` (method)
-			- `Rock.Model.SignatureDocumentTemplateService.SendDocument` (method)
-			- `Rock.Model.SignatureDocumentTemplateService.UpdateDocumentStatus` (method)
-			- The public class `Rock.Jobs.ProcessSignatureDocuments` was removed.
-			- The public class `Rock.Security.DigitalSignatureComponent` was removed.
-			- The public class `Rock.Security.DigitalSignatureContainer` was removed.
-			- The public class `Rock.Tasks.ProcessSendDigitalSignatureRequest` was removed.
-			- The public class `Rock.Tasks.UpdateDigitalSignatureDocument` was removed.
-			- The public class `Rock.Transactions.SendDigitalSignatureRequestTransaction` was removed.
-			- The public class `Rock.Transactions.UpdateDigitalSignatureDocumentTransaction` was removed.
-
-### 19.0.7 March 18, 2026
-
-- The following members were removed from `Rock.Model.Contact`:
-	- `Rock.Model.Contact.ConnectionNote` (property)
-			- `Rock.Model.Contact.PrayerNote` (property)
-	The following enums were moved from `Rock.dll` to `Rock.Enums.dll` The namespace remains the same. Code using this enum will need to reference the new dll and be recompiled:
-	- `Rock.Utility.CreateConnectionRequestOptions`
-			- `Rock.Utility.FamilyLimits`
-	The following members were removed from `Rock.Common.Mobile.Blocks.Engagement` for `AddContact`, `ContactProfile`, and `TouchpointDetail`:
-	- `Rock.Common.Mobile.Blocks.Engagement.AddContact.SaveContactBag.ConnectionNote` (property)
-			- `Rock.Common.Mobile.Blocks.Engagement.AddContact.SaveContactBag.PrayerNote` (property)
-			- `Rock.Common.Mobile.Blocks.Engagement.ContactProfile.ContactProfileBag.ConnectionNote` (property)
-			- `Rock.Common.Mobile.Blocks.Engagement.ContactProfile.ContactProfileBag.PrayerNote` (property)
-			- `Rock.Common.Mobile.Blocks.Engagement.ContactProfile.UpdateContactNoteAndCadence.ConnectionNote` (property)
-			- `Rock.Common.Mobile.Blocks.Engagement.ContactProfile.UpdateContactNoteAndCadence.PrayerNote` (property)
-			- `Rock.Common.Mobile.Blocks.Engagement.TouchpointDetail.UpdateContactConnectionBag.ConnectionNote` (field)
-			- `Rock.Common.Mobile.Blocks.Engagement.TouchpointDetail.UpdateContactPrayerBag.PrayerNote` (field)
-	The following method signatures were changed on `Rock.Rest.v2.McpController.`:
-	- `public  .ctor(IMcpServer mcpServer, IChatAgentBuilder agentBuilder)` → `public  .ctor(IServiceProvider serviceProvider)`
-
-### 19.0.6 February 25, 2026
-
-- `Rock.Data.DbContext.WrapTransaction( Action action )` is now `virtual` and `Rock.Data.DbContext.WrapTransactionIf( Func<bool> action )` is now `virtual`.
-	The following items related to SystemEmail, which was obsoleted in Rock v10 (replaced with SystemCommunication), have been removed:
-	- `Rock.Attribute.SystemEmailFieldAttribute` (class)
-			- `Rock.Field.Types.SystemEmailFieldType` (class)
-			- `Rock.Model.Communication.SystemEmail` (class)
-			- `Rock.Model.Communication.SystemEmailService` (class)
-			- `Rock.Model.Communication.SystemEmailConfiguration` (class)
-			- `Rock.Model.Communication.SystemEmailExtensionMethods` (class)
-			- `Rock.Communication.RockEmailMessage( SystemEmail systemEmail )` (constructor)
-			- `Rock.Model.SignatureDocumentTemplate.InviteSystemEmailId` and `InviteSystemEmail` (properties)
-			- `Rock.Model.GroupSync.ExitSystemEmailId` and `ExitSystemEmail` (properties)
-			- `Rock.Model.GroupSync.WelcomeSystemEmailId` and `WelcomeSystemEmail` (properties)
-			- `Rock.Model.GroupType.ScheduleConfirmationSystemEmailId` and `ScheduleConfirmationSystemEmail` (properties)
-			- `Rock.Model.GroupType.ScheduleReminderSystemEmailId` and `ScheduleReminderSystemEmail` (properties)
-			- `Rock.Model.WorkflowActionForm.NotificationSystemEmailId` and `NotificationSystemEmail` (properties)
-			- `Rock.SystemGuid.Page.SYSTEM_EMAIL_CATEGORIES_SYSTEM_EMAILS` (const)
-			- `Rock.Web.Cache.GroupTypeCache.ScheduleConfirmationSystemEmailId` (property)
-			- `Rock.Web.Cache.GroupTypeCache.ScheduleReminderSystemEmailId` (property)
-			- `Rock.Web.Cache.WorkflowActionFormCache.NotificationSystemEmailId` (property)
-			- `Rock.Rest.Controllers.SystemEmailsController` (class)
-	The following related items (obsoleted in Rock v15) have been removed:
-	- `Rock.Communication.Medium.Sms` `public static DefinedValueCache FindFromPhoneDefinedValue( string phoneNumber )`
-			- `Rock.Communication.Medium.Sms` `public static DefinedValueCache FindRockSMSPhoneDefinedValue( string phoneNumber )`
-			- `Rock.Model.SystemPhoneNumberService` `public static void DeleteLegacyPhoneNumber( SystemPhoneNumber systemPhoneNumber )`
-			- `Rock.SystemGuid.DefinedType.COMMUNICATION_SMS_FROM` (const)
-	The following enums were moved from Rock.dll to Rock.Enums.dll:
-	- `Rock.Model.ConnectionState`
-			- `Rock.Model.GroupLocationPickerMode`
-			- `Rock.Model.GroupMemberWorkflowTriggerType`
-			- `Rock.Model.ScheduleType`
-
-### 19.0.5 February 4, 2026
-
-- The `Rock.Common.Mobile.Blocks.Engagement.BeaconDashboard` (added recently in v19) is renamed to `Rock.Common.Mobile.Blocks.Engagement.OutreachDashboard.`. Similarly other classes `BeaconDashboard` are renamed to `OutreachDashboard`.
-	The RockBlockTypeExtension's `GetCurrentPageUrl(RockBlockType block, bool skipExistingParameters, IDictionary queryParams)` method signature added in 19.0.4 is changed to `GetCurrentPageUrl(RockBlockType block, IDictionary queryParams, bool skipExistingParameters)`.
-	The `public enum GivingJourneyStage` value for `Occasional` was changed from a 2 to a 3 and the `Consistent` was changed from a 3 to a 2.
-	The public string model property `Rock.Model.ConnectionRequest.CelebrationNote` was removed and a collection property `ConnectionRequestStatusHistories` was added.
-	The property `Rock.Model.Person.OutreachTouchpointNotificationsEnabled` was removed and `Rock.Model.Person.OutreachTouchpointGenerationEnabled` was added.
-	The public class `Rock.Utility.Settings.Giving.GiverBin` was removed.
-	The `Rock.Utility.Settings.Giving.GivingClassificationSettings.GiverBins` property was removed and `Rock.Utility.Settings.Giving.GivingClassificationSettings.FiltersChanged` was added.
-
-### 19.0.3 December 22, 2025
-
-- The User-Defined Table Type `EntityIdList` has been deprecated and will no longer be supported.
-	The `HtmlContent.BlockId` is no longer required. This change allowed us to fix an issue where deleting an HTML Content block could also remove shared content for other linked blocks using the same Context Name block setting value. Rock now preserves shared content by allowing the source HtmlContent's BlockId to be null when a block is deleted.
-	The `PersistedDataset.RefreshIntervalMinutes` property is obsolete. It has been replaced by the standardized `PersistedScheduleIntervalMinutes` property, and all existing data has been migrated accordingly.
-
-### 19.0.2 December 2, 2025
-
-- The following assembly, obsoleted in Rock v9, [was removed](https://github.com/SparkDevNetwork/Rock/commit/6de1dc09148993de63315bd46c69ac14eb8da15a) from Rock:
-	- DDay.iCal.dll
-
-### 19.0.1 November 12, 2025
-
-- The properties `SecretKey` and `SiteKey` in the Captcha control `Rock.Web.UI.Controls.Captcha` have been removed.
-	In the class `Rock.Rest/v2/ControlsController.cs`, the method `public IHttpActionResult CaptchaControlValidateToken(CaptchaControlValidateTokenOptionsBag options)` has been renamed to `public Task CaptchaValidateToken(CaptchaValidateTokenOptionsBag options)`. Similarly, the method `public IHttpActionResult CaptchaControlGetConfiguration()` in the same class has been renamed to `public IHttpActionResult CaptchaGetConfiguration()`. Any code referencing these two method would need to be recompiled.
-	This release marks the final removal of DotLiquid with the removal of `Rock.Lava.ILiquidizable` and `Rock.Lava.Blocks.RockLavaBlockBase `. See the 2023 article called [Ending Support for "DotLiquid" Lava Engine](https://community.rockrms.com/connect/ending-support-for-dotliquid-lava-engine) for more information about why DotLiquid was removed.
 
 ## Rock 18.1 Released December 8, 2025
 
