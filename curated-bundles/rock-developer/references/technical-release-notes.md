@@ -469,7 +469,7 @@ While we make a huge effort to not break things during updates, when something c
 	- `Rock.Model.ConnectionRequest.CelebrationText` (property)
 	The public enum `Rock.Model.ReminderNotificationType` was moved to Rock.Enums (should not be a breaking change).
 
-## Rock 19.1 Released May 20, 2026
+## Rock 19.1 Released June 11, 2026
 
 ---
 
