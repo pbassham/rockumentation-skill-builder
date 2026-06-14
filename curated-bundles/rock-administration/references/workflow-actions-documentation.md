@@ -7,11 +7,9 @@ sourceLabel: Workflow Actions
 
 Workflow actions are the worker bees of workflows. True power comes from understanding your tools so you can best bring them together to build something great.
 
-[![](https://community.rockrms.com/Content/RockExternal/WorkflowActions/workflow-bookcover.jpg)](https://community.rockrms.com/documentation/bookcontent/12)
+#### Workflow Documentation
 
-#### Workflow Manual
-
-For more information on workflows and how to use workflow actions please see the [Blasting Off with Workflows](https://community.rockrms.com/documentation/bookcontent/12) guide.
+For more information on workflows and how to use workflow actions please check out our [Workflow Documentation](https://community.rockrms.com/documentation/core-concepts/workflows).
 
 
 ---
@@ -45,4 +43,27 @@ Here's an overview of the settings available for this action:
 - **Provider:** Choose the AI provider to use for the completion. Leave blank to use the default provider.
 - **Temperature:** Set how random or creative your prompt output is. Most providers range from 0-2. Check your selected AI provider's documentation for exact values.
 - **Output Attribute:** Select the activity or workflow attribute to save the AI prompt output to.
+
+
+---
+
+## Assessments {#assessments}
+
+> **Path:** Workflow Actions Documentation > Action Categories > Assessments
+
+# Assessments
+
+All the details for the assessments category.
+
+ # Assessment Request Create
+
+Show Details
+
+v9.0
+
+This action will create and save an assessment request.
+
+This action will create and save an assessment request for each of the assessments provided, for the given person according to the attribute selected. You can also optionally provide a Due Date, and an attribute to define the person who is making the request.
+
+![](https://community.rockrms.com/GetImage.ashx?Guid=144c58cc-445e-42bc-a162-389d6b779e3f)
 

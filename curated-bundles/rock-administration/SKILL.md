@@ -3,7 +3,7 @@ name: rock-administration
 description: "Use when administering Rock RMS — running check-in (legacy and NextGen), configuring and building workflows, designing assessments, sending email and SMS, running BI reports, scaling a Rock instance, and managing universal search. Bundles every 'Administration' manual plus the full Workflow Actions catalog (every action grouped by category — AI, Communications, Finance, etc.) and the Blasting Off With Workflows guide."
 metadata:
   generator: rockumentation-skill-builder
-  generatedAt: 2026-06-07T10:04:07.373Z
+  generatedAt: 2026-06-14T10:14:07.812Z
   sources:
     - url: "https://community.rockrms.com/documentation/bookcontent/9/368"
       label: Rock Admin Hero Guide
@@ -89,7 +89,6 @@ This skill bundles 104 references from 10 sources. Load topics on demand via the
 > Every workflow action grouped by category (AI, Communications, Finance, etc.).
 
 - [Workflow Actions Documentation](references/workflow-actions-documentation.md) — Use when configuring workflow actions to execute AI prompts and send text to AI providers for generating responses
-- [Assessments](references/assessments.md) — Use when needing to create assessment requests or send background check requests within Rock workflow actions
 - [Communications](references/workflow-actions-communications.md) — Use when configuring workflow actions to send communications via email, chat channels, direct messages, or on-demand communication flows
 - [Connections](references/connections.md) — Use when automating connection request workflows, managing connector assignments, updating request status/state, or adding activities to connection requests
 - [Finance](references/finance.md) — Use when managing benevolence requests, adding financial assistance documents, or creating business records in Rock RMS workflows
@@ -144,7 +143,7 @@ This skill bundles 104 references from 10 sources. Load topics on demand via the
 
 ### Assessments
 
-- [Assessments](references/assessments-assessments.md) — Use when users need to understand Rock RMS assessment types, capabilities, or how to leverage assessment data for member insights and role matching
+- [Assessments](references/assessments.md) — Use when needing to create assessment requests or send background check requests within Rock workflow actions
 - [Sending Requests](references/sending-requests.md) — Use when sending assessment requests to individuals or groups in Rock, or viewing assessment history for a person
 - [DISC Personality Assessment](references/disc-personality-assessment.md) — Use when users need guidance on administering the DISC personality assessment to individuals or understanding the four personality types and their combinations
 - [Spiritual Gifts](references/spiritual-gifts.md) — Use when users need to understand how to take the spiritual gifts assessment, interpret its results, or learn about the 17 spiritual gift categories

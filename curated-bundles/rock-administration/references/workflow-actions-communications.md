@@ -189,6 +189,29 @@ Either the From field should be set with a SMS From Number or the corresponding 
 
 ---
 
+## Background Check {#background-check}
+
+> **Path:** Workflow Actions Documentation > Action Categories > Background Check
+
+# Background Check
+
+All the details for the background check category.
+
+ # Background Check Send Request
+
+Show Details
+
+v4.0
+
+Starts a background check for the provided person.
+
+Sends a request for a background check to the selected background check provider. The person to run the check on must be stored in a workflow attribute with a key of *Person*.
+
+![](https://community.rockrms.com/GetImage.ashx?Guid=b0914405-5b4d-442d-98c2-123f6ef03d66)
+
+
+---
+
 ## CMS {#cms}
 
 > **Path:** Workflow Actions Documentation > Action Categories > CMS
