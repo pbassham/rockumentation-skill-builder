@@ -118,11 +118,15 @@ The `CommandParameter` accepts a string representing the text to be copied to th
 
 M v5.0
 
-This command can be used to download a pass directly to Apple Wallet (with user permission), providing a nicer experience when adding a pass without having to go through a browser intermediary.
+This command adds a pass to the device wallet. Provide a URL that serves a pass file as the command parameter.
 
-Consider hiding this functionality on Android since it is mainly intended for iOS. On Android, this command will simply open an external browser with the URL matching the command parameter.
+On iOS, the command downloads the file at the URL and hands the bytes to Apple Wallet (PassKit), prompting the individual to add the pass without leaving the app. The URL must return a valid `.pkpass` payload.
 
-To show/hide content based on the device platform, check out the [OnPlatform extension](https://learn.microsoft.com/en-us/dotnet/maui/platform-integration/customize-ui-appearance#customize-ui-appearance-with-a-markup-extension-based-on-the-platform).
+Android has no in-app wallet install, so the command opens the URL in an external browser. What happens next is up to that page or server.
+
+The command is not tied to any pass provider. Any URL that returns a valid `.pkpass` file works, whether it comes from a Rock workflow, a file on your server, or a third-party pass service.
+
+Because the platforms behave differently, decide whether the button should appear on Android at all, and if so, where it should send them. See the [OnPlatform extension](https://claude.ai/epitaxy/local_2ec9f621-946f-4596-a7d7-a206656f0aa3#) for varying content by device platform.
 
 ```
 <Button Text="Download Pass"

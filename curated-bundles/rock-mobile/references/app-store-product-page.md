@@ -169,6 +169,53 @@ If you would like App Factory to use your Apple and Google developer accounts, w
 
 ---
 
+## Store Graphics & Icons {#store-graphics-icons}
+
+### Launch Image
+
+The launch screen, commonly referred to as the splash screen, is the static visual that appears instantly when a user opens an app, filling the gap while the app loads in the background. App Factory utilizes a **2048x2048** graphic resolution with a safe area of **720x1440.**
+
+![2048x2048 Launch screen depicting the 720x1440 safe area](https://community.rockrms.com/GetImage.ashx?Id=74937)
+
+### App Icons
+
+Your app icon is a crucial aspect of your app’s branding. It appears on the Home Screen and in key locations throughout the devices' system, including search results, notifications, and system settings.
+
+##### iOS
+
+Apple's App Icons utilize a resolution of **1024x1024** with no transparent pixels**.** With 1024x1024 being the true size of the required App Factory graphic, we recommend that the icon and/or graphic within that uses specific safe area to ensure clipping does not occur. Within the graphic, your icon/graphic should be no larger than **898x898**.
+
+![App Icon with 898x898 safe-area layout guides](https://community.rockrms.com/GetImage.ashx?Id=74933)
+
+![Apple App Icon (1024x1024)](https://community.rockrms.com/GetImage.ashx?Id=74934)
+
+##### Android
+
+The app icon definitions of Android differ from iOS. Four graphics are required by App Factory and the Google Play Store to ensure compliance with Android dynamic icon system.
+
+| File Name | Resolution |
+| --- | --- |
+| App Icon Background | 1024x1024 |
+| App Icon Foreground | 1024x1024 (*safe-area 443x443*) |
+| App Icon | 512x512 |
+| Notification Icon | 1024x1024 |
+| Google Feature | 1024x500 (safe-area 768x384) |
+
+![Android App Icon (512x512)](https://community.rockrms.com/GetImage.ashx?Id=74935)
+
+### Store Previews
+
+Apple & Google provide many useful tools and insightful documents on each of the graphics developers can add to their App Store Listings. Below you will find the required graphics and their corresponding resolutions required by App Factory to complete the submission process.
+
+| Required Device Graphics | Accepted Resolutions (portrait / landscape) |
+| --- | --- |
+| 6.9" iPhone (x3) | 886x1920 / 1920x886 |
+| 13" iPad (x3) | 1200x1600 / 1600x1200 |
+| Android Phone (x3) | 1080x2340 |
+| Android Tablet (x3) | 2160x3840 |
+
+---
+
 ## Image Resources {#image-resources}
 
 When publishing a Rock Mobile app with App Factory, additional image resources can be provided and compiled into the shell that goes into the app stores. The advantage of this feature is that the images are not loaded over the network, improving performance in load time and avoiding pop-ins. This also means that the images are not processed on the server (or if using a CDN), so desired optimizations must be applied in advance.

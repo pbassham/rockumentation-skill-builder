@@ -178,3 +178,37 @@ In general, the goal of Rock Mobile is to always keep shell versions compatible 
 Every year Google updates Android with a new version and underlying API level. The Rock Mobile shell targets an API level and is updated periodically as those become available. Google's policy is that existing apps must target the latest major Android version's API level within two years, or that app won't be available to new Android versions.
 
 To put it simply, your Rock Mobile app on Android needs a shell update published to the Play Store at least once every 1-2 years, but an annual cadence is recommended.
+
+---
+
+## ✨ Releases {#releases}
+
+# ✨ Releases
+
+---
+
+## Release v19.1 {#release-v191}
+
+## Overview
+
+This release moves the Rock Mobile Shell from **v7.0 straight to v19.0**. There is no public v8.0 (and nothing in between). Going forward, the Shell version line matches the **Rock core version**, so the app and the server now share the same version number (v19) instead of the old mismatched scheme where Shell v7 ran against Rock core v18. If you have automation, documentation, or theme logic that keys off the Shell version string, expect it to report **19.0** now rather than 7.0 or 8.0.
+
+**We recommend running a Shell version that matches your Rock core version** (for example, Shell v19.x against Rock core v19.x). The Shell and Core ship contracts to each other, and a large mismatch between the two can cause features to behave incorrectly or fail to load. Aligning the version numbers is exactly what this jump is meant to make easy: keep them on the same major version. In general, dot releases will only contain bug fixes and minor enhancements, not new features.
+
+## Breaking Changes
+
+1. **Version line realigned to Rock core**. The Shell jumped from v7.0 to v19.0, skipping v8.0 and everything up to v18, to stay in step with Rock core versioning. Anything that compares or parses the Shell version (release pipelines, "what version am I on" checks, conditional theme logic) needs to account for the jump. There is no functional downgrade. v19.0 contains everything that was in v7.0, plus the work below.
+2. **Avatar control now renders with a native border.** The Avatar control was rebuilt on the native border control rather than the previous rounded frame. Avatars look the same out of the box, but if you authored a custom theme or page XAML that styled the avatar's old inner frame directly, review those screens after upgrading to confirm shape and spacing still look correct.
+
+## Styling Change
+
+The default card styling no longer draws a border, and we added a drop shadow for a cleaner card look. If you prefer the previous bordered and no shadow look, you can restore it by adding the following to your styles
+
+```
+.default-card {
+  border-color: ?color-interface-soft;
+  border-width: 1;
+  -rock-box-shadow: false;
+  border-radius: 8;
+}
+```
