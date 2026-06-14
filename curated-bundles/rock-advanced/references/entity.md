@@ -167,7 +167,7 @@ Creating Data Views or manually typing in search expressions is one way to load 
 
 As you can see, you can combine a pre-defined entity search with a custom expression to further filter it. You can combine entity searches with the following parameters: expression, groupby, select, selectmany, sort, offset, limit.
 
-For more on setting up Entity Search, see the [Entity Search Documentation](https://community.rockrms.com/documentation/bookcontent/9/#entitysearch).
+For more on setting up Entity Search, see the [Entity Search Documentation](https://community.rockrms.com/documentation/core-concepts/rock-fundamentals/entities/use-entity-search).
 
 ## Expression v13 - Fluid
 
