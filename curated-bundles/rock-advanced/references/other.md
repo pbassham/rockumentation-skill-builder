@@ -761,7 +761,7 @@ Entity Set (Id=1) was created with 2 people.
 
 Server: v8.0
 
-Creates a [URL short link](https://community.rockrms.com/documentation/BookContent/14#shortlinks) for the provided URL.
+Creates a [URL short link](https://community.rockrms.com/documentation/digital-publishing/websites/manage-pages/short-links) for the provided URL.
 
 **Additional Details**
 
@@ -1896,7 +1896,7 @@ If a cookie with the specified name does not exist or has expired, the filter wi
 
 Server: v15.0
 
-Takes the given [structured content](https://community.rockrms.com/documentation/bookcontent/14#contentchannels) and renders it as HTML.
+Takes the given [structured content](https://community.rockrms.com/documentation/digital-publishing/content-management/content-channels) and renders it as HTML.
 
 **Additional Details**
 
