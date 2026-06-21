@@ -135,7 +135,7 @@ Note
 
 If you end your subscription with App Factory and your app(s) are hosted under the Triumph developer accounts, they will be de-listed from the stores after a period of time.
 
-When publishing your Rock Mobile app with App Factory, you can host your app under your own Apple and Google developer accounts or the Triumph Tech developer accounts. Hosting under your accounts means you'll have complete control over your app in the stores, but you'll need to invite (see below) and provide access to the App Factory accounts to publish on your behalf. As you engage with the App Factory team to begin publishing your app, they'll give you all the details.
+When publishing your Rock Mobile app with App Factory, you are required to host your app under your own Apple and Google developer accounts. Hosting under your accounts means you'll have complete control over your app in the stores, but you'll need to invite (see below) and provide access to the App Factory accounts to publish on your behalf. As you engage with the App Factory team to begin publishing your app, they'll give you all the details.
 
 Warning
 
@@ -145,7 +145,7 @@ If you elect to host your Rock Mobile application on your own Google or Apple De
 
 ## Invitations
 
-If you would like App Factory to use your Apple and Google developer accounts, we'll need to be invited to your accounts. Instructions for sending invites are below:
+We'll need to be invited to your accounts. Instructions for sending invites are below:
 
 ### Invited for Apple Accounts
 
