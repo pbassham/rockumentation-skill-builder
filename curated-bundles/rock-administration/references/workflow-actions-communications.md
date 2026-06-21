@@ -24,7 +24,7 @@ Triggers an On-Demand Communication Flow
 
 Triggers an **On-Demand** Communication Flow for the list of people you provide.
 
-To use this action, you must have an **On-Demand Communication Flow** already configured. For setup instructions and details, see the [Communication Flows](https://community.rockrms.com/documentation/bookcontent/8/#communicationflows) section of the **Communicating With Rock Guide**.
+To use this action, you must have an **On-Demand Communication Flow** already configured. For setup instructions and details, see the [Communication Flows](https://community.rockrms.com/documentation/engagement/communications/communication-flows) article.
 
 ![](https://community.rockrms.com/GetImage.ashx?Guid=09b96d4e-55c3-46e2-95fc-ebb71d09453f)
 
@@ -74,7 +74,7 @@ v1.0
 
 Sends an email (with lots of options).
 
-This action obviously sends an email of your design. It does have quite a few interesting options. The email can be configured to be sent to an email address you provide (multiple address can be separated by a comma) or the value of an attribute in the workflow. You can also add email addresses to CC and BCC fields. If you're using attributes to set any email address field, the attribute you provide must contain either a valid email address or the attribute must be of type *Person* or *Group*. See the [Workflow Tips](https://community.rockrms.com/documentation/bookcontent/12#workflowtips) section of our [Blasting Off With Workflows](https://community.rockrms.com/documentation/bookcontent/12/) guide for a basic example of emailing a group using workflows.
+This action obviously sends an email of your design. It does have quite a few interesting options. The email can be configured to be sent to an email address you provide (multiple address can be separated by a comma) or the value of an attribute in the workflow. You can also add email addresses to CC and BCC fields. If you're using attributes to set any email address field, the attribute you provide must contain either a valid email address or the attribute must be of type *Person* or *Group*. See the [Workflow Tips](https://community.rockrms.com/documentation/core-concepts/workflows/build-a-workflow/workflow-tips) article for a basic example of emailing a group using workflows.
 
 If the Send To Email Addresses is a group or security role, you have the option of limiting the recipients of the email based on the group role attribute in the Send to Group Role field.
 

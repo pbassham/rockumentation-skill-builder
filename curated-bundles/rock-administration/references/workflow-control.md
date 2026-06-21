@@ -209,7 +209,7 @@ v4.0
 
 Adds a new note to the workflow.
 
-This action will add a new workflow note. The note property has the ability to customize the message using Lava. You can also customize the formatting of the note by selecting the *Note Type*. More on using workflow notes is discussed in the [Workflow Notes](https://community.rockrms.com/documentation/bookcontent/12#workflownotes) section of the workflow guide.
+This action will add a new workflow note. The note property has the ability to customize the message using Lava. You can also customize the formatting of the note by selecting the *Note Type*. More on using workflow notes is discussed in the [Workflow Notes](https://community.rockrms.com/documentation/core-concepts/workflows/advanced-workflow-concepts/workflow-notes) article.
 
 ![](https://community.rockrms.com/GetImage.ashx?Guid=ee4cf012-ae9d-4f7c-a106-71062bdbdbc0)
 
@@ -257,7 +257,7 @@ v1.0
 
 Save your workflow.
 
-See the section on [persistent vs. non-persistent workflows](https://community.rockrms.com/documentation/BookContent/12#persistedvs.nonpersistedworkflows) to get a deeper understanding of this topic. This action marks the current workflow as persistent.
+See the article on [persistent vs. non-persistent workflows](https://community.rockrms.com/documentation/core-concepts/workflows/advanced-workflow-concepts/persisted-vs-non-persisted-workflows) to get a deeper understanding of this topic. This action marks the current workflow as persistent.
 
 There is an optional parameter called *Persist Immediately*. Normally this action will cause the workflow to be persisted (saved) once all the current activities/actions have completed processing. Set this flag to true if the workflow should be persisted immediately. This is only required if a subsequent action needs a persisted workflow with a valid id.
 

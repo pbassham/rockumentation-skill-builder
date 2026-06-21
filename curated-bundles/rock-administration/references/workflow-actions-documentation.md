@@ -32,7 +32,7 @@ Executes a specified AI prompt.
 
 Takes a prompt as an input, runs it through your selected AI provider, and provides a response.
 
-You must have an AI provider configured in order to use this action. For setup instructions, check out the [AI Providers](https://community.rockrms.com/documentation/bookcontent/9/#aiproviders) documentation in the **Rock Admin Hero Guide**.
+You must have an AI provider configured in order to use this action. For setup instructions, check out the [AI Providers](https://community.rockrms.com/documentation/core-concepts/rock-fundamentals/ai/ai-providers) documentation.
 
 ![](https://community.rockrms.com/GetImage.ashx?Guid=08eeb775-11c6-4bc7-93cf-b555d548fee3)  
 **Additional Details**
