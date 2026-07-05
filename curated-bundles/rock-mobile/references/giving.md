@@ -129,8 +129,14 @@ Configures filtering options for the accounts list based on campus context.
 
 ## Styling
 
-This block has internal scroll mechanics and built-in padding. It should be placed in a layout with no scrollable container and no external padding applied.  
-  
+This block has internal scroll mechanics and built-in padding. It should be placed in a layout with no scrollable container and no external padding applied.
+
+ M19.2  Use the .give-button class to target the giving button colors after entering an amount.
+
+```
+.give-button { background-color: pink; color: blue; }
+```
+
 This block requires the CSS Style Framework to be set to **Default (.NET MAUI)**
 
 ![](https://community.rockrms.com/GetImage.ashx?Id=73536)

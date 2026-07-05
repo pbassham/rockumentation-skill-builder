@@ -89,13 +89,13 @@ If the `CommandParameter` is a plain string, then it is used as the name of the 
 ```
 <Button Text="Tap"
     Command="{Binding Callback}"
-    CommandParameter="UserTap" />
+    CommandParameter="CallbackName" />
 ```
 ```
 <Button Text="Tap"
     Command="{Binding Callback}">
     <Button.CommandParameter>
-        <Rock:CallbackParameters>
+        <Rock:CallbackParameters Name="CallbackName">
             <Rock:Parameter Name="GroupId" Value="18" />
         </Rock:CallbackParameters>
     </Button.CommandParameter>
