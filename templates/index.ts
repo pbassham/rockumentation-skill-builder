@@ -6,6 +6,7 @@ import { rockTocHub } from "./rock-toc-hub";
 import { rockrmsLava } from "./rockrms-lava";
 import { rockrmsLavaItems } from "./rockrms-lava-items";
 import { rockManual } from "./rock-manual";
+import { rockTopicBook, rockTopicBookCrawl } from "./rock-topic-book";
 import { defaultDefuddle } from "./default-defuddle";
 import { rockumentationAi } from "./rockumentation-ai";
 import { rockWorkflowActions } from "./rock-workflow-actions";
@@ -17,6 +18,8 @@ const builtin: Template[] = [
   rockrmsLava,
   rockrmsLavaItems,
   rockManual,
+  rockTopicBook,
+  rockTopicBookCrawl,
   rockumentationAi,
   rockWorkflowActions,
   defaultDefuddle,

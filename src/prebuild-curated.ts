@@ -21,15 +21,22 @@
  *   - Daily setInterval thereafter
  *   - Idempotent: if the upload-meta hash matches, the run is a no-op.
  */
-import { join } from "node:path";
+import { join, dirname } from "node:path";
 import { readdir } from "node:fs/promises";
 import { CURATED_BUNDLES } from "./curated-roots";
 import { buildBundle } from "./bundle-builder";
 import { generateDescription } from "./describe";
+import { fetchPage } from "./fetch";
 import { parseFrontmatter, setDescription } from "./frontmatter";
 import { updateSkillMdDescriptions } from "./generate";
-import { CURATED_TRACKED_DIR, commitBundleToGit } from "./curated-tracked";
+import {
+  commitBundleToGit,
+  curatedBundleDir,
+  curatedIdFor,
+} from "./curated-tracked";
 import { isGitPushConfigured } from "./github-push";
+import { enumerateTopicBooks, ROCK_TOPIC_BOOKS } from "./rock-docs";
+import type { BundledSkill } from "./build-config";
 import {
   isStorageConfigured,
   uploadSkill,
@@ -53,23 +60,11 @@ interface PrebuildResult {
   errors: string[];
 }
 
-/**
- * Legacy `output/_curated` lives next to user-built scratch outputs.
- * The cron + UI both target the tracked `curated-bundles/` directory
- * via `CURATED_TRACKED_DIR` so descriptions and hand-written prose
- * survive a refresh (see `src/merge-curated.ts`).
- */
-const PREBUILD_OUTPUT_DIR = CURATED_TRACKED_DIR;
-
-/** Deterministic id so re-runs overwrite the same artefact in S3. */
-function curatedId(bundleName: string): string {
-  return `curated-${bundleName.replace(/[^a-z0-9-]/gi, "-").toLowerCase()}`;
-}
-
 function buildCommitMessage(
   bundleName: string,
   removed: number,
   newDescriptions: number,
+  rockVersion?: string,
 ): string {
   const parts: string[] = [];
   if (removed > 0) parts.push(`${removed} removed`);
@@ -77,8 +72,85 @@ function buildCommitMessage(
     parts.push(
       `${newDescriptions} new description${newDescriptions === 1 ? "" : "s"}`,
     );
+  const version = rockVersion ? ` (Rock ${rockVersion})` : "";
   const suffix = parts.length ? ` \u2014 ${parts.join(", ")}` : "";
-  return `chore(curated): ${bundleName} refresh${suffix}`;
+  return `chore(curated): ${bundleName} refresh${version}${suffix}`;
+}
+
+/** ms in 30 days \u2014 refresh window for `refreshCadence: "monthly"`. */
+export const MONTHLY_REFRESH_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000;
+
+/**
+ * Which bundles a refresh run should rebuild.
+ *
+ * - An explicit `bundleName` always wins (manual runs rebuild anything).
+ * - Full runs include every weekly bundle, and monthly bundles only
+ *   when their last build (`lastBuiltAt`) is \u226530 days old or unknown.
+ *
+ * Pure so it's unit-testable; `lastBuiltAt` normally reads the
+ * `metadata.generatedAt` stamp from each bundle's on-disk SKILL.md.
+ */
+export function refreshTargets(
+  bundles: BundledSkill[],
+  lastBuiltAt: (bundle: BundledSkill) => Date | null,
+  now: Date,
+  bundleName?: string,
+): BundledSkill[] {
+  if (bundleName) return bundles.filter((b) => b.name === bundleName);
+  return bundles.filter((b) => {
+    if (b.refreshCadence !== "monthly") return true;
+    const last = lastBuiltAt(b);
+    if (!last) return true;
+    return now.getTime() - last.getTime() >= MONTHLY_REFRESH_MAX_AGE_MS;
+  });
+}
+
+/**
+ * `metadata.generatedAt` from a bundle's on-disk SKILL.md, or null when
+ * the file/stamp is missing (treat as "never built" \u2192 refresh-eligible).
+ */
+async function readBundleGeneratedAt(
+  bundle: BundledSkill,
+): Promise<Date | null> {
+  const skillMd = await Bun.file(join(curatedBundleDir(bundle), "SKILL.md"))
+    .text()
+    .catch(() => null as string | null);
+  if (!skillMd) return null;
+  const m = skillMd.match(/^\s*generatedAt:\s*(\S+)\s*$/m);
+  if (!m) return null;
+  const ts = Date.parse(m[1]!);
+  return Number.isNaN(ts) ? null : new Date(ts);
+}
+
+/**
+ * Warn when the live documentation index's topic books diverge from
+ * the hardcoded `ROCK_TOPIC_BOOKS` list the v19+ bundles are built
+ * from (Rock added/renamed a topic). Warn-only \u2014 never blocks a run.
+ */
+async function warnOnTopicDrift(): Promise<void> {
+  const indexUrl = "https://community.rockrms.com/documentation";
+  const html = await fetchPage(indexUrl);
+  const live = enumerateTopicBooks(html, indexUrl);
+  if (live.length === 0) {
+    console.warn(
+      "[curated-prebuild] topic drift check: no topic links found on the documentation index \u2014 its layout may have changed.",
+    );
+    return;
+  }
+  const configured = new Set(ROCK_TOPIC_BOOKS.map((t) => t.slug));
+  const liveSlugs = new Set(live.map((t) => t.slug));
+  const added = live.filter((t) => !configured.has(t.slug));
+  const missing = ROCK_TOPIC_BOOKS.filter((t) => !liveSlugs.has(t.slug));
+  if (added.length > 0) {
+    console.warn(
+      `[curated-prebuild] topic drift: live site has topic book(s) not in ROCK_TOPIC_BOOKS: ${added.map((t) => t.slug).join(", ")}`,
+    );
+  }
+  if (missing.length > 0) {
+    console.warn(
+      `[curated-prebuild] topic drift: configured topic book(s) missing from the live index: ${missing.map((t) => t.slug).join(", ")}`,
+    );
+  }
 }
 
 async function zipSkillDir(skillDir: string): Promise<Uint8Array> {
@@ -194,7 +266,7 @@ async function prebuildOne(
 ): Promise<PrebuildResult> {
   const result: PrebuildResult = {
     bundleName: bundle.name,
-    id: curatedId(bundle.name),
+    id: curatedIdFor(bundle),
     refCount: 0,
     generatedDescriptions: 0,
     deletedRefs: [],
@@ -208,7 +280,9 @@ async function prebuildOne(
   );
   const built = await buildBundle({
     skill: bundle,
-    outputDir: PREBUILD_OUTPUT_DIR,
+    // Versioned bundles live under curated-bundles/v<n>/<name>;
+    // buildBundle appends <name>, so hand it the parent dir.
+    outputDir: dirname(curatedBundleDir(bundle)),
     mode: "refresh",
     send: (msg: any) => {
       // Only log meaningful state transitions to keep prod logs readable.
@@ -265,6 +339,7 @@ async function prebuildOne(
         bundle.name,
         built.deletedRefs.length,
         result.generatedDescriptions,
+        built.detectedRockVersion,
       );
       const commit = await commitBundleToGit(
         bundle.name,
@@ -309,6 +384,7 @@ async function prebuildOne(
       createdAt: new Date().toISOString(),
       bundle,
       curated: true,
+      rockVersion: built.detectedRockVersion ?? bundle.rockVersion,
     };
     await uploadSkill(id, zipBytes, meta);
     const files = await collectSkillFiles(built.skillDir);
@@ -381,10 +457,35 @@ export async function refreshAllCurated(
   const apiKey = opts.apiKey || process.env.ANTHROPIC_API_KEY;
   const startedAt = Date.now();
   lastPrebuildAt = startedAt;
-  const targets = opts.bundleName
-    ? CURATED_BUNDLES.filter((b) => b.name === opts.bundleName)
-    : CURATED_BUNDLES;
   prebuildInFlight = (async () => {
+    // Monthly-cadence bundles (older Rock versions) only rebuild when
+    // their on-disk generatedAt stamp is ≥30 days old; explicit
+    // single-bundle runs always rebuild.
+    const lastBuilt = new Map<string, Date | null>();
+    for (const b of CURATED_BUNDLES) {
+      lastBuilt.set(b.name, await readBundleGeneratedAt(b));
+    }
+    const targets = refreshTargets(
+      CURATED_BUNDLES,
+      (b) => lastBuilt.get(b.name) ?? null,
+      new Date(),
+      opts.bundleName,
+    );
+    const skipped = CURATED_BUNDLES.filter((b) => !targets.includes(b));
+    if (!opts.bundleName && skipped.length > 0) {
+      console.log(
+        `[curated-prebuild] skipping ${skipped.length} monthly bundle(s) refreshed <30d ago: ${skipped.map((b) => b.name).join(", ")}`,
+      );
+    }
+    // Surface (but never fail on) new/renamed topic books on the live
+    // documentation index before a full run.
+    if (!opts.bundleName) {
+      await warnOnTopicDrift().catch((err) =>
+        console.warn(
+          `[curated-prebuild] topic drift check failed: ${err?.message || err}`,
+        ),
+      );
+    }
     const out: PrebuildResult[] = [];
     for (const bundle of targets) {
       try {
@@ -392,7 +493,7 @@ export async function refreshAllCurated(
       } catch (err: any) {
         out.push({
           bundleName: bundle.name,
-          id: curatedId(bundle.name),
+          id: curatedIdFor(bundle),
           refCount: 0,
           generatedDescriptions: 0,
           deletedRefs: [],
@@ -432,7 +533,7 @@ export async function listAvailableCuratedPrebuiltIds(): Promise<
   if (!isStorageConfigured()) return {};
   const entries = await Promise.all(
     CURATED_BUNDLES.map(async (b) => {
-      const id = curatedId(b.name);
+      const id = curatedIdFor(b);
       return (await skillExists(id)) ? ([b.name, id] as const) : null;
     }),
   );
@@ -444,7 +545,7 @@ export async function listAvailableCuratedPrebuiltIds(): Promise<
 /** Synchronous flavour: full deterministic id map without S3 lookups. */
 export function listCuratedPrebuiltIds(): Record<string, string> {
   const out: Record<string, string> = {};
-  for (const b of CURATED_BUNDLES) out[b.name] = curatedId(b.name);
+  for (const b of CURATED_BUNDLES) out[b.name] = curatedIdFor(b);
   return out;
 }
 

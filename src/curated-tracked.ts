@@ -7,6 +7,7 @@
 import { resolve, join } from "node:path";
 import { readdir } from "node:fs/promises";
 import { CURATED_BUNDLES } from "./curated-roots";
+import type { BundledSkill } from "./build-config";
 import {
   commitChanges,
   isGitPushConfigured,
@@ -14,16 +15,50 @@ import {
   type CommitSkipped,
 } from "./github-push";
 
-/** Deterministic id matching prebuild-curated.ts `curatedId()`. */
+/**
+ * Deterministic public-skill id for a curated bundle.
+ *
+ * Bundles documenting Rock v19+ get a version-prefixed id
+ * (`curated-v19-rock-core-concepts`) because the same skill name can
+ * exist for several Rock versions. The original six bundles (v18 book
+ * sets and the version-agnostic hub bundles) keep their historical
+ * `curated-<name>` ids so existing gallery links and S3 objects stay
+ * valid.
+ */
+export function curatedIdFor(skill: BundledSkill): string {
+  const version = Number(skill.rockVersion);
+  const prefix =
+    Number.isFinite(version) && version >= 19 ? `v${skill.rockVersion}-` : "";
+  return `curated-${`${prefix}${skill.name}`.replace(/[^a-z0-9-]/gi, "-").toLowerCase()}`;
+}
+
+/** Legacy id shape used before versioned bundles existed. */
 export function curatedBundleId(bundleName: string): string {
   return `curated-${bundleName.replace(/[^a-z0-9-]/gi, "-").toLowerCase()}`;
 }
 
+/**
+ * Directory of a curated bundle relative to `curated-bundles/`:
+ * `v<rockVersion>/<name>` for versioned bundles, `<name>` otherwise.
+ */
+export function curatedBundleRelDir(skill: BundledSkill): string {
+  return skill.rockVersion ? `v${skill.rockVersion}/${skill.name}` : skill.name;
+}
+
+/** Absolute on-disk directory of a curated bundle. */
+export function curatedBundleDir(skill: BundledSkill): string {
+  return join(CURATED_TRACKED_DIR, curatedBundleRelDir(skill));
+}
+
+/** Resolve a public-skill id back to the curated bundle (or null). */
+export function curatedBundleForId(id: string): BundledSkill | null {
+  if (!id.startsWith("curated-")) return null;
+  return CURATED_BUNDLES.find((b) => curatedIdFor(b) === id) ?? null;
+}
+
 /** Resolve a public-skill id back to the curated bundle name (or null). */
 export function bundleNameForId(id: string): string | null {
-  if (!id.startsWith("curated-")) return null;
-  const match = CURATED_BUNDLES.find((b) => curatedBundleId(b.name) === id);
-  return match ? match.name : null;
+  return curatedBundleForId(id)?.name ?? null;
 }
 
 /**
@@ -47,10 +82,9 @@ export async function readCuratedBundleFromDisk(id: string): Promise<{
   };
   files: string[];
 } | null> {
-  const bundleName = bundleNameForId(id);
-  if (!bundleName) return null;
-  const bundle = CURATED_BUNDLES.find((b) => b.name === bundleName)!;
-  const bundleDir = join(CURATED_TRACKED_DIR, bundleName);
+  const bundle = curatedBundleForId(id);
+  if (!bundle) return null;
+  const bundleDir = curatedBundleDir(bundle);
 
   const skillMd = await Bun.file(join(bundleDir, "SKILL.md"))
     .text()
@@ -87,10 +121,10 @@ export async function readCuratedBundleFile(
   id: string,
   relPath: string,
 ): Promise<string | null> {
-  const bundleName = bundleNameForId(id);
-  if (!bundleName) return null;
+  const bundle = curatedBundleForId(id);
+  if (!bundle) return null;
   if (relPath.includes("..") || relPath.startsWith("/")) return null;
-  const filePath = join(CURATED_TRACKED_DIR, bundleName, relPath);
+  const filePath = join(curatedBundleDir(bundle), relPath);
   return await Bun.file(filePath)
     .text()
     .catch(() => null);
@@ -115,7 +149,12 @@ export async function commitBundleToGit(
   if (!isGitPushConfigured()) {
     return { ok: false, skipped: "git disabled" };
   }
-  const bundleDir = join(CURATED_TRACKED_DIR, bundleName);
+  const bundle = CURATED_BUNDLES.find((b) => b.name === bundleName);
+  if (!bundle) {
+    return { ok: false, skipped: `unknown curated bundle "${bundleName}"` };
+  }
+  const relDir = curatedBundleRelDir(bundle);
+  const bundleDir = curatedBundleDir(bundle);
   const changes: Array<{
     path: string;
     content?: string;
@@ -125,7 +164,7 @@ export async function commitBundleToGit(
   try {
     const skillMd = await Bun.file(join(bundleDir, "SKILL.md")).text();
     changes.push({
-      path: `curated-bundles/${bundleName}/SKILL.md`,
+      path: `curated-bundles/${relDir}/SKILL.md`,
       content: skillMd,
     });
   } catch {}
@@ -138,14 +177,14 @@ export async function commitBundleToGit(
       .catch(() => null as string | null);
     if (content === null) continue;
     changes.push({
-      path: `curated-bundles/${bundleName}/references/${name}`,
+      path: `curated-bundles/${relDir}/references/${name}`,
       content,
     });
   }
 
   for (const rel of deletedRefs) {
     changes.push({
-      path: `curated-bundles/${bundleName}/${rel}`,
+      path: `curated-bundles/${relDir}/${rel}`,
       delete: true,
     });
   }

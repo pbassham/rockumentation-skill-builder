@@ -17,6 +17,7 @@ import { ensureDir, slugify } from "./utils";
 import { buildFrontmatter, parseFrontmatter } from "./frontmatter";
 import { mergeReferenceMarkdown, mergeSkillMarkdown } from "./merge-curated";
 import { enumerateDocumentationIndex } from "./curated-roots";
+import { compareRockVersions, detectRockDocsVersion } from "./rock-docs";
 import type { ArticleSection } from "./convert-types";
 import type { BundledSkill, BundledSource } from "./build-config";
 
@@ -49,6 +50,12 @@ export interface BundleResult {
    * downstream save step can include them as git deletions.
    */
   deletedRefs: string[];
+  /**
+   * Highest Rock release detected in the fetched source HTML (e.g.
+   * "1.19.0"), from documentation asset URLs. Undefined when no source
+   * carried a version marker. See `detectRockDocsVersion`.
+   */
+  detectedRockVersion?: string;
 }
 
 export interface BuildBundleOptions {
@@ -105,6 +112,7 @@ export async function buildBundle(
     articles: ArticleSection[];
     pageTitle: string;
   }> = [];
+  let detectedRockVersion: string | undefined;
 
   for (let i = 0; i < sources.length; i++) {
     const src = sources[i]!;
@@ -133,6 +141,15 @@ export async function buildBundle(
       sourceUrl: src.url,
     });
     const html = await fetchPage(src.url, cookie);
+
+    const rockVersion = detectRockDocsVersion(html);
+    if (
+      rockVersion &&
+      (!detectedRockVersion ||
+        compareRockVersions(rockVersion, detectedRockVersion) > 0)
+    ) {
+      detectedRockVersion = rockVersion;
+    }
 
     if (looksLikeLoginPage(html)) {
       send({
@@ -321,6 +338,7 @@ export async function buildBundle(
     sources: sourcesMeta,
     author: opts.author,
     descMap,
+    rockVersion: detectedRockVersion ?? skill.rockVersion,
   });
   const skillMdPath = join(skillDir, "SKILL.md");
   if (opts.mode === "refresh") {
@@ -343,6 +361,7 @@ export async function buildBundle(
     refCount: plan.length,
     sources: sourcesMeta,
     deletedRefs,
+    detectedRockVersion,
   };
 }
 
@@ -364,8 +383,11 @@ function renderBundleSkillMd(args: {
   }>;
   author?: string;
   descMap: Map<string, string>;
+  /** Rock release stamp (detected from sources, else the bundle's own). */
+  rockVersion?: string;
 }): string {
-  const { skill, description, plan, sources, author, descMap } = args;
+  const { skill, description, plan, sources, author, descMap, rockVersion } =
+    args;
   const lines: string[] = [
     "---",
     `name: ${skill.name}`,
@@ -375,6 +397,7 @@ function renderBundleSkillMd(args: {
     `  generatedAt: ${new Date().toISOString()}`,
   ];
   if (skill.version) lines.push(`  version: ${yamlEscape(skill.version)}`);
+  if (rockVersion) lines.push(`  rockVersion: ${yamlEscape(rockVersion)}`);
   if (author) lines.push(`  author: ${yamlEscape(author)}`);
   lines.push("  sources:");
   for (const s of sources) {

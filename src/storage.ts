@@ -29,6 +29,9 @@ export interface SkillMeta {
   // True for skills produced by the curated prebuild pipeline so the
   // gallery / home tiles can distinguish them from user uploads.
   curated?: boolean;
+  // Rock release the skill documents — detected from source asset URLs
+  // at build time (e.g. "1.19.0"), else the bundle's own rockVersion.
+  rockVersion?: string;
 }
 
 let cachedClient: S3Client | null = null;

@@ -1,6 +1,6 @@
 ---
 name: rock-hosting
-description: "Use when planning a Rock RMS implementation, choosing between self-hosted and Azure deployments, or scoping infrastructure. Bundles every 'Getting Started' manual from the Rock documentation index."
+description: "(Rock v18 and earlier) Use when planning a Rock RMS implementation, choosing between self-hosted and Azure deployments, or scoping infrastructure. Bundles every 'Getting Started' manual from the legacy Rock documentation index. For Rock v19+, load rock-supporting-rock instead."
 metadata:
   generator: rockumentation-skill-builder
   generatedAt: 2026-07-05T09:54:33.331Z

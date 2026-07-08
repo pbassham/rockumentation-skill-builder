@@ -2,6 +2,31 @@
 
 Ideas and planned improvements for the Rockumentation Skill Builder.
 
+## Rock v19+ docs migration follow-ups
+
+The curated bundles were migrated to the rebuilt documentation site
+(topic books at `/documentation/<topic>`, versioned folders under
+`curated-bundles/v<n>/`). Remaining items, all gated on running
+`bun scripts/discover-rock-docs.ts` from a networked machine and
+committing its output:
+
+- [ ] **Verify discovery assumptions** — confirm the topic slugs in
+  `ROCK_TOPIC_BOOKS` (`src/rock-docs.ts`), whether topic roots render
+  the full book in print mode, the real sidebar TOC selector for the
+  `rock-topic-book-crawl` fallback template, and the
+  `detectRockDocsVersion` signal (add the version-selector markup as a
+  secondary signal if the site has one).
+- [ ] **Functional/role-shaped v19 bundle set** — a second set curated
+  for AI-skill hierarchy (mapping sections across topic books to roles
+  like user/administration), authored from the `enumerateTopicSections`
+  dump in the discovery report.
+- [ ] **Place `/WorkflowActions` in the v19 set** — today the Workflow
+  Actions catalog lives only in the v18 `rock-administration` bundle;
+  add it to whichever v19 bundle doesn't already cover it.
+- [ ] **Replace `rock-advanced`'s pinned v18 book** — its
+  `bookcontent/14/370` source (Designing and Building Websites) should
+  point at the new digital-publishing equivalent once mapped.
+
 ## Features
 
 - [ ] **Autopublish to a skill gallery (e.g. agentskills.io)**

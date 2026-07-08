@@ -23,12 +23,21 @@ on:
         type: choice
         options:
           - ""
-          - rock-user
-          - rock-administration
+          # Rock v19+ topic books (weekly cadence)
+          - rock-core-concepts
+          - rock-church-management
+          - rock-engagement
+          - rock-digital-publishing
+          - rock-supporting-rock
+          # Version-agnostic hub bundles (weekly cadence)
           - rock-advanced
           - rock-mobile
-          - rock-hosting
           - rock-developer
+          # Rock v18 and earlier (monthly cadence; naming one here
+          # always rebuilds it regardless of cadence)
+          - rock-user
+          - rock-administration
+          - rock-hosting
 
 jobs:
   trigger:

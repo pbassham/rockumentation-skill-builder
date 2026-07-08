@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 
-import { resolve, join } from "node:path";
+import { resolve, join, dirname } from "node:path";
 import { readdir } from "node:fs/promises";
 import index from "./ui/index.html";
 import gallery from "./ui/gallery.html";
@@ -24,10 +24,11 @@ import { parseFrontmatter, setDescription } from "./frontmatter";
 import { generateDescription } from "./describe";
 import {
   commitBundleToGit,
-  CURATED_TRACKED_DIR,
+  curatedBundleDir,
+  curatedBundleForId,
+  curatedBundleRelDir,
   readCuratedBundleFromDisk,
   readCuratedBundleFile,
-  bundleNameForId,
 } from "./curated-tracked";
 
 /** Shared token gate for curated trigger endpoints. Returns true when allowed. */
@@ -51,7 +52,14 @@ function curatedEditUrl(skillName: string, slug: string): string {
     process.env.DESCRIPTION_CACHE_REPO ||
     "pbassham/rockumentation-skill-builder";
   const branch = process.env.GITHUB_BRANCH || "main";
-  return `https://github.com/${repo}/edit/${branch}/curated-bundles/${safe(skillName)}/references/${safe(slug)}.md`;
+  const bundle = CURATED_BUNDLES.find((b) => b.name === skillName);
+  const relDir = bundle
+    ? curatedBundleRelDir(bundle)
+        .split("/")
+        .map((seg) => safe(seg))
+        .join("/")
+    : safe(skillName);
+  return `https://github.com/${repo}/edit/${branch}/curated-bundles/${relDir}/references/${safe(slug)}.md`;
 }
 function safe(s: string): string {
   return s.replace(/[^a-z0-9._-]+/gi, "-").replace(/^\.+/, "");
@@ -325,7 +333,9 @@ const server = Bun.serve({
         try {
           const result = await buildBundle({
             skill: bundle,
-            outputDir: CURATED_TRACKED_DIR,
+            // Versioned bundles live under curated-bundles/v<n>/<name>;
+            // buildBundle appends <name>, so hand it the parent dir.
+            outputDir: dirname(curatedBundleDir(bundle)),
             mode: "refresh",
             send: () => {},
           });
@@ -608,15 +618,15 @@ const server = Bun.serve({
         // Curated bundles: zip the tracked disk dir on the fly so the
         // download always matches what's in git (single source of
         // truth), not whatever stale artefact lives in S3.
-        const bundleName = bundleNameForId(id);
-        if (bundleName) {
-          const bundleDir = join(CURATED_TRACKED_DIR, bundleName);
+        const curatedBundle = curatedBundleForId(id);
+        if (curatedBundle) {
+          const bundleDir = curatedBundleDir(curatedBundle);
           try {
             const zipBytes = await zipSkillDir(bundleDir);
             return new Response(zipBytes as BodyInit, {
               headers: {
                 "Content-Type": "application/zip",
-                "Content-Disposition": `attachment; filename="${bundleName}.zip"`,
+                "Content-Disposition": `attachment; filename="${curatedBundle.name}.zip"`,
               },
             });
           } catch (err: any) {

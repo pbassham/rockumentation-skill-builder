@@ -1,6 +1,6 @@
 ---
 name: rock-administration
-description: "Use when administering Rock RMS — running check-in (legacy and NextGen), configuring and building workflows, designing assessments, sending email and SMS, running BI reports, scaling a Rock instance, and managing universal search. Bundles every 'Administration' manual plus the full Workflow Actions catalog (every action grouped by category — AI, Communications, Finance, etc.) and the Blasting Off With Workflows guide."
+description: "(Rock v18 and earlier) Use when administering Rock RMS — running check-in (legacy and NextGen), configuring and building workflows, designing assessments, sending email and SMS, running BI reports, scaling a Rock instance, and managing universal search. Bundles every 'Administration' manual plus the full Workflow Actions catalog (every action grouped by category — AI, Communications, Finance, etc.) and the Blasting Off With Workflows guide. For Rock v19+, load rock-core-concepts / rock-supporting-rock instead."
 metadata:
   generator: rockumentation-skill-builder
   generatedAt: 2026-07-05T09:52:02.508Z

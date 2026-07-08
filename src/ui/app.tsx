@@ -43,6 +43,9 @@ interface BundledSkill {
   generateDescription?: boolean;
   additionalInstructions?: string;
   version?: string;
+  /** Rock major version documented (e.g. "18", "19"); unset = any. */
+  rockVersion?: string;
+  refreshCadence?: "weekly" | "monthly";
   sources: BundledSource[];
 }
 
@@ -76,7 +79,7 @@ app.innerHTML = `
     <h2 class="mode-title">Pick a starter skill</h2>
     <p class="hint">Each skill aggregates one or more Rock RMS docs. Click to see what it covers, then build.</p>
     <div id="bundle-loading" class="hint">Loading skills\u2026</div>
-    <div id="bundle-cards" class="bundle-grid"></div>
+    <div id="bundle-cards" class="bundle-groups"></div>
 
     <details id="curated-singles-block" class="curated-singles-details" style="display:none">
       <summary>Or pick individual canonical docs</summary>
@@ -311,37 +314,69 @@ async function loadCuratedRoots() {
     // editor-launcher button with an inline Download link when the
     // server has a curated prebuild ready in S3 (so visitors can grab
     // the canonical zip without rebuilding).
-    cardsEl.innerHTML = combined
-      .map((c, i) => {
-        const prebuiltId = prebuiltData.enabled
-          ? prebuiltData.ids[c.bundle.name]
-          : undefined;
-        const footerBits: string[] = [];
-        if (prebuiltId) {
-          footerBits.push(
-            `<a class="bundle-card-download" href="/s/${prebuiltId}" download title="Download the latest curated build">Download .zip</a>`,
-          );
-        }
-        if (prebuiltData.enabled && !c.saved) {
-          footerBits.push(
-            `<button type="button" class="bundle-card-rebuild" data-bundle-name="${escapeHtml(c.bundle.name)}" title="Re-fetch sources, merge into the tracked bundle (descriptions preserved), commit any changes to git, and refresh the public artefact (requires token)">Refresh from source</button>`,
-          );
-        }
-        const footer =
-          footerBits.length > 0
-            ? `<div class="bundle-card-actions">${footerBits.join("")}</div>`
-            : "";
-        return `
+    const cardHtml = (
+      c: { bundle: BundledSkill; saved: boolean },
+      i: number,
+    ) => {
+      const prebuiltId = prebuiltData.enabled
+        ? prebuiltData.ids[c.bundle.name]
+        : undefined;
+      const footerBits: string[] = [];
+      if (prebuiltId) {
+        footerBits.push(
+          `<a class="bundle-card-download" href="/s/${prebuiltId}" download title="Download the latest curated build">Download .zip</a>`,
+        );
+      }
+      if (prebuiltData.enabled && !c.saved) {
+        footerBits.push(
+          `<button type="button" class="bundle-card-rebuild" data-bundle-name="${escapeHtml(c.bundle.name)}" title="Re-fetch sources, merge into the tracked bundle (descriptions preserved), commit any changes to git, and refresh the public artefact (requires token)">Refresh from source</button>`,
+        );
+      }
+      const footer =
+        footerBits.length > 0
+          ? `<div class="bundle-card-actions">${footerBits.join("")}</div>`
+          : "";
+      const badges: string[] = [];
+      if (c.saved) badges.push('<span class="bundle-card-badge">saved</span>');
+      if (c.bundle.rockVersion)
+        badges.push(
+          `<span class="bundle-card-badge">v${escapeHtml(c.bundle.rockVersion)}</span>`,
+        );
+      if (c.bundle.refreshCadence === "monthly")
+        badges.push('<span class="bundle-card-badge">monthly</span>');
+      return `
       <div class="bundle-card-wrap">
         <button type="button" class="bundle-card" data-bundle-index="${i}" data-saved="${c.saved ? "1" : "0"}">
-          <span class="bundle-card-name">${escapeHtml(c.bundle.name)}${c.saved ? ' <span class="bundle-card-badge">saved</span>' : ""}</span>
+          <span class="bundle-card-name">${escapeHtml(c.bundle.name)}${badges.length ? " " + badges.join(" ") : ""}</span>
           <span class="bundle-card-desc">${escapeHtml(c.bundle.description || "")}</span>
           <span class="bundle-card-meta">${c.bundle.sources.length} source${c.bundle.sources.length === 1 ? "" : "s"}</span>
         </button>
         ${footer}
       </div>`;
-      })
-      .join("");
+    };
+
+    // Group cards by the Rock version they document: current topic-book
+    // bundles first, version-agnostic developer bundles second, older
+    // versions (slow monthly refresh) last. Indexes stay positions in
+    // `loadedBundles` so the click wiring below is unaffected.
+    const groupOf = (b: BundledSkill): "current" | "agnostic" | "legacy" => {
+      if (!b.rockVersion) return "agnostic";
+      return Number(b.rockVersion) >= 19 ? "current" : "legacy";
+    };
+    const GROUPS: Array<{ key: string; title: string }> = [
+      { key: "current", title: "Rock v19+" },
+      { key: "agnostic", title: "Developer & platform (any Rock version)" },
+      { key: "legacy", title: "Rock v18 and earlier (refreshed monthly)" },
+    ];
+    cardsEl.innerHTML = GROUPS.map(({ key, title }) => {
+      const cards = combined
+        .map((c, i) => ({ c, i }))
+        .filter(({ c }) => groupOf(c.bundle) === key);
+      if (cards.length === 0) return "";
+      return `
+      <h3 class="bundle-group-title">${escapeHtml(title)}</h3>
+      <div class="bundle-grid">${cards.map(({ c, i }) => cardHtml(c, i)).join("")}</div>`;
+    }).join("");
 
     cardsEl
       .querySelectorAll<HTMLButtonElement>(".bundle-card-rebuild")

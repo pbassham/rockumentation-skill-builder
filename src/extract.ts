@@ -53,7 +53,7 @@ export async function extractWithTemplate(
     if (!(k in variables)) (variables as Record<string, unknown>)[k] = v;
   }
 
-  const articles = await runSplitter({
+  let articles = await runSplitter({
     html,
     url,
     variables,
@@ -62,6 +62,30 @@ export async function extractWithTemplate(
     promptResolutions,
     cookie,
   });
+
+  // New-docs topic books are expected to render the whole book on one
+  // page (rock-topic-book → by-toc-links). If that yields nothing —
+  // e.g. Rock changed the topic-root rendering — retry once with the
+  // crawl fallback, which walks the sidebar TOC and fetches each
+  // linked page instead.
+  if (articles.length === 0 && template.id === "rock-topic-book") {
+    const crawl = getById("rock-topic-book-crawl");
+    if (crawl) {
+      console.warn(
+        `[extract] rock-topic-book extracted 0 articles from ${url}; retrying with rock-topic-book-crawl`,
+      );
+      articles = await runSplitter({
+        html,
+        url,
+        variables,
+        template: crawl,
+        stepOutputs,
+        promptResolutions,
+        cookie,
+      });
+      if (articles.length > 0) template = crawl;
+    }
+  }
 
   let pageTitle = String(variables.title || "Untitled");
   const stash = (articles[0] as any)?._pageTitle;

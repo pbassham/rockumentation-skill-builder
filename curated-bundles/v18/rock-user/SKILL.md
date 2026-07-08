@@ -1,6 +1,6 @@
 ---
 name: rock-user
-description: "Use when answering end-user questions about how to use Rock RMS day to day — managing people and families, groups, finance, communications, events, prayer, reporting, check-in, and the LMS. Bundles every 'User Guides' manual."
+description: "(Rock v18 and earlier) Use when answering end-user questions about how to use Rock RMS day to day — managing people and families, groups, finance, communications, events, prayer, reporting, check-in, and the LMS. Bundles every 'User Guides' manual. For Rock v19+, load rock-church-management / rock-engagement instead."
 metadata:
   generator: rockumentation-skill-builder
   generatedAt: 2026-07-05T09:51:05.683Z

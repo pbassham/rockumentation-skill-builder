@@ -15,7 +15,20 @@
  * Keep this list short and high-signal. Anything else can still be built via
  * the "Custom URL" form.
  */
-import type { BundledSkill } from "./build-config";
+import type { BundledSkill, BundledSource } from "./build-config";
+import { ROCK_TOPIC_BOOKS } from "./rock-docs";
+
+/**
+ * Source entry for one of the new-docs topic books. URL + label come
+ * from `ROCK_TOPIC_BOOKS` (single source of truth, drift-checked
+ * against the live site on scheduled refreshes). The template is
+ * pinned so extraction never depends on URL auto-detection.
+ */
+function topicSource(slug: string): BundledSource {
+  const topic = ROCK_TOPIC_BOOKS.find((t) => t.slug === slug);
+  if (!topic) throw new Error(`Unknown Rock topic book slug: ${slug}`);
+  return { url: topic.url, label: topic.label, templateId: "rock-topic-book" };
+}
 
 export interface CuratedRoot {
   /** Display label shown in the checklist. */
@@ -44,9 +57,9 @@ export const CURATED_ROOT_GROUPS: CuratedRootGroup[] = [
       "Long-form Rock manuals (Getting Started, User Guides, Administration).",
     items: [
       {
-        label: "All Rock Manuals",
+        label: "All Rock Manuals (legacy, ≤ v18)",
         description:
-          "Builds one skill per book listed on the documentation index page (~22 manuals).",
+          "Builds one skill per legacy bookcontent manual linked from the documentation index (~22 manuals, Rock v18 and earlier).",
         url: "https://community.rockrms.com/documentation",
         kind: "index",
       },
@@ -200,13 +213,23 @@ export const CURATED_ROOT_GROUPS: CuratedRootGroup[] = [
  *   - rock-developer: contributing to Rock core / writing native plugins
  *     (mostly internal — coding standards, commit discipline, etc.)
  *
+ * Versioning: Rock rebuilt its documentation site for v19+. Bundles
+ * built from the legacy `/documentation/bookcontent/...` books carry
+ * `rockVersion: "18"` and refresh on a MONTHLY cadence (old docs still
+ * get fixes, just rarely). The v19+ topic-book bundles below carry
+ * `rockVersion: "19"` and refresh weekly. Hub-based bundles (Lava,
+ * developer docs) are version-agnostic living docs — no rockVersion.
+ * Versioned bundles are tracked on disk under `curated-bundles/v<n>/`.
+ *
  * The user can edit/extend this list freely — it's plain TypeScript data.
  */
 export const CURATED_BUNDLES: BundledSkill[] = [
   {
     name: "rock-user",
     description:
-      "Use when answering end-user questions about how to use Rock RMS day to day — managing people and families, groups, finance, communications, events, prayer, reporting, check-in, and the LMS. Bundles every 'User Guides' manual.",
+      "(Rock v18 and earlier) Use when answering end-user questions about how to use Rock RMS day to day — managing people and families, groups, finance, communications, events, prayer, reporting, check-in, and the LMS. Bundles every 'User Guides' manual. For Rock v19+, load rock-church-management / rock-engagement instead.",
+    rockVersion: "18",
+    refreshCadence: "monthly",
     sources: [
       {
         url: "https://community.rockrms.com/documentation/bookcontent/5/360",
@@ -249,7 +272,9 @@ export const CURATED_BUNDLES: BundledSkill[] = [
   {
     name: "rock-administration",
     description:
-      "Use when administering Rock RMS — running check-in (legacy and NextGen), configuring and building workflows, designing assessments, sending email and SMS, running BI reports, scaling a Rock instance, and managing universal search. Bundles every 'Administration' manual plus the full Workflow Actions catalog (every action grouped by category — AI, Communications, Finance, etc.) and the Blasting Off With Workflows guide.",
+      "(Rock v18 and earlier) Use when administering Rock RMS — running check-in (legacy and NextGen), configuring and building workflows, designing assessments, sending email and SMS, running BI reports, scaling a Rock instance, and managing universal search. Bundles every 'Administration' manual plus the full Workflow Actions catalog (every action grouped by category — AI, Communications, Finance, etc.) and the Blasting Off With Workflows guide. For Rock v19+, load rock-core-concepts / rock-supporting-rock instead.",
+    rockVersion: "18",
+    refreshCadence: "monthly",
     sources: [
       {
         url: "https://community.rockrms.com/documentation/bookcontent/9/368",
@@ -358,7 +383,9 @@ export const CURATED_BUNDLES: BundledSkill[] = [
   {
     name: "rock-hosting",
     description:
-      "Use when planning a Rock RMS implementation, choosing between self-hosted and Azure deployments, or scoping infrastructure. Bundles every 'Getting Started' manual from the Rock documentation index.",
+      "(Rock v18 and earlier) Use when planning a Rock RMS implementation, choosing between self-hosted and Azure deployments, or scoping infrastructure. Bundles every 'Getting Started' manual from the legacy Rock documentation index. For Rock v19+, load rock-supporting-rock instead.",
+    rockVersion: "18",
+    refreshCadence: "monthly",
     sources: [
       {
         url: "https://community.rockrms.com/documentation/bookcontent/2/357",
@@ -438,6 +465,55 @@ export const CURATED_BUNDLES: BundledSkill[] = [
         label: "303 — Blast Off",
       },
     ],
+  },
+
+  // -------------------------------------------------------------------
+  // Rock v19+ — one bundle per topic book on the rebuilt documentation
+  // site (https://community.rockrms.com/documentation). Each topic root
+  // renders the entire book; the rock-topic-book template splits it
+  // into one reference per article. A second, functional/role-shaped
+  // v19 set (mapping sections across topics) is planned once the site's
+  // section tree has been enumerated — see TODO.md.
+  // -------------------------------------------------------------------
+  {
+    name: "rock-core-concepts",
+    description:
+      "Use when working with Rock RMS fundamentals on Rock v19+ — person records and families, attributes and defined types, security and roles, universal search, blocks, pages, and the core data model. Built from the 'Core Concepts' topic book of the rebuilt Rock documentation.",
+    rockVersion: "19",
+    refreshCadence: "weekly",
+    sources: [topicSource("core-concepts")],
+  },
+  {
+    name: "rock-church-management",
+    description:
+      "Use for day-to-day ministry operations in Rock RMS v19+ — managing people and groups, check-in, giving and finances, events and calendars, and reporting. Built from the 'Church Management' topic book of the rebuilt Rock documentation.",
+    rockVersion: "19",
+    refreshCadence: "weekly",
+    sources: [topicSource("church-management")],
+  },
+  {
+    name: "rock-engagement",
+    description:
+      "Use when building engagement processes in Rock RMS v19+ — connections, steps, streaks, assessments, prayer, and communications that move people along their journey. Built from the 'Engagement' topic book of the rebuilt Rock documentation.",
+    rockVersion: "19",
+    refreshCadence: "weekly",
+    sources: [topicSource("engagement")],
+  },
+  {
+    name: "rock-digital-publishing",
+    description:
+      "Use when publishing digital content with Rock RMS v19+ — websites and the CMS, themes and styling, content channels, media, and mobile/TV app content. Built from the 'Digital Publishing' topic book of the rebuilt Rock documentation.",
+    rockVersion: "19",
+    refreshCadence: "weekly",
+    sources: [topicSource("digital-publishing")],
+  },
+  {
+    name: "rock-supporting-rock",
+    description:
+      "Use when supporting a Rock RMS v19+ instance — planning and hosting, installation and updates, scaling, administration, and troubleshooting. Built from the 'Supporting Rock' topic book of the rebuilt Rock documentation.",
+    rockVersion: "19",
+    refreshCadence: "weekly",
+    sources: [topicSource("supporting-rock")],
   },
 ];
 

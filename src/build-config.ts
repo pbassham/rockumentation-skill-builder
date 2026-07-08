@@ -53,6 +53,18 @@ export interface BundledSkill {
   preText?: string;
   /** Optional version label (e.g. "1.0", "2026-05-14"). */
   version?: string;
+  /**
+   * Rock major version this bundle documents (e.g. "18", "19").
+   * Undefined = version-agnostic (hub/developer docs that apply to any
+   * Rock release). Versioned bundles live under `curated-bundles/v<n>/`.
+   */
+  rockVersion?: string;
+  /**
+   * Scheduled refresh cadence. Bundles for the current Rock release (and
+   * version-agnostic ones) default to "weekly"; older-version bundles use
+   * "monthly" so upstream fixes still flow in without weekly churn.
+   */
+  refreshCadence?: "weekly" | "monthly";
   /** Sources contributing references to this skill. Order matters for TOC. */
   sources: BundledSource[];
 }
@@ -139,6 +151,11 @@ function parseBundledSkill(raw: unknown, index: number): BundledSkill {
         : undefined,
     preText: typeof o.preText === "string" ? o.preText : undefined,
     version: typeof o.version === "string" ? o.version : undefined,
+    rockVersion: typeof o.rockVersion === "string" ? o.rockVersion : undefined,
+    refreshCadence:
+      o.refreshCadence === "monthly" || o.refreshCadence === "weekly"
+        ? o.refreshCadence
+        : undefined,
     sources,
   };
 }
