@@ -22,6 +22,7 @@ The query parameters this block looks for upon initialization are as follows.
 | Name | Type | Description |
 | --- | --- | --- |
 | CampusGuid | Guid | An optional Guid of the campus to display prayer requests for. |
+| GroupGuid | Guid | An optional Guid of the group to display prayer requests for. |
 
 ## Block Settings
 

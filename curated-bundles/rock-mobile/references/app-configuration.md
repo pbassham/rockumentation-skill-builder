@@ -83,7 +83,7 @@ Typically, this is used to force authentication by checking for CurrentPerson an
 
 ![<br>](https://community.rockrms.com/GetImage.ashx?Id=67647)
 
-## Welcome👋
+## Welcome 👋
 
 ***Rock Mobile is a native mobile extension of Rock RMS. This site is the documentation for building mobile applications that are linked to Rock.***
 
