@@ -7,7 +7,7 @@ sourceLabel: Lava
 
 These date filters allow you to modify the formatting of dates in some pretty cool ways!
 
-**Now!** When working with dates you'll often want to get the current date/time. This is possible with the 'Now' keyword. You can use in places where you'd normally input a date/time to use the current date/time. Consider the example below which would display today's date like '7/5/2026'.
+**Now!** When working with dates you'll often want to get the current date/time. This is possible with the 'Now' keyword. You can use in places where you'd normally input a date/time to use the current date/time. Consider the example below which would display today's date like '7/12/2026'.
 ```
 {{ 'Now' | Date:'M/d/yyyy' }}
     

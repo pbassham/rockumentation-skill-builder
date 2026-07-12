@@ -5,7 +5,7 @@ sourceLabel: Lava
 ---
 > **Path:** Lava
 
-![](https://community.rockrms.com/Content/RockExternal/Lava/LavaLogoV2.svg)
+![](https://community.rockrms.com/Content/RockExternal/Lava/LavaLogoV2.svg?optimizer=image)
 
 #### Ending Support for DotLiquid Lava Engine
 
