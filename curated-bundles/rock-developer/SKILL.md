@@ -3,7 +3,7 @@ name: rock-developer
 description: "Use when contributing to Rock RMS itself or writing native C#/Vue plugins for Rock — coding standards, commit discipline, the release process, the Obsidian (Vue 3) block framework, the design system, AI agent integration, packaging plugins and themes for the Rock Shop, Slingshot bulk imports, the realtime visualizer, quickstart tutorials, branch model, changelog, and the 101/202/303 onboarding tracks. NOT for end-user, admin, Lava, or mobile-app questions — load rock-user / rock-administration / rock-advanced / rock-mobile for those."
 metadata:
   generator: rockumentation-skill-builder
-  generatedAt: 2026-07-12T09:39:50.416Z
+  generatedAt: 2026-07-19T09:41:15.567Z
   sources:
     - url: "https://community.rockrms.com/developer/developer-codex"
       label: Developer Codex
