@@ -187,12 +187,17 @@ We're retiring Rock Mobile Latest (the "blue app") as our pre-release distributi
 
 ## How pre-release testing will work
 
-When a new Rock version is released, we'll plan to make the **next major and next minor version** available in advance as a pre-alpha, alpha, or beta build. For example, once 19.2 ships, both 19.3 and 20.0 may be available to test once available.
+When a new Rock version is released, we'll plan to make the **next major and next minor version** available in advance as a pre-alpha, alpha, or beta build. For example, once 19.2 ships, both 19.3 and 20.0 may be available to test.
 
 A few things to keep in mind:
 
 - **Server dependencies:** Some features in a pre-release build may depend on a matching pre-release version of Rock server. You may not get the full experience of a new feature until both sides are in sync.
+- **Change log:** We're not currently releasing update notes for these pre-release versions. Typically, you'll be testing these versions in response to a specific bug fix or new feature you're already aware of.
 - **Delays are expected:** There's often a gap between when a Rock version is tagged (or Rock core cuts a pre-release), and when the matching Rock Mobile build is available to testers. This can be caused by several factors, including Apple's TestFlight review process.
+
+## Reporting issues
+
+We only respond to and address issues reported on the [Rock Mobile Issues board](https://github.com/SparkDevNetwork/Rock.Mobile-Issues). Testing platforms may let you report issues or send crash info directly, and you're welcome to use that. It doesn't replace a report on the board, though. If you already submitted something through TestFlight, mention it in your board report. That extra detail can help us.
 
 ## iOS: TestFlight
 
