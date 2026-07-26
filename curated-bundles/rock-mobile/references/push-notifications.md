@@ -183,11 +183,14 @@ To put it simply, your Rock Mobile app on Android needs a shell update published
 
 ## Pre-Release Testing {#pre-release-testing}
 
-We're retiring Rock Mobile Latest (the "blue app") as our pre-release distribution method. Going forward, pre-release builds are distributed through the same platforms Apple and Google provide for this purpose: TestFlight for iOS and Firebase App Distribution for Android.
+We're retiring Rock Mobile Latest (the "blue app") as our pre-release distribution method. Going forward, pre-release builds are distributed through the same platforms Apple and Google provide for this purpose:
+
+1. **TestFlight** for iOS
+2. **Firebase App Distribution** for Android
 
 ## How pre-release testing will work
 
-When a new Rock version is released, we'll plan to make the **next major and next minor version** available in advance as a pre-alpha, alpha, or beta build. For example, once 19.2 ships, both 19.3 and 20.0 may be available to test.
+When a new Rock version is released, we'll plan to make the **next major and next minor version** available in advance as a pre-alpha, alpha, or beta build. For example, when 19.2 ships, both 19.3 and 20.0 may be available to test in the future.
 
 A few things to keep in mind:
 
@@ -204,7 +207,7 @@ We only respond to and address issues reported on the [Rock Mobile Issues board]
 1. Install the [TestFlight app](https://apps.apple.com/us/app/testflight/id899247664) from the App Store, if you haven't already.
 2. Join the Community Testers group: open this link on your iOS device and tap Start Testing (or Accept, then Install): [https://testflight.apple.com/join/Q6nTq83v](https://testflight.apple.com/join/Q6nTq83v)
 3. Once installed, you'll notice the app icon shows a small dot before the app name on your home screen — this is how you know you're running a TestFlight build rather than the App Store version.
-4. Switching between available versions: open the TestFlight app, select Rock Mobile, and scroll down to Previous Builds to choose a different version to install.
+4. Switching between available versions: open the TestFlight app, select the Rock Core app, and scroll down to **Previous Builds** to choose a different version to install.
 
 Apple's own guide covers installing TestFlight, accepting invitations, and general tester behavior in more detail:  
 [Testing Apps with TestFlight](https://testflight.apple.com/)
@@ -219,8 +222,7 @@ Apple's own guide covers installing TestFlight, accepting invitations, and gener
 4. **When moving to a different APK versions, it's best to:**
 	1. Force stop the app
 		2. Clear its cache and storage/data
-		3. Uninstall it completely
-		4. ... before installing the new APK. This avoids leftover data or config causing issues between versions.
+		3. Uninstall it completely before installing the new APK. This avoids leftover data or config issues between versions.
 
 Firebase's tester guide covers accepting invitations and installing builds in more detail: [Get set up as a tester with App Distribution](https://firebase.google.com/docs/app-distribution/get-set-up-as-a-tester). If you run into installation problems, check their [troubleshooting & FAQ](https://firebase.google.com/docs/app-distribution/troubleshooting).
 
@@ -229,7 +231,7 @@ Firebase's tester guide covers accepting invitations and installing builds in mo
 Once you're finished testing a pre-release build, we recommend switching back to the production version of Rock Mobile from the App Store or Play Store:
 
 - iOS: TestFlight builds expire after 90 days, and installing the App Store version will replace your TestFlight build (both use the same app, so only one can be installed at a time).
-- Android: the production Play Store app will keep itself updated automatically, unlike a sideloaded APK. As above, uninstall the test APK first to avoid any conflicts before installing the store version.
+- Android: the production Play Store app will keep itself updated automatically, unlike a sideloaded APK. As above, fully clear and uninstall the test APK first to avoid any conflicts before installing the store version.
 
 ---
 

@@ -67,6 +67,10 @@ Note: These recommendations reflect the models, pricing, and tool-calling behav
 
 ### Breakdown
 
+Note
+
+These recommendations were last updated in May 2026. New models and pricing are released regularly.
+
 `gpt-realtime-2` (OpenAI) — Recommended
 
 Use with a thorough system prompt. Tool-calling test: 10/10 with prompt, 7/10 without. Best interrupt handling of the three — feels responsive when someone breaks in.
