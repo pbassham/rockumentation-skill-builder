@@ -1245,18 +1245,23 @@ Ted Decker's record can be identified by Guid '8fedc6ee-8630-41ed-9fc5-c7157fd1e
 
 Server: v6.0
 
-This filter helps you check the security of the model you pass it.
+This filter helps you check CurrentPerson's security for the entity you pass it.
 
 **Additional Details**
 
 **Example:**
 
 ```
-[person model]
+"Group" {
+  "Id": 131,
+  "GroupTypeId": 10,
+  "Name": "Decker Group",
+  ...
+}
 ```
 
 ```
-{{ person | HasRightsTo:'View' }}
+{{ Group | HasRightsTo:'View' }}
 ```
 
 ```
@@ -1550,6 +1555,49 @@ Notes
 <p>Note one.</p>
 <p>Note two.</p>
 ```
+
+ 
+
+# Object
+
+Server: v1.0
+
+Objects are records or "entities" in Rock that have properties.
+
+**Additional Details**
+
+Objects in Lava give you access to almost any kind of record stored in Rock's database. Objects always have properties, and the most common way of getting a property value is using "dot notation", where you have the object or variable, followed by a dot and the property name. Properties can even be nested objects themselves, so you can chain them together to get what you need.
+
+**Example:**
+
+```
+"Person": {
+  "FullName": "Ted Decker",
+  "Email": "ted@rocksolidchurchdemo.com",
+  "GivingId": "G84",
+  ...
+}
+```
+
+```
+{{ Person.GivingId }}
+```
+
+```
+G84
+```
+
+**Note:**  
+
+Dot notation is by far the most common way of accessing properties.
+
+Sometimes it can be useful to use square bracket notation though. This is equivalent to the above example:
+
+`{{ Person['GivingId'] }}`
+
+And like dot notation, square bracket notation can be chained to get properties of nested objects. For example the below example would display "Member" when Ted viewed the page.
+
+`{{ CurrentPerson['ConnectionStatusValue']['Value'] }}`
 
  
 
@@ -2466,9 +2514,9 @@ Wraps XAML in CDATA tags to make it XML compliant.
 
 ---
 
-## Assign / Capture {#assign-capture}
+## Assign and Capture Tags {#assign-and-capture-tags}
 
-> **Path:** Lava > Tags > Assign / Capture
+> **Path:** Lava > Tags > Assign and Capture Tags
 
 As you become more familiar with Lava you'll find it necessary to start creating your own variables for use in your templates. This guide will walk you through several options you have in creating and using variables within Lava.
 

@@ -1273,6 +1273,46 @@ Converts string to a CSS class name format (e.g. home-phone).
 
  
 
+# ToMarkdown
+
+Server: v20.0
+
+Converts a string of HTML to Markdown. See the [Commonmark website](http://commonmark.org/help/) for details on Markdown syntax.
+
+**Additional Details**
+
+**Example:**
+
+```
+"ContentChannelItem": {
+    "Summary": "<h1>Lorem Ipsum</h1>
+<h2>Lorem ipsum dolor sit amet</h2>
+<ul>
+  <li>Lorem ipsum dolor sit amet</li>
+  <li>consectetur adipiscing elit</li>
+</ul>
+<pre><code>Ut enim ad minim veniam, quis nostrud.</code></pre>";
+}
+```
+
+```
+{{ ContentChannelItem.Summary | ToMarkdown }}
+```
+
+```
+# Lorem Ipsum
+
+## Lorem ipsum dolor sit amet
+
+- Lorem ipsum dolor sit amet
+- consectetur adipiscing elit
+\`\`\`
+    Ut enim ad minim veniam, quis nostrud.
+\`\`\`
+```
+
+ 
+
 # ToPascal
 
 Server: v1.0 Mobile: v1.0

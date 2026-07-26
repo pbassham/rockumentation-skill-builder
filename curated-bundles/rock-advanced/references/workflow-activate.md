@@ -108,6 +108,31 @@ Super glad you asked! Attributes are a key part of workflows. Any other key/valu
 
 ---
 
+## Render Lava Endpoint {#render-lava-endpoint}
+
+> **Path:** Lava > Commands > Render Lava Endpoint
+
+v18.0
+
+Sometimes, a Lava Endpoint generates content you'd like to display immediately when the page loads. While you could use HTMX to trigger a call to the endpoint on load, this approach introduces an extra HTTP request and might cause page layout shifts as the content loads.
+
+To address this, we introduced the `renderlavaendpoint` command. This command processes the Lava from the specified endpoint and injects the results during the initial page load, effectively acting like a Lava Shortcode.
+
+Here's an example:
+
+```
+{% renderlavaendpoint route:'^/group-finder/showgroups' %}
+```
+
+There's one optional parameter 'method' that allows you to specify the HTTP method for the endpoint. If you don't provide this 'GET' is assumed.
+
+```
+{% renderlavaendpoint route:'^/group-finder/showgroups' method:'post' %}
+```
+
+
+---
+
 ## Intro to Shortcodes {#intro-to-shortcodes}
 
 > **Path:** Lava > Shortcodes > Intro to Shortcodes
