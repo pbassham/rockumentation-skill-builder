@@ -3,7 +3,7 @@ name: rock-advanced
 description: "Use when a Rock RMS staff developer is building inside Rock day to day — authoring Lava templates and shortcodes, writing Helix blocks, designing and building Rock-powered websites, writing custom SQL reports or dataview filters, and theming/styling. Covers Lava (filters, tags, commands, shortcodes), Helix, Designing and Building Websites Using Rock, Styling, the SQL Style Guide, Dynamic LINQ syntax, and shortcode authoring."
 metadata:
   generator: rockumentation-skill-builder
-  generatedAt: 2026-08-02T09:44:06.751Z
+  generatedAt: 2026-08-09T09:18:49.332Z
   sources:
     - url: "https://community.rockrms.com/Lava"
       label: Lava

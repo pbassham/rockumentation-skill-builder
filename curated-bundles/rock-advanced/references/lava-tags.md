@@ -80,6 +80,8 @@ Below are a couple of tips to remember:
 	  
 	Note that you can't echo the contents of a variable and literal text in one echo tag. In these cases you'll need two echo tags on separate lines.
 
+**Note:** Inside `{% lava %}`, you can drop the `{% %}` delimiters and put one Lava tag per line. That shorthand applies only to lines directly inside `{% lava %}`. Nested blocks whose body is raw code — `sql` (SQL), `stylesheet` (CSS), `javascript` (JS) — still need the full `{% if %} ... {% endif %}` form for any Lava logic inside them.
+
 
 ---
 

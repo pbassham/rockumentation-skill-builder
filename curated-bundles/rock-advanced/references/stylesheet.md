@@ -105,6 +105,8 @@ Compiling Less is fairly quick, but to ensure that your site is as fast as possi
 {% endstylesheet %}
 ```
 
+**Note about using inside a [Lava](https://community.rockrms.com/lava/tags/lava-tags) command:** When a `{% stylesheet %}` block is nested inside a `{% lava %}` tag, any Lava logic inside the stylesheet body must still use the explicit `{% if %} ... {% endif %}` form. The implicit line-per-tag syntax used by `{% lava %}` does not apply inside a stylesheet block, because its content is CSS, not Lava.
+
 
 ---
 
