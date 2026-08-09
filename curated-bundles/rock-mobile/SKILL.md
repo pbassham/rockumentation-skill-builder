@@ -3,7 +3,7 @@ name: rock-mobile
 description: "Use when building a Rock Mobile app — iOS, Android, Apple TV, or Roku. Covers the Mobile Docs (shell setup, blocks, styling, deep links, push, app store submission), Apple TV docs, and Roku docs. This is the bundle to load whenever the question is about a native Rock-powered mobile or TV app."
 metadata:
   generator: rockumentation-skill-builder
-  generatedAt: 2026-08-02T09:44:53.286Z
+  generatedAt: 2026-08-09T09:19:30.697Z
   sources:
     - url: "https://community.rockrms.com/developer/mobile-docs"
       label: Mobile Docs
@@ -28,6 +28,7 @@ This skill bundles 119 references from 3 sources. Load topics on demand via the 
 - [Dynamic Content](references/dynamic-content.md) — Use when building interactive content blocks that respond to user actions like button taps or form submissions using Callbacks
 - [Deep Linking](references/deep-linking.md) — Use when configuring deep links to route external URLs directly into a Rock mobile application on iOS or Android
 - [Proximity Attendance](references/proximity-attendance.md) — Use when configuring automatic check-in/check-out via Bluetooth beacons or implementing proximity-based attendance tracking in mobile apps
+- [Render Pipeline](references/render-pipeline.md) — Use when understanding how Rock Mobile renders blocks through server Lava processing, client-side rendering, XAML parsing, and visual tree construction stages
 - [Animations](references/animations.md) — Use when building UI animations in Rock Mobile to respond to user actions or view loading events
 - [Content](references/content.md) — Use when building Rock Mobile app layouts that display dynamic or static content using Lava and XAML markup
 - [Content Collection View](references/content-collection-view.md) — Use when helping users search, filter, and sort content across multiple content collection sources in Rock Mobile
