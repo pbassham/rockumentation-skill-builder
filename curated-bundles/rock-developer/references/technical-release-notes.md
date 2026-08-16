@@ -20,6 +20,14 @@ While we make a huge effort to not break things during updates, when something c
 - **Extension Methods Moved to Rock.Common**
 	If your projects use the core extension methods, you will need to add a reference to `Rock.Common`.
 
+### 20.0.6 July 30, 2026
+
+- **Protect My Ministry (v1) background check component removed.** The built-in Protect My Ministry v1 background check provider has been retired in Rock v20. Its component class, admin page, callback webhook, and settings block have been removed. See the Rock v20 Tech Bulletin [Removal of the Protect My Ministry (v1) Background Check Provider](https://www.rockrms.com/tech-bulletin/removal-of-the-protect-my-ministry-v1-background-check-provider) for other details.
+	- The `Rock.Security.BackgroundCheck.ProtectMyMinistry` class no longer exists. Any plugin that took a compile-time dependency on the type itself (for example, `typeof(Rock.Security.BackgroundCheck.ProtectMyMinistry)`) will fail to build against Rock v20. Rebuild against Checkr or a supported third-party provider.
+			- The `Rock.SystemGuid.EntityType.PROTECT_MY_MINISTRY_PROVIDER` string constant is retained and marked `[Obsolete]` + `[RockObsolete("20.0")]`. Plugin code that referenced the Guid *by constant name* still compiles against v20 with a warning.
+			- The `Rock.SystemGuid.WorkflowType.PROTECTMYMINISTRY` and `Rock.SystemGuid.DefinedType.PROTECT_MY_MINISTRY_MVR_JURISDICTION_CODES` string constants also remain in place for the same reason.
+			- The shared "Background Check Types" defined type (Guid `BC2FDF9A-93B8-4325-8DE9-2F7B1943BFDF`) and its supporting attributes (`PMMPackageName`, `DefaultCounty`, `SendHomeCounty`, `DefaultState`, `SendHomeState`, `MVRJurisdiction`, `SendHomeStateMVR`) are unchanged. The `PMM…`\-prefixed attribute names are legacy naming that survived — those attributes are the shared package-definition schema used by every background check provider, and continued use is expected.
+
 ### 20.0.3 May 21, 2026
 
 - The public enum `Rock.Model.AddressStatus` was moved to `Rock.Enums.dll`.
@@ -29,11 +37,11 @@ While we make a huge effort to not break things during updates, when something c
 - All string, date, dictionary, JSON, decimal, etc. extension methods that were marked Obsolete in v13 in the `Rock.dll` assembly were moved to `Rock.Common.dll` where they still reside. These obsolete items in the `Rock.dll` have been removed so you will need to use the `Rock.Common.dll` to use those extensions.
 	Properties, classes, methods, and interfaces that were obsoleted in v15 and earlier have been removed from the code. Including:
 	- Rock.Badge.HighlightLabelBadge
-			- Rock.Web.UI.IDetailBlock
-			- Rock.Transactions.ITransactionWithProgress
-			- Rock.Chart.FlotChartDataSet
-			- Rock.Web.UI.Controls.FlotChart and sub-classes: LineChart, PieChart, etc.
-			- *...to name a few of them. See full list below.*
+		- Rock.Web.UI.IDetailBlock
+		- Rock.Transactions.ITransactionWithProgress
+		- Rock.Chart.FlotChartDataSet
+		- Rock.Web.UI.Controls.FlotChart and sub-classes: LineChart, PieChart, etc.
+		- *...to name a few of them. See full list below.*
 	[Full list](#collapse20_0_2)
 	The following members were removed from `Rock.Attribute.IHasInheritedAttributes`:
 	- `GetAlternateEntityIds(RockContext rockContext)` (method)
@@ -451,15 +459,15 @@ While we make a huge effort to not break things during updates, when something c
 
 - The following legacy "Electronic Signature" methods, properties or classes -- originally obsoleted in Rock v14 -- were removed from the Rock:
 	- `Rock.Model.SignatureDocumentTemplateService.CancelDocument` (method)
-			- `Rock.Model.SignatureDocumentTemplateService.SendDocument` (method)
-			- `Rock.Model.SignatureDocumentTemplateService.UpdateDocumentStatus` (method)
-			- The public class `Rock.Jobs.ProcessSignatureDocuments` was removed.
-			- The public class `Rock.Security.DigitalSignatureComponent` was removed.
-			- The public class `Rock.Security.DigitalSignatureContainer` was removed.
-			- The public class `Rock.Tasks.ProcessSendDigitalSignatureRequest` was removed.
-			- The public class `Rock.Tasks.UpdateDigitalSignatureDocument` was removed.
-			- The public class `Rock.Transactions.SendDigitalSignatureRequestTransaction` was removed.
-			- The public class `Rock.Transactions.UpdateDigitalSignatureDocumentTransaction` was removed.
+		- `Rock.Model.SignatureDocumentTemplateService.SendDocument` (method)
+		- `Rock.Model.SignatureDocumentTemplateService.UpdateDocumentStatus` (method)
+		- The public class `Rock.Jobs.ProcessSignatureDocuments` was removed.
+		- The public class `Rock.Security.DigitalSignatureComponent` was removed.
+		- The public class `Rock.Security.DigitalSignatureContainer` was removed.
+		- The public class `Rock.Tasks.ProcessSendDigitalSignatureRequest` was removed.
+		- The public class `Rock.Tasks.UpdateDigitalSignatureDocument` was removed.
+		- The public class `Rock.Transactions.SendDigitalSignatureRequestTransaction` was removed.
+		- The public class `Rock.Transactions.UpdateDigitalSignatureDocumentTransaction` was removed.
 	The following method signatures were changed on `Rock.Rest.v2.Models.PeopleController`:
 	- `public IHttpActionResult PostItem(Person value)` → `public IHttpActionResult PostItem(Person value, bool createPersonIfMissing = True)`
 	The public class `Rock.Blocks.Types.Mobile.Cms.VoiceAgentInitialData` was removed.

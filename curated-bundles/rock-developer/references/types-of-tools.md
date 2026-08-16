@@ -17,13 +17,13 @@ Provides a set of items needed as *inputs* to other tools. In general, these too
 
 These will often return metadata / additional properties needed for the filtering. For example, a *Lookup* tool for campuses might include the status of the campus (open vs. closed) as an additional property. This would allow the language model to perform filtering if it needs to based on the campus being open or closed.
 
-The result should typically include a summarized version of the result set in history. Meaning, if your *Lookup* had an *Id*, *Name*, *Status* and *Location* then the history should only have the *Id* and *Name*. This allows the language model to refer back to the list of items later in the chat history without needing to pull the whole set again. For example, the individual might ask how many *Connection Requests* are open for the Phoenix campus. Then later ask about Peoria campus. Having the minimal *Id* and *Name* in chat history will allow it to skip looking up all the campuses again.
+The result should typically include a summarized version of the result set in history. Meaning, if your *Lookup* had an *Id*, *Name*, Guid, *Status* and *Location* then the history should only have the *Id, Guid* and *Name*. This allows the language model to refer back to the list of items later in the chat history without needing to pull the whole set again. For example, the individual might ask how many *Connection Requests* are open for the Phoenix campus. Then later ask about Peoria campus. Having the minimal *Id* and *Name* in chat history will allow it to skip looking up all the campuses again.
 
 ## List
 
 These are for dynamic results that represent real-time or historical records. These generally have a set of filters as they normally deal with large data sets.
 
-The result items should be mildly summarized. For example, when listing *Connection Requests*, don't include the list of activities. That information is typically not required to decide if the item is relevant to the individual's request. However, the *Connection Opportunity* (*Id* and *Name* only) is likely relevant. Remember that the entire result set must fit within the context window, which you can assume that only half the entire window is available as a lot would already be used up by the input data.
+The result items should be mildly summarized. For example, when listing *Connection Requests*, don't include the list of activities. That information is typically not required to decide if the item is relevant to the individual's request. However, the *Connection Opportunity* (*Id, Guid* and *Name* only) is likely relevant. Remember that the entire result set must fit within the context window, which you can assume that only half the entire window is available as a lot would already be used up by the input data.
 
 Important
 

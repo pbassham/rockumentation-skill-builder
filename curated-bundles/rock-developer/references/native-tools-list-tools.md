@@ -13,7 +13,7 @@ List tools are comprised of 3 basic parts.
 2. Format the results into a concrete Result class that represents each item.
 3. Apply pagination rules to the final set.
 
-There is also two different patterns for working with paged content. The first is Page Number paging. This is best for data that is not secured, meaning no `IsAuthorized()` check needs to be performed. The other is Cursor Paging, which is ideal for situations where you need to work with per-item security - which requires the full objects to be loaded.
+There is also two different patterns for working with paged content. The first is Page Number paging. This is best for data that is not secured, meaning no `IsAuthorized()` check needs to be performed. The other is Cursor Paging, which is required for situations where you need to call `IsAuthorized()` on each time.
 
 ## Page Number Paging
 
