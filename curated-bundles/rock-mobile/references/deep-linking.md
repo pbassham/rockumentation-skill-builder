@@ -111,3 +111,33 @@ With everything configured, it's time to test. On iOS, deep links can be tested 
 Deep linking is implemented uniquely in the shell for each platform's requirements, so be sure to test both when you can. It may work for one and not the other, so if there are any issues, let the App Factory team know which platform is affected.
 
 Typing a deep link URL into your browser app will not open the Rock Mobile app. You can use a Notes app or something with text entry to add the URL, then tap on it. This emulates the more common use case of someone tapping a deep link from their email or an SMS communication.
+
+Test from a tapped link, never from the address bar. Both platforms ignore universal links and app links for URLs that are typed or pasted into a browser. Chrome blocks the app launch when the intent is "redirected from a typed in URL" or fires without a user gesture, and iOS behaves the same way. Tapping the link from Notes, Messages, or an email is the only reliable test. A link that fails in the address bar is not evidence of a broken configuration.
+
+Once a link works, be careful about how you leave the app. Tapping the breadcrumb in the top-right corner of Safari tells iOS to prefer the website, and iOS remembers that choice for the whole domain. Every later tap opens Safari until the user taps OPEN in a Smart App Banner. If deep links stop working partway through a testing session, this is usually why. Reinstalling the app or testing on a clean device resets it.
+
+## When a Link Won't Open The App
+
+A correctly configured deep link will still open in the browser in a few situations. These are deliberate operating system behaviors, not configuration problems.
+
+### Links on your own domain
+
+When someone is already browsing your site in Safari and taps a link to that same domain, iOS keeps them in Safari. Apple's documentation states that iOS "respects the user's most likely intent and opens the link in Safari."
+
+This matters because deep links resolve against your Rock server's domain, in the form `example.com/DeepLinkPrefix/DeepLinkRoute`. Any interstitial page hosted on that same domain, such as a QR code landing page, an NFC landing page, or a "choose an option" menu, will not hand its links off to the app.
+
+Host the interstitial page on a different host than your deep link domain. A subdomain works, as long as it is not listed in the app's associated domains. Keep the buttons pointed at your normal deep link URLs and every tap will open the app.
+
+### Redirects and scripted navigation 
+
+Universal links and app links require a direct user tap. A server redirect, a window.location assignment, or a timer-driven navigation will land in the browser instead. Link to the deep link URL directly rather than routing through a shortener or a redirect.
+
+### Getting into the app from a typed URL
+
+Add a [Smart App Banner](https://developer.apple.com/library/archive/documentation/AppleApplications/Reference/SafariWebContent/PromotingAppswithAppBanners/PromotingAppswithAppBanners.html) to the page. Its OPEN button is the only supported route into the app when someone reaches the page by typing the URL, and the app-argument value carries the deep link through. Add a meta tag named apple-itunes-app whose content sets app-id to your App Store ID and app-argument to the full deep link URL. The banner also clears the Safari preference described in Testing above.
+
+### The app opens but lands on the homepage
+
+This is a Rock configuration issue rather than a platform one. The app matches the incoming path against the deep link routes in the mobile bundle. When no route matches, it navigates to the homepage and shows "Unable to find the page specified." Check the Route value on the Deep Links tab against the actual URL path, including the Deep Link Path Prefix.
+
+Two notes before you publish. The Smart App Banner subsection now describes the meta tag in prose rather than showing markup, so add the actual snippet in your CMS code block if you want partners copying it directly. And keep the last subsection even though it isn't an OS behavior, since it's the failure people most often misreport as "deep linking is broken."

@@ -71,7 +71,7 @@ So `OnIdiom` will not respond to a rotation and `OnPlatform` will not respon
 
 Most questions about what works with what have the same shape, and the same method answers them: identify the stage each feature is resolved at. If two features resolve at different stages, they do not interact — the earlier one only hands text to the later one.
 
-As an example, a question that is genuinely unclear at first glance: would an `OnPlatform` definition work inside a shortcode?
+As an example, a question that may be unclear at first glance: would an `OnPlatform` definition work inside a shortcode?
 
 Walk the stages. The shortcode expands at stage 1, on the server, and emits characters. If those characters spell `<OnPlatform>`, the server neither knows nor cares — it is producing text. At stage 4, the parser reads that markup and resolves it against the actual device. So yes, it works, and the reason is that the two never meet.
 
