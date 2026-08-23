@@ -91,7 +91,7 @@ The navigation command to execute when the "cancel" button is pressed.
 
 ## Page Parameters
 
-| Kry | Type | Description |
+| Key | Type | Description |
 | --- | --- | --- |
 | RequesterId | string | The Id Key of the requester. |
 | ConnectionTypeId | string | When provided, the connection type will be locked to this value and only display opportunities of its' own type. |

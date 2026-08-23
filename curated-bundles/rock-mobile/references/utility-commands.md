@@ -855,6 +855,11 @@ This command is used to update the profile photo of either the `CurrentPerson`, 
 
 Important
 
+M20.0  
+Use this command for any person photo upload. It is what notifies the rest of the app, so every `Avatar` showing that person refreshes on its own. Uploading through a different path saves the photo but leaves those avatars showing the old picture, with no error to indicate why. This command works on Person records only.  
+
+Warning
+
 This command requires Edit permissions on the following API endpoint:  
 POST api/People/UpdatePersonProfilePhoto?personGuid={personGuid}&filename={filename}  
   
@@ -875,7 +880,7 @@ There are some additional command parameters that can be used for extended funct
 | Property | Type | Description |
 | --- | --- | --- |
 | PersonGuid | Guid | The Guid of the Person to update the profile photo for. |
-| Image | Image | The image to update the source of when the new profile image is uploaded. |
+| Image | Image | An `Image` control to update the source of immediately when the new photo is uploaded. Not required for `Rock:Avatar`, which refreshes itself. Useful for giving the block that owns the upload instant feedback, or for updating a plain `Rock:Image`. |
 
 Here's an example for using the Image property:
 

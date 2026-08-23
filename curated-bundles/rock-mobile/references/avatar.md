@@ -19,32 +19,53 @@ This control constructs an avatar image source based on the provided parameters 
 
 ## Properties
 
-| Property | Type | Description |
-| --- | --- | --- |
-| Source | string | The direct source to the Avatar URL. |
-| PersonGuid | Guid | The person to display the avatar for. |
-| Rounded | bool | Whether or not the avatar should be rounded. |
-| ShowStroke | bool | Whether or not a default stroke shape should be applied to the avatar. |
-| AvatarBackgroundColor | Color | The background color of the avatar. This is passed along to the GetAvatar request. |
-| AvatarForegroundColor | Color | The foreground color of the avatar. This is passed along to the GetAvatar request. |
-| AvatarAgeClassification | AgeClassification | The age classification of the avatar. |
-| AvatarGender | Gender | The gender of the avatar. |
-| AvatarBold | bool | Whether or not the avatar should be bolded. |
-| AvatarStyle | string | The style of the avatar. Typically initials or icon. |
-| AvatarText | string | The text to use for the avatar. |
+| Property | Type | Description |  |
+| --- | --- | --- | --- |
+| Source | string | The direct source to the Avatar URL. |  |
+| PersonGuid | Guid | The person to display the avatar for. |  |
+| Rounded | bool | Whether or not the avatar should be rounded. |  |
+| ShowStroke | bool | Whether or not a default stroke shape should be applied to the avatar. |  |
+| AvatarBackgroundColor | Color | The background color of the avatar. This is passed along to the GetAvatar request. |  |
+| AvatarForegroundColor | Color | The foreground color of the avatar. This is passed along to the GetAvatar request. |  |
+| AvatarAgeClassification | AgeClassification | The age classification of the avatar. |  |
+| AvatarGender | Gender | The gender of the avatar. |  |
+| AvatarBold | bool | Whether or not the avatar should be bolded. |  |
+| AvatarStyle | string | The style of the avatar. Typically initials or icon. |  |
+| AvatarText | string | The text to use for the avatar. |  |
+
+## Automatic Updates
+
+M20.0
+
+An Avatar refreshes itself when a person's photo is updated through the [UpdatePersonProfilePhoto](https://community.rockrms.com/developer/mobile-docs/essentials/commands/utility-commands#updatepersonprofilephoto) command, with no extra markup. Which form you use determines whether that happens:
+
+| Form | Refreshes Automatically? |
+| --- | --- |
+| `<Rock:Avatar PersonGuid="..." />` | Yes, when that person's photo changes |
+| `<Rock:Avatar />` | Yes, for the current person |
+| `<Rock:Avatar Source="..." />` | No. Displays whatever URL you supplied, and only changes when that value does |
+| Styled avatars with no `PersonGuid` (initials, icon,  custom text) | No, they render no photo |
+
+Photo changes made on the website rather than in the app are picked up the next time the app launches.
+
+Important
+
+When using `PersonGuid`, the control may append a cache parameter to the generated `GetAvatar.ashx` URL so the updated photo is fetched instead of a cached copy. Do not strip or parse this parameter in custom Lava.  
 
 ## Examples
 
-In most cases, you'll want to provide the Avatar source directly to the component. This should be the method utilized whenever you have a person object available.
+Both forms below produce a valid avatar. Which one to use depends on whether the photo can change while the page is open.
 
-```
-<Rock:Avatar Source="{{ CurrentPerson.PhotoUrl | Escape }}" />
-```
-
-Otherwise, you can pass in the parameters to build the Avatar source manually.
+Pass `PersonGuid` when the photo might be updated in the app while this avatar is on screen. The control builds its own URL, so it refreshes itself when that person's photo changes.
 
 ```
 <Rock:Avatar PersonGuid="{{ CurrentPerson.Guid }}" />
+```
+
+Pass `Source` when you already have a person object and the photo will not change while the page is open, such as a read-only detail view or a long list. This avoids a person lookup on the server for every avatar request, so it is the lighter option at scale, but the image will not update until the value you bound to changes.  
+
+```
+<Rock:Avatar Source="{{ CurrentPerson.PhotoUrl | Escape }}" />
 ```
 ```
 <Rock:Avatar AvatarBackgroundColor="{Rock:PaletteColor App-Primary-Soft}" 

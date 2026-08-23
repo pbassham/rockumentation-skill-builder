@@ -51,7 +51,6 @@ This block supports many query strings that can be used to override the block se
 | ShowReplyTo | bool | Whether or not to show the 'Reply To' Email field. |
 | IsBulk | bool | Takes precedence over the 'Is Bulk' block setting. Whether or not to set the communication as bulk or not. |
 | ReplyTo | string | When provided (and Show Reply To is enabled), the "Reply To" value for an Email communication will be hard-coded to the provide value. |
-| FromNumberGuid | Guid | The Guid of the system phone number to limit the SMS communication to (From Number). Note that this number must be available to the block. |
 
 ## Security (Approving Communications)
 
