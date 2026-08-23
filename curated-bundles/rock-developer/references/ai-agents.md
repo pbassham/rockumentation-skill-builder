@@ -87,7 +87,7 @@ Finally, you might have an agent meant to go on the public website. This would p
 
 ## Public vs Internal
 
-Agents can be configured as *Public* or *Internal*. This causes a number of subtle differences in the agents. However, the primary difference is in what data is provided to the agent from tool calls. If the audience is *Public*, then certain properties may be omitted from the data the tool returns to the agent. If the audience is *Internal*, certain properties may be omitted from the data the tool returns to the agent.
+Agents can be configured as *Public* or *Internal*. This causes a number of subtle differences in the agents. The primary difference is in what data is provided to the agent from tool calls. For a *Public* audience, certain properties may be **omitted** from the data a tool returns to the agent. For an *Internal* audience, those properties are generally **not** omitted. Beyond simply omitting properties, a tool may also choose to return *different* properties depending on the audience. For example, a tool might return a person's `Name` for an *Internal* audience but a `PublicName` for a *Public* audience.
 
 *Internal* agents are for staff and trusted volunteers. They can access sensitive information, and you choose how much each person sees.
 

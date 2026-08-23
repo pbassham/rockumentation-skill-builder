@@ -18,7 +18,7 @@ Add Or Update tools handle modifying an existing entity or adding a new one to t
 The sample code for this might get a bit long, but bear with it. Most of it is fairly simple, we just need to show all the parameters that the tool can accept as arguments.
 
 ```
-public IAgentToolResult AddOrUpdateGroup(
+public AgentToolResult AddOrUpdateGroup(
     [Description( "Required when editing an existing group." )]
     string groupIdKey = null,
 

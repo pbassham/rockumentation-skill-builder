@@ -35,6 +35,10 @@ These tools are expected to operate on a single person. An example would be `Lis
 
 `ForPerson` should be used when it would not make much sense to allow listing items for the whole database. For example, personal devices are a good candidate because there is really no other filtering option but *Person*. Even if we filtered by *Device Type*, we would expect to have thousands or tens of thousands of results. That will not be helpful to the language model, but listing personal devices for Ted Decker would make sense, as we would expect to have at most a dozen records.
 
+## Search
+
+*Search* tools find candidate records using fuzzy, natural-language matching rather than exact filters, and are named with a `Search` prefix, such as `SearchPerson`. The classic example is finding a person by name: the search matches both exact and phonetic ("sounds like") spellings and returns a set of candidates so the language model, or the user, can pick the right one. Instruct the model to display all candidates even when none is an exact match, and return just enough on each result to disambiguate (such as name, age, email, and a profile link). A *Search* tool differs from a *Lookup*, which returns a fixed set of items to use as inputs, and from a *List*, which filters records on precise criteria. Reach for *Search* when the input is an imprecise human description.
+
 ## Get
 
 *Get* tools are used to fetch details about a single item. For example, while the list tool for *Connection Requests* would exclude activity details, the *Get* tool should include them.
@@ -74,3 +78,15 @@ These tools take an optional parameter that specifies the item to edit by its `I
 When updating, there are certain properties that are difficult to update. More specifically, it is difficult to know what the language model is intending. For example, take a string property. This is a nullable data type, so it would be perfectly valid to set the value to null. But how do we know if the parameter is null because it wasn't specified (and isn't meant to be updated), or if it was specified as null because the value is supposed to be cleared?
 
 To solve that in C#, we use a value wrapper called `SetOrClear`. This has a property called `ClearValue` that allows the language model to inform us that it wants to explicitly clear the existing value. If a property is required, such as an integer, then your method parameter can simply be a `int?` and you can check if it is null to determine if it is supposed to be set or not.
+
+## Delete
+
+*Delete* tools remove a single item, following the naming pattern of a `Delete` prefix with a singular entity name, such as `DeletePrayerRequest`. They typically take just the item's `IdKey`. If it does not make sense to allow deleting a particular entity through the agent, simply do not provide a *Delete* tool for it. Because deletion is permanent, a *Delete* tool should always include a guardrail and deserves extra caution on a Public agent.
+
+## Action
+
+Not every tool maps to a CRUD verb. *Action* tools perform an operation and are named after that operation with a singular entity, such as `SendCommunication`, `LaunchWorkflow`, or `CancelDraft`. They usually take one or more `IdKey` values identifying what to act on, validate that the operation is currently allowed (for example, that a communication is still in a draft state), and then perform the work. Because an action often has side effects, use `AgentToolPrerequisite` to describe what must happen first (such as creating a draft) and `AgentGuardrail` to require confirmation before irreversible or outbound actions like sending a communication.
+
+## Current Person
+
+Some agents, especially *Public* ones built for members or attendees, should only ever act on the person who is signed in. For these, provide self-service tools that implicitly use the current person instead of taking a person `IdKey`. By convention these are named with a `My` element, such as `GetMyProfile`, `ListMyGroups`, or `ListMyGivingContributions`, along with related updates like `UpdateFamilyMemberProfile`. Inside the tool, read the person from `AgentRequestContext.CurrentPerson` and do not accept another person's identifier, so the agent cannot be steered into exposing or changing someone else's data.

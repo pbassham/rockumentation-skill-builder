@@ -17,7 +17,7 @@ Unsurprisingly, this tool might be the most simple pattern you have to work with
 Loading the entity is straight forward with the tool helper to handle all the error checking for you.
 
 ```
-public IAgentToolResult GetGroup( string groupIdKey )
+public AgentToolResult GetGroup( string groupIdKey )
 {
     var helper = new AgentToolHelper( AgentRequestContext, _logger );
 

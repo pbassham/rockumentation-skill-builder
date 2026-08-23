@@ -20,9 +20,9 @@ Typically, steps one and two will be the same since you can often do both in a s
 Whenever possible, use cache objects if they are available. Let's take a look at a lookup for connection types.
 
 ```
-public IAgentToolResult LookupConnectionTypes()
+public AgentToolResult LookupConnectionTypes()
 {
-    var currentPerson = AgentRequestContext.RockRequestContext.CurrentPerson;
+    var currentPerson = AgentRequestContext.CurrentPerson;
 
     var connectionTypes = ConnectionTypeCache.All( AgentRequestContext.RockContext )
         .Where( ct => ct.IsActive

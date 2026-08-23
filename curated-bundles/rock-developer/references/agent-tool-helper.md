@@ -1,5 +1,5 @@
 ---
-description: "Use when implementing Native Tools that need validation, error collection, pagination, or standardized entity access patterns"
+description: "Use when building native tools in Rock to validate inputs, collect errors, and access entities safely with standardized patterns"
 source: "https://community.rockrms.com/developer/ai-agents"
 sourceLabel: AI Agents
 ---
@@ -17,7 +17,7 @@ This type of validation logic is repeated often. Duplicating it across multiple 
 
 The helper is designed to collect errors as they occur. Instead of failing on the first invalid value, it tracks all issues encountered during execution. Once validation reaches an appropriate point, you can check for errors and return them all at once. This allows the language model to correct everything in a single response instead of resolving issues one at a time.
 
-The helper has a property of `ErrorResult`. This will return an `IAgentToolResult` initialized with all error messages, instructions and any metadata that have been reported. If you need to do some custom validation, you can use the exposed `AddError()`, `AddInstructions()`, and `AddMetadata()` methods to report your own information to be included with the final result.
+The helper has a property of `ErrorResult`. This will return an `AgentToolResult` initialized with all error messages, instructions and any metadata that have been reported. If you need to do some custom validation, you can use the exposed `AddError()`, `AddInstructions()`, and `AddMetadata()` methods to report your own information to be included with the final result.
 
 ## Initialization
 
@@ -27,20 +27,20 @@ Creating a read-only helper requires that you pass in the AgentRequestContext an
 
 ```
 // Read-only helper
-var helper = new RockToolHelper( AgentRequestContext, _logger );
+var helper = new AgentToolHelper( AgentRequestContext, _logger );
 ```
 
-To create a read-write helper, you simply need to create and pass in a RockContext in addition to the other parameters. The `_rockContextFactory` is also usually injected into your constructor via dependency injection.
+To create a read-write helper, you simply need to create and pass in a RockContext in addition to the other parameters. Create the context with `RockApp.Current.CreateRockContext()`.
 
 ```
 // Read-write helper
-using var rockContext = _rockContextFactory.CreateRockContext();
-var helper = new RockToolHelper( rockContext, AgentRequestContext, _logger );
+using var rockContext = RockApp.Current.CreateRockContext();
+var helper = new AgentToolHelper( rockContext, AgentRequestContext, _logger );
 ```
 
 ## Results
 
-We already mentioned the `ErrorResult` property. But once again, this will create a new `IAgentToolResult` instance that includes all errors that have been reported, any instructions, and all metadata key/value pairs. If you happen to call it when there are no errors, then an exception will be thrown. This is to make sure, as a pattern, you don't accidentally try to return an error result that has no error messages.
+We already mentioned the `ErrorResult` property. But once again, this will create a new `AgentToolResult` instance that includes all errors that have been reported, any instructions, and all metadata key/value pairs. If you happen to call it when there are no errors, then an exception will be thrown. This is to make sure, as a pattern, you don't accidentally try to return an error result that has no error messages.
 
 There is also a `HasErrors` property that will tell you if there have been any errors reported. So a common pattern would be to perform various tasks and then at an appropriate place in the logic do this:
 
@@ -59,7 +59,7 @@ return helper.GetPaginatedResult( page );
 
 Tip
 
-It's also important to note that in both cases, a standard `IAgentToolResult` is returned. This means you can call the chain methods as if you created the result yourself.
+It's also important to note that in both cases, a standard `AgentToolResult` is returned. This means you can call the chain methods as if you created the result yourself.
 
 ## Reporting Methods
 
@@ -96,18 +96,18 @@ var page = helper.GetCursorPaginatedItems( campusQry, paginator, previousCursorV
 
 Accessing entity references is one of the things that is extremely repetitive, and prone to mistakes. To do things properly, there are a lot of checks that happen and different errors reported for different situations. The methods below are all meant to load an entity by its IdKey value. In all cases, if the IdKey value is invalid an error will be reported; if the entity cannot be found by the IdKey an error will also be reported.
 
-Each method can also be passed a parameter to specify if security should be checked. This is `false` by default. If security check is requested and the individual is not authorized then an error will be reported.
+Each method can also be passed a parameter to specify if security should be checked. This is `true` by default, so security is enforced unless you explicitly opt out. If a security check is requested and the individual is not authorized then an error will be reported. Because security matters, our sample code always passes `checkSecurity` explicitly rather than relying on the default.
 
 - `GetOptionalEntity` - This method will attempt to load an entity from the database. No error will be reported if the IdKey value is blank or null. If an entity is loaded, it will be returned.
 - `TryGetOptionalEntity` - This method will attempt to load an entity from the database. No error will be reported if the IdKey value is blank or null. If an entity is loaded then true will be returned. False will be returned in all other cases, whether an error occurred or not.
 - `GetRequiredEntity` - This method will attempt to load an entity from the database. An error will be reported if the IdKey value is blank or null. If an entity is loaded, it will be returned.
-- `TryGetRequiredentity` - This method will attempt to load an entity from the database. An error will be reported if the IdKey value is blank or null. If an entity is loaded then true will be returned. False will be returned in all other cases, which indicates an error.
+- `TryGetRequiredEntity` - This method will attempt to load an entity from the database. An error will be reported if the IdKey value is blank or null. If an entity is loaded then true will be returned. False will be returned in all other cases, which indicates an error.
 ```
 // Try to load an optional campus.
-var campus = helper.GetOptionalEntity<Campus>( campusIdKey );
+var campus = helper.GetOptionalEntity<Campus>( campusIdKey, checkSecurity: true );
 
 // Try to load an optional campus, and default to a default value if one can't be found.
-if ( !helper.TryGetOptionalEntity<Campus>( campusIdKey, out var campus ) )
+if ( !helper.TryGetOptionalEntity<Campus>( campusIdKey, out var campus, checkSecurity: true ) )
 {
     campus = defaultCampus;
 }
@@ -116,13 +116,13 @@ if ( !helper.TryGetOptionalEntity<Campus>( campusIdKey, out var campus ) )
 var group = helper.GetRequiredEntity<Group>( groupIdKey, checkSecurity: true );
 
 // Try to get a required campus, return an error if it can't be loaded.
-if ( !helper.TryGetRequiredEntity<Campus>( campusIdKey, out var campus ) )
+if ( !helper.TryGetRequiredEntity<Campus>( campusIdKey, out var campus, checkSecurity: true ) )
 {
     return helper.ErrorResult;
 }
 
 // Attempt to load multiple entities and report an error at the end if any failed.
-var campus = helper.GetRequiredEntity<Campus>( campusIdKey );
+var campus = helper.GetRequiredEntity<Campus>( campusIdKey, checkSecurity: true );
 var group = helper.GetOptionalEntity<Group>( groupIdKey, checkSecurity: true );
 
 if ( helper.HasErrors )
@@ -139,7 +139,7 @@ Entity Attributes can be easily worked with by using helper methods. They will a
 - SetAttributeValues - Sets the attribute values of an entity from a list of `AttributeValueResult` objects.
 ```
 // Get all available attributes for a group.
-var attrs = helper.GetAvailableAttributes( group );
+var attrs = helper.GetAvailableAttributes( group, enforceSecurity: true );
 
 // Get all available attributes for a group, bypassing security checks.
 var attrs = helper.GetAvailableAttributes( group, enforceSecurity: false );
@@ -188,18 +188,21 @@ Much like updating entities, querying them also presents problems. The problems 
 - `WhereRequiredIdKey` - Filters a query to a foreign key property (e.g. `PrimaryFamilyId`) based on a string containing a IdKey. An error will be reported if the value is missing.
 - `WhereOptionalProperty` - Filters a non-foreign key property (e.g. `BirthYear`) based on a nullable value of the same data type. No error will be reported if the value is missing.
 - `WhereRequiredProperty` - Filters a non-foreign key property (e.g. `BirthYear`) based on a nullable value of the same data type. An error will be reported if the value is missing. This method/pattern would usually only be used if there was some other check that happened first to land you in a branch where the value was now required instead of optional.
+- `WhereOptionalPropertyBetween` - Filters a property to an inclusive range between a lower and an upper value. If both bounds are null then no filtering is performed. Handy for date or number ranges such as a start and end date.
+- `WhereRequiredPropertyBetween` - The same inclusive-range filter as above, but an error is reported if both the lower and upper bounds are missing.
+- `RequireAtLeastOneFilter` - A validation helper (not a filter itself). Pass the tool's filter values and it reports an error if none of them were provided, which keeps a tool from running an unbounded query.
 ```
 // Update the queryable to filter people by their primary family.
 // primaryFamilyIdKey is data type string.
 queryable = helper.WhereRequiredIdKey( queryable, p => p.PrimaryFamilyId, primaryFamilyIdKey );
 
-// Update the queryable to filter people by their primary family, but only a value was provided.
+// Update the queryable to filter people by their primary family, but only if a value was provided.
 // primaryFamilyIdKey is data type string.
 queryable = helper.WhereOptionalIdKey( queryable, p => p.PrimaryFamilyId, primaryFamilyIdKey );
 
 // Update the queryable to filter based on birth year if provided.
 // birthYear is data type int?.
-queryable = helper.WhereOptionalIdKey( queryable, p => p.BirthYear, birthYear );
+queryable = helper.WhereOptionalProperty( queryable, p => p.BirthYear, birthYear );
 ```
 
 Tip
@@ -225,7 +228,7 @@ helper.SaveChanges();
 
 // Save changes if nothing has gone wrong, and then return the error if
 // something happened before or during the save.
-helper.SaveChangesIfNoError()
+helper.SaveChangesIfNoErrors();
 
 if ( helper.HasErrors )
 {
@@ -275,10 +278,10 @@ There are two primary reasons for this. First, these tools are never intended to
 
 ```
 // ✅ Good
-public IAgentToolResult SendEmail( string communicationIdKey, bool sendImmediately = false )
+public AgentToolResult SendEmail( string communicationIdKey, bool sendImmediately = false )
 
 // ⛔ Bad
-public IAgentToolResult SendEmail( SendEmailOptions options )
+public AgentToolResult SendEmail( SendEmailOptions options )
 ```
 
 Because of how C# handles method parameters, there are some rules that automatically get enforced and passed along to the language model to give it a better hint about how to handle them when it constructs the arguments to pass to your tool.
@@ -293,10 +296,10 @@ Carefully think through how you name each parameter as well as whether it suppor
 
 ```
 // ✅ Good. Clearly identifies what kind of IdKey to pass.
-public IAgentToolResult SendEmail( string communicationIdKey )
+public AgentToolResult SendEmail( string communicationIdKey )
 
 // ⛔ Bad. Maybe it's the person's IdKey we are sending to?
-public IAgentToolResult SendEmail( string idKey )
+public AgentToolResult SendEmail( string idKey )
 ```
 
 ## Null Handling
@@ -305,10 +308,10 @@ Similarly, if you have an integer parameter called `numberOfDays` but do not mak
 
 ```
 // ✅ Implies that sendImmediately is a necessary field, but we will provide a default value.
-public IAgentToolResult SendEmail( string communicationIdKey, bool sendImmediately = false )
+public AgentToolResult SendEmail( string communicationIdKey, bool sendImmediately = false )
 
 // ✅ Implies that attachmentId is completely optional and no default will be provided.
-public IAgentToolResult SendEmail( string communicationIdKey, int? attachmentId = null )
+public AgentToolResult SendEmail( string communicationIdKey, int? attachmentId = null )
 ```
 
 ---
@@ -385,12 +388,12 @@ Before creating new skills, keep these principles in mind:
 
 ---
 
-## Creating Skills {#creating-skills}
+## Creating Lava Skills {#creating-lava-skills}
 
 ## Overview
 
 Creating new skills in Lava is straightforward. When defining a skill, you’ll provide a name, description, and optional instructions. Here are some tips to keep in mind:
 
 - **Name:** The name is critical since the agent orchestrator uses it to decide when and whether its tools should be called. Choose something clear that helps the AI understand the purpose of the tools within the skill.
-- **Description:** This field is for internal reference only and is not exposed to the agent. Use it to document the purpose and scope of the skill for human readers.
+- **Description:** At the skill level this field is for administrator reference only and is not exposed to the agent. Use it to document the purpose and scope of the skill for human readers. Note that this differs from the `[Description]` attribute placed on POCO properties and method arguments in native tools, which *is* sent to the language model.
 - **Instructions:** This field is passed to the agent to give additional context about how the skill and its tools should be used. Its content is appended to the agent’s system prompt, so keep it concise. We recommend leaving it blank at first and only adding guidance when necessary. When used, instructions here often carry more weight than tool-level instructions alone.

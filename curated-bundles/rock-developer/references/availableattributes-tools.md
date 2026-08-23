@@ -21,7 +21,7 @@ When we are talking about available attributes in this tool, we are talking abou
 Loading the entity is generally straight forward, but there is one important considering you need to keep in mind. The language model might be calling this tool to get available attributes for an Add operation. In which case, there would be no existing entity. So just like when dealing with attributes in C#, you need to construct an in-memory instance and set the required properties so that qualified attributes will be matched.
 
 ```
-public IAgentToolResult GetCampusAvailableAttributes(
+public AgentToolResult GetCampusAvailableAttributes(
     string campusIdKey = null,
     string campusStatusIdKey = null )
 {
@@ -34,7 +34,7 @@ Lets start by looking at the simple definition of our tool. We have a `campusIdK
 ```
 if ( campusIdKey.IsNotNullOrWhiteSpace() )
     {
-        campus = helper.GetRequiredEntity<Campus>( campusIdKey );
+        campus = helper.GetRequiredEntity<Campus>( campusIdKey, checkSecurity: true );
 
         if ( campus == null )
         {
@@ -48,7 +48,7 @@ Next we handle the case of getting available attributes for a specific entity. T
 ```
 else
     {
-        var status = helper.GetRequiredEntity<DefinedValue>( campusStatusIdKey );
+        var status = helper.GetRequiredEntity<DefinedValue>( campusStatusIdKey, checkSecurity: true );
 
         if ( status == null )
         {
@@ -74,6 +74,6 @@ Whether we are getting attributes for a new item or for an existing item, once w
 ```
 campus.LoadAttributes( AgentRequestContext.RockContext );
 
-    return Success( helper.GetAvailableAttributes( campus ) );
+    return Success( helper.GetAvailableAttributes( campus, enforceSecurity: true ) );
 }
 ```

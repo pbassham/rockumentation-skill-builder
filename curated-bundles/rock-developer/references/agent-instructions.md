@@ -140,7 +140,7 @@ In addition to the system prompt, there are a few things that are sent with ever
 
 ### Context Anchor
 
-Context anchors tell the agent that we're talking about a specific entity. There can only be one anchor per entity type. These can be set by your tools. You should only use these when needed. See the section on [Context Anchors](https://community.rockrms.com/developer/ai-agents/agents/context-anchors) for further details.
+Context anchors tell the agent that we're talking about a specific entity. There can only be one anchor per entity type. Anchors are established by the chat host (for example, the docked chat panel setting the current person), not from within tool code. You should only rely on these when needed. See the section on [Context Anchors](https://community.rockrms.com/developer/ai-agents/agents/context-anchors) for further details.
 
 ### Conversation History
 

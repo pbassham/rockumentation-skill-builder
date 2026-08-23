@@ -15,9 +15,13 @@ List tools are comprised of 3 basic parts.
 
 There is also two different patterns for working with paged content. The first is Page Number paging. This is best for data that is not secured, meaning no `IsAuthorized()` check needs to be performed. The other is Cursor Paging, which is required for situations where you need to call `IsAuthorized()` on each time.
 
+Warning
+
+If your tool performs any per-item authorization check (for example, calling `IsAuthorized( … )` on each item), you MUST use cursor pagination. With page number paging and per-item security filtering, every page has to re-walk and re-authorize all of the preceding items just to find the correct starting offset, so the cost grows with each additional page. Page number paging is only safe when no per-item security check is applied and the offset can be trusted.
+
 ## Page Number Paging
 
-This type of paging uses an integer page number, starting at 1, to request items. This is best for simple queries where you can use a `.Select()` to pull just the few values you need to get your results. When requesting 25 items at a time and page number 3, we simply skip 50 items and then take the next 25.
+This type of paging uses an integer page number, starting at 1, to request items. This is best for simple queries where you can use a `.Select()` to pull just the few values you need to get your results. For example, with a page size of 25, requesting page number 3 skips the first 50 items and then takes the next 25.
 
 ### Filter Data
 
@@ -26,11 +30,11 @@ Filtering data is pretty straight forward in concept. Lets take a look at a simp
 Normally you would have to do a bunch of conditional checks to make sure the parameter was valid or not empty or whatever before modifying the queryable. But we have some helper tools to make your life easier.
 
 ```
-public IAgentToolResult ListCampuses(
+public AgentToolResult ListCampuses(
     bool isActive = true,
     [Description( "Call LookupCampusTypes to find valid values." )]
     string campusTypeIdKey = null,
-    pageNumber = 1 )
+    int pageNumber = 1 )
 {
     var helper = new AgentToolHelper( AgentRequestContext, _logger );
 
@@ -119,7 +123,7 @@ Filtering data is pretty straight forward in concept. Lets take a look at a simp
 Normally you would have to do a bunch of conditional checks to make sure the parameter was valid or not empty or whatever before modifying the queryable. But we have some helper tools to make your life easier.
 
 ```
-public IAgentToolResult ListCampuses(
+public AgentToolResult ListCampuses(
     bool isActive = true,
     [Description( "Call LookupCampusTypes to find valid values." )]
     string campusTypeIdKey = null,
@@ -182,7 +186,7 @@ cursorPage.Items.LoadAttributes( AgentRequestContext.RockContext );
         } )
         .ToList() );
 
-    var historyPage = page.WithItems( cursorPage.Items.Select( c => new KeyNameResult
+    var historyPage = cursorPage.WithItems( cursorPage.Items.Select( c => new KeyNameResult
     {
         Id = c.Id,
         Name = c.Name,

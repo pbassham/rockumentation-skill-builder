@@ -53,6 +53,7 @@ These filters shape how the tool sends results back to the agent.
 | AgentToolResult | Creates the base result with a status and optional payload/message. |
 | AgentToolInstructions | Adds private instructions or guidance for the LLM (not shown to the end user). |
 | AgentToolHistoryContent | By default, a Success or NoData result will store the original payload in the chat history as well. Many times this is fine, but there are some cases where you might want to override that behavior and store different (or no) data in history. Such as a list tool that returns a lot of additional properties, you might want your history data to only include the IdKey and Name properties of each item. This filter will let you do that. |
+| AgentToolNoHistory | Excludes the result from chat history entirely. Use this when the result should not be stored for later turns, such as a large list or summary result. This is the Lava equivalent of calling `WithoutHistoryContent()` in a native tool. |
 | AgentToolMetadata | Adds key/value metadata (e.g., paging info, flags). |
 | AgentToolReferenceRoute | Attaches a reference route the client can link to. Optionally mark as secured. |
 

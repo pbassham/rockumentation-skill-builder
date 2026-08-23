@@ -19,14 +19,23 @@ While we make a huge effort to not break things during updates, when something c
 	Properties, classes, methods, and interfaces that were obsoleted in v15 and earlier have been removed from the code.
 - **Extension Methods Moved to Rock.Common**
 	If your projects use the core extension methods, you will need to add a reference to `Rock.Common`.
+- **Development / Build Issues** -
+	Starting with `20.0.8` your Node version must be at least **24.5.0** and your NPM version must at least **11.5.0**. If they are not, head over to [Node.js — Download Node.js®](https://nodejs.org/en/download) to download the latest v24 LTS version of Node (this will include the correct version of NPM).
+	If you are using AppVeyor and are having node build issues, you should add/update the `nodejs_version` environment variable (Project → Settings → Environment) to `24` to specify the version of node to run.
+
+### 20.0.8
+
+- - **Development / Build Issues** -
+		Starting with `20.0.8` your Node version must be at least **24.5.0** and your NPM version must at least **11.5.0**. If they are not, head over to [Node.js — Download Node.js®](https://nodejs.org/en/download) to download the latest v24 LTS version of Node (this will include the correct version of NPM).
+		If you are using AppVeyor and are having node build issues, you should add/update the `nodejs_version` environment variable (Project → Settings → Environment) to `24` to specify the version of node to run.
 
 ### 20.0.6 July 30, 2026
 
 - **Protect My Ministry (v1) background check component removed.** The built-in Protect My Ministry v1 background check provider has been retired in Rock v20. Its component class, admin page, callback webhook, and settings block have been removed. See the Rock v20 Tech Bulletin [Removal of the Protect My Ministry (v1) Background Check Provider](https://www.rockrms.com/tech-bulletin/removal-of-the-protect-my-ministry-v1-background-check-provider) for other details.
 	- The `Rock.Security.BackgroundCheck.ProtectMyMinistry` class no longer exists. Any plugin that took a compile-time dependency on the type itself (for example, `typeof(Rock.Security.BackgroundCheck.ProtectMyMinistry)`) will fail to build against Rock v20. Rebuild against Checkr or a supported third-party provider.
-			- The `Rock.SystemGuid.EntityType.PROTECT_MY_MINISTRY_PROVIDER` string constant is retained and marked `[Obsolete]` + `[RockObsolete("20.0")]`. Plugin code that referenced the Guid *by constant name* still compiles against v20 with a warning.
-			- The `Rock.SystemGuid.WorkflowType.PROTECTMYMINISTRY` and `Rock.SystemGuid.DefinedType.PROTECT_MY_MINISTRY_MVR_JURISDICTION_CODES` string constants also remain in place for the same reason.
-			- The shared "Background Check Types" defined type (Guid `BC2FDF9A-93B8-4325-8DE9-2F7B1943BFDF`) and its supporting attributes (`PMMPackageName`, `DefaultCounty`, `SendHomeCounty`, `DefaultState`, `SendHomeState`, `MVRJurisdiction`, `SendHomeStateMVR`) are unchanged. The `PMM…`\-prefixed attribute names are legacy naming that survived — those attributes are the shared package-definition schema used by every background check provider, and continued use is expected.
+		- The `Rock.SystemGuid.EntityType.PROTECT_MY_MINISTRY_PROVIDER` string constant is retained and marked `[Obsolete]` + `[RockObsolete("20.0")]`. Plugin code that referenced the Guid *by constant name* still compiles against v20 with a warning.
+		- The `Rock.SystemGuid.WorkflowType.PROTECTMYMINISTRY` and `Rock.SystemGuid.DefinedType.PROTECT_MY_MINISTRY_MVR_JURISDICTION_CODES` string constants also remain in place for the same reason.
+		- The shared "Background Check Types" defined type (Guid `BC2FDF9A-93B8-4325-8DE9-2F7B1943BFDF`) and its supporting attributes (`PMMPackageName`, `DefaultCounty`, `SendHomeCounty`, `DefaultState`, `SendHomeState`, `MVRJurisdiction`, `SendHomeStateMVR`) are unchanged. The `PMM…`\-prefixed attribute names are legacy naming that survived — those attributes are the shared package-definition schema used by every background check provider, and continued use is expected.
 
 ### 20.0.3 May 21, 2026
 

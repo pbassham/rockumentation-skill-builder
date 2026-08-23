@@ -163,17 +163,3 @@ page.SetAdditionalSettings( intentSettings );
 ### Be Sure to Call RockContext.SaveChanges()
 
 While the `SetAdditionalSettings()` method will, indeed, serialize and set the values on the model instance, it's up to you to save those changes to the database, just like any other changes you make to a given model.
-
----
-
-## Appendix - Developer Environment, Upgrading Your Rockit SDK {#appendix---developer-environment-upgrading-yo}
-
-## The Hard Way
-
-It is possible to use the standard RockUpdate block to update your Rockit SDK, but you will need to jump through a few hoops because Visual Studio can lock files that will prevent the RockUpdate block from working correctly.
-
-*Get Daniel’s notes and add them here.*
-
-## The Other Hard Way
-
-*Find the other person who described another way to do it...*

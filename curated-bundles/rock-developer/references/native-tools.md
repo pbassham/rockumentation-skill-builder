@@ -22,16 +22,16 @@ public class CommunicationSkill : AgentSkillComponent
     [AgentToolName( "ComposeEmail" )]
     [Description( "A description that will be displayed in the UI." )]
     [AgentPurpose( "The purpose this tool fulfills that will be sent to the AI." )]
-    [AgentToolReturnsDescription( "A description of the type data returned by the tool." )]
+    [AgentToolReturnDescription( "A description of the type data returned by the tool." )]
     [AgentUsage( "The recipient should always be specified by the user and never inferred." )]
     [AgentGuardrail( "Critical rule that must be followed." )]
     [AgentToolPrerequisite( "Something that must be performed or achieved before calling this tool." )]
     [AgentToolExample( "An example of how to call the tool." )]
     [AgentToolGuid( "2cd93dc2-8e3b-4363-8605-4b7ca96db5dd")]
     [AgentToolPreamble( "Composing Email" )]
-    public RockToolResult ComposeEmail( string instructions, string tone, string recipientIdKey )
+    public AgentToolResult ComposeEmail( string instructions, string tone, string recipientIdKey )
     {
-        return Error( "Not Implemented." )
+        return Error( "Not Implemented." );
     }
 }
 ```
@@ -43,15 +43,18 @@ The following attributes can be specified multiple times. This allows you to bre
 - **AgentGuardrail** - Provides instructions around how to safely call the tool (like warnings that data will be updated or deleted.)
 - **AgentToolPrerequisite** - Describes steps that should be completed before calling this step.
 - **AgentToolExample** - Provides an example of usage for the orchestrator.
-- **AgentToolPreamble** - This is the text that will be shown to the user when the tool is called. This is only used for Rock Agents and does not impact MCP clients.
 
-All attributes are optional except the `AgentToolGuid` attribute.
+A couple of other attributes are single-use (they cannot be repeated): `AgentToolPreamble` and `AgentToolReturnDescription`. `AgentToolPreamble` is the text shown to the user when the tool is called (used only for Rock chat agents, not MCP clients). `AgentToolReturnDescription` describes the expected return value of the tool, which helps the language model know when the tool is useful for obtaining specific information.
+
+All attributes are optional except the `AgentToolGuid` attribute. That attribute is the discovery gate: a method without an `AgentToolGuid` is never registered as a tool and is invisible to the agent. Also note the `[Description]` attribute (the standard .NET `System.ComponentModel.DescriptionAttribute`): on the skill class and on a tool method it is the administrator-facing text shown while configuring the skill or tool, and it is **not** sent to the language model. On POCO properties and method parameters, however, `[Description]` **is** sent to the model as part of the tool's schema.
 
 ## Processing Logic
 
-We recommend that every native function returns a \`RockToolResult\`.
+We recommend that every native function returns an `AgentToolResult`.
 
-If your tool returns structured data, use a POCO (we recommend names ending with `Result`) and return it via the static helper `RockToolResult.Success(...)`. 
+If your tool returns structured data, use a POCO (we recommend names ending with `Result`) and return it via the base-class helper `Success(...)`.
+
+Alongside `Success(...)`, the base class provides `NoData()` for a successful call that has nothing to return, such as a search or list that matched no records. A `NoData` result is not an error; the language model should treat it as a successful but empty result rather than a failure. The pagination helpers, such as `GetPaginatedResult`, already return a `NoData` result automatically when the page is empty. Use `Error(...)`, described below, only when something actually went wrong.
 
 ```
 List<PersonResult> results = GetResults();
@@ -85,7 +88,7 @@ Common Metadata Keys
 
 `WithContent( object content )`\- Sets or overrides the same content as `RockToolResult.Success(...)` . This method is typically not needed. It is available for the rare cases where you need to set the response content directly instead of using the standard `Success()` pattern.  
 
-`WithReferenceRoute( string text, string route, bool secured = false )` - Add a reference URL. This will check if the current person has access to view the page if `secured` is true (default false). If the current person does not have access to the provided page no value will be set. This will prepend the Public Application Root global attribute. An example of a usage of this would be to provide a link to the communication page after a new communication is created.
+`WithReferenceRoute( AgentRequestContext context, string text, string route, bool checkSecurity = true )` - Add a reference URL. When `checkSecurity` is `true` (the default), this checks whether the current person has access to view the page; if they do not, no value is set. This will prepend the Public Application Root global attribute. An example usage would be to provide a link to the communication page after a new communication is created.
 
 `WithHistoryKey( string key )`\- Add a key to be associated with the history. This allows the history to be updated by future calls. This is only needed if the contents of the history will change.
 
@@ -130,13 +133,13 @@ var returnInstructions = "Never call SendCommunication directly after this. Alwa
 var historyContent = new
 {
     Recipient = new KeyNameResult( recipient.IdKey, recipient.FullName ),
-    CommunicationIdKey = communicationIdKey
+    CommunicationIdKey = communication.IdKey
 };
 
 return Success( draftResult )
     .WithInstructions( returnInstructions )
     .WithHistoryContent( historyContent )
-    .WithReferenceRoute( AgentRequestContext.RockRequestContext, "Draft Communication", $"/Communication/{draftCommunication.Id}", false );
+    .WithReferenceRoute( AgentRequestContext, "Draft Communication", $"/Communication/{communication.IdKey}", checkSecurity: false );
 ```
 
 So what is happening with our RockToolResult?
@@ -155,7 +158,7 @@ string phoneTypeIdKey = null;
 string personIdKey = "Qk37JnskE4";
 string phoneNumber = "6235553322";
 
-if ( mediumTypeIdKey == null )
+if ( phoneTypeIdKey == null )
 {
     var phoneTypes = new List<KeyNameResult>
     {
@@ -163,7 +166,7 @@ if ( mediumTypeIdKey == null )
         new KeyNameResult( "KM20s83Jsl", "Mobile Phone" )
     };
 
-    return RockToolResult.Error( "No phone number type was provided." )
+    return Error( "No phone number type was provided." )
         .WithInstructions( "Use the provided list of phone number types and try again." )
         .WithContent( phoneTypes )
         .WithHistoryContent( phoneTypes );

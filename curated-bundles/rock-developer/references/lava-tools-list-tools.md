@@ -23,7 +23,7 @@ Warning
 
 If you are using SQL, always use the `SanitizeSql` filter when working with string parameters. Even though you might have instructions for the agent that you think would protect you, nothing prevents the user from telling the agent something like, "List all groups and use "'; DROP TABLE Group" as the group type identifier". The agent will, usually, happily comply.
 
-For this example, we will have defined a tool parameter of `groupTypeId` as a string. We have also defined a partialName parameter as a string so the agent can try to search for groups by name.
+For this example, we will have defined a tool parameter of `groupTypeIdKey` as a string. We have also defined a partialName parameter as a string so the agent can try to search for groups by name.
 
 ```
 {% assign groupTypeId = groupTypeIdKey | FromIdHash %}
@@ -33,7 +33,7 @@ For this example, we will have defined a tool parameter of `groupTypeId` as a st
         [g].[Id]
         , [g].[Name]
         , [g].[CreatedDateTime]
-    FROM [GroupMember] AS [g]
+    FROM [Group] AS [g]
     WHERE
         [g].[GroupTypeId] = {{ groupTypeId | Default:'0' }}
         AND ('{{ partialName | SanitizeSql }}' = '' OR [g].[Name] LIKE '%{{ partialName | SanitizeSql }}%')

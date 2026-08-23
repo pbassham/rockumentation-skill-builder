@@ -7,7 +7,7 @@ sourceLabel: AI Agents
 
 ## Overview
 
-Summary tools provide aggregate information over a set of items. These will typically half filters to refine items and often will include a parameter that dictates the primary aggregate grouping. We are going to break this down into these parts:
+Summary tools provide aggregate information over a set of items. These will typically have filters to refine items and often will include a parameter that dictates the primary aggregate grouping. We are going to break this down into these parts:
 
 1. Setup
 2. Filtering
@@ -20,7 +20,7 @@ Summary tools provide aggregate information over a set of items. These will typi
 Working with summary tools requires a small amount of initial setup before we start filtering. This includes the method signature as well as creating a few things we'll be using later in the tool.
 
 ```
-public IAgentToolResult GetConnectionRequestSummary(
+public AgentToolResult GetConnectionRequestSummary(
     string connectionTypeIdKey = null,
     string connectionOpportunityIdKey = null,
     string campusIdKey = null,
@@ -153,19 +153,19 @@ private SummaryResult GetSummaryResult( AgentToolHelper helper, List<string> dim
         switch ( dimension )
         {
             case "ConnectionType":
-                groups = helper.GetDimension( groups, groupCounts, c => c.ConnectionTypeId, state.ConnectionTypes );
+                groups = helper.BuildDimension( groups, groupCounts, c => c.ConnectionTypeId, state.ConnectionTypes );
                 break;
 
             case "ConnectionOpportunity":
-                groups = helper.GetDimension( groups, groupCounts, c => c.ConnectionOpportunityId, state.ConnectionOpportunities );
+                groups = helper.BuildDimension( groups, groupCounts, c => c.ConnectionOpportunityId, state.ConnectionOpportunities );
                 break;
 
             case "Campus":
-                groups = helper.GetDimension( groups, groupCounts, c => c.CampusId, state.Campuses );
+                groups = helper.BuildDimension( groups, groupCounts, c => c.CampusId, state.Campuses );
                 break;
 
             case "ConnectionStatus":
-                groups = helper.GetDimension( groups, groupCounts, c => c.ConnectionStatusId, state.ConnectionStatuses );
+                groups = helper.BuildDimension( groups, groupCounts, c => c.ConnectionStatusId, state.ConnectionStatuses );
                 break;
         }
 
@@ -221,7 +221,7 @@ private SummaryState GetSummaryState( List<SummaryGroupCount> groupCounts )
 
 Once again, we are looking at a slightly simplified version of this, but you will easily get the idea.
 
-First, we get all the connection opportunity identifies that are referenced in our custom `SummaryGroupCount` list. Then, using that we query the database and create a dictionary that maps the Id number to the Name. In If you have cache you should use it, but in this case this shows how to handle an item that we don't have cache for. Rinse and repeat for each lookup table you need to build from the database.
+First, we get all the connection opportunity identifiers that are referenced in our custom `SummaryGroupCount` list. Then, using that we query the database and create a dictionary that maps the Id number to the Name. If you have cache you should use it, but in this case this shows how to handle an item that we don't have cache for. Rinse and repeat for each lookup table you need to build from the database.
 
 Then we build our custom `SummaryState` object by using either the lookup tables we loaded from the database, or ones we pulled from cache.
 
