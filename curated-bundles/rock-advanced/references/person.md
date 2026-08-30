@@ -27,7 +27,15 @@ This filter has some input parameters:
 ```
 "CurrentPerson": {
     "FullName": "Ted Decker",
-    "AnniversaryDate": '',
+    "Addresses": [
+        {
+            "Type": "Home",
+            "Street1": "11624 N 31st Dr",
+            "City": "Phoenix",
+            "State": "AZ",
+            "PostalCode": "85029"
+        }
+    ]
 }
 ```
 

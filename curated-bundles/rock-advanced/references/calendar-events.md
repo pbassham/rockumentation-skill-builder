@@ -52,6 +52,8 @@ By specifying the calendar ID, as well as a few other optional values, you can g
 - [audienceids](#audienceids)
 - [campusids](#campusids)
 - [startdate](#startdate)
+- [filterbysegments](#filterbysegments)
+- [filterbyrequestfilters](#filterbyrequestfilters)
 
 ## Calendar ID 
 
@@ -82,4 +84,16 @@ v13.0
 ## Start Date
 
 *Optional:* Default is today. The start date of the filter period. The end date is determined by *daterange*.
+
+## Filter By Segments
+
+v20.0
+
+*Optional:* Default false. When set to `true`, event occurrences whose event is tagged with one or more personalization segments are excluded unless the current person or visitor matches one of those segments. Events that are not tagged with any segment are always included. Requires personalization to be enabled on the site.
+
+## Filter By Request Filters
+
+v20.0
+
+*Optional:* Default false. When set to `true`, event occurrences whose event is tagged with one or more request filters are excluded unless the current request matches one of those filters. Events that are not tagged with any request filter are always included. Requires personalization to be enabled on the site.
 
