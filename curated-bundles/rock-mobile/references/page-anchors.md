@@ -117,9 +117,13 @@ If you're only seeing an issue on Android, there may be a problem with the SSL c
 
 ## XAML Errors
 
-### One of the identified items was in an invalid format.
+**One of the identified items was in an invalid format.**
 
 Sometimes shown when a property has an invalid value, for example a Grid's `RowDefinitions`.
+
+**Arg\_ObjObjEx, System.String, Microsoft.Maui.IView**
+
+You may have client-side Lava defined with Lava tags, but the block doesn't have "Process Lava on Client" enabled.
 
 ---
 
