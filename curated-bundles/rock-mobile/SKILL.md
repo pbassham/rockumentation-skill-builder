@@ -3,7 +3,7 @@ name: rock-mobile
 description: "Use when building a Rock Mobile app — iOS, Android, Apple TV, or Roku. Covers the Mobile Docs (shell setup, blocks, styling, deep links, push, app store submission), Apple TV docs, and Roku docs. This is the bundle to load whenever the question is about a native Rock-powered mobile or TV app."
 metadata:
   generator: rockumentation-skill-builder
-  generatedAt: 2026-08-30T09:14:38.623Z
+  generatedAt: 2026-09-06T09:15:28.829Z
   sources:
     - url: "https://community.rockrms.com/developer/mobile-docs"
       label: Mobile Docs
@@ -99,8 +99,18 @@ This skill bundles 119 references from 3 sources. Load topics on demand via the 
 - [Outreach Toolbox](references/outreach-toolbox.md) — Use when users ask about setting up personal contact lists, prayer reminders, relationship tracking, or the Outreach Toolbox mobile features for spiritual engagement
 - [Voice Agent](references/features-voice-agent.md) — Use when the user wants to add a hands-free voice conversation feature to their mobile app or needs guidance on implementing voice-based interaction with an AI agent
 - [Lava](references/lava.md) — Use when building Rock Mobile experiences with Lava templating, filters, whitespace optimization, or accessing shell variables like PageParameter and CurrentPerson
+- [Overview](references/overview.md) — Use when building dynamic, interactive mobile screens with XAML using Helix endpoints and Lava without C# code
+- [Writing Fragments](references/writing-fragments.md) — Use when building Rock mobile endpoints that return XAML fragments, troubleshooting fragment rendering issues, or understanding namespace and Lava execution requirements for mobile responses
+- [Requests and Targeting](references/requests-and-targeting.md) — Use when configuring HTTP requests, routing, and response placement in Rock Mobile Helix interactions
+- [Triggers](references/triggers.md) — Use when you need to configure what event or interaction triggers a Helix request on an element
+- [Forms and Values](references/forms-and-values.md) — Use when asking how to build forms in rock-mobile, handle form submission, validate fields, or structure form inputs with HelixForm and Hx attributes
+- [Indicators and Errors](references/indicators-and-errors.md) — Use when user asks about loading indicators, spinners, confirmation dialogs, or text prompts during request execution in rock-mobile apps
+- [Endpoint Responses](references/endpoint-responses.md) — Use when building endpoint responses for XAML swaps, setting response headers like HX-Redirect or HX-Refresh, or handling error notifications in rock-mobile
+- [Inheritance](references/inheritance.md) — Use when understanding how Hx.* attributes cascade down the visual tree and which attributes inherit versus require explicit declaration on each element
+- [Tips and Tricks](references/lava-application-tips-and-tricks.md) — Use when optimizing mobile app performance by reducing network requests and preventing screen layout shifts during page load
+- [Attribute Reference](references/attribute-reference.md) — Use when looking up HTMX attributes (Hx.*) available in Rock Mobile views, their types, inheritance behavior, and applicable targets
 - [Performance](references/performance.md) — Use when optimizing XAML layout performance, choosing between layout types, or reducing view hierarchy overhead in Rock Mobile apps
-- [Tips and Tricks](references/tips-and-tricks.md) — Use when customizing spacing, margins, and layout properties in Rock Mobile, or implementing device-specific UI variations for phone and tablet displays
+- [Tips and Tricks](references/essentials-tips-and-tricks.md) — Use when styling Rock Mobile layouts, managing spacing and margins, or applying device-specific customization for phone and tablet views
 - [Custom Site Attributes](references/custom-site-attributes.md) — Use when configuring custom entity attributes for Rock mobile applications accessible via Lava in XAML components
 - [Migrating to .NET MAUI (V6)](references/migrating-to-net-maui-v6.md) — Use when users need guidance on upgrading Rock Mobile applications from Xamarin Forms V5 to .NET MAUI V6, including layout changes and migration steps
 - [Page Anchors](references/page-anchors.md) — Use when implementing deep linking or navigation that scrolls to specific page elements using anchor fragments or AnchorScrollParameters

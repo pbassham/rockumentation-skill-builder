@@ -1,5 +1,5 @@
 ---
-description: "Use when customizing spacing, margins, and layout properties in Rock Mobile, or implementing device-specific UI variations for phone and tablet displays"
+description: "Use when styling Rock Mobile layouts, managing spacing and margins, or applying device-specific customization for phone and tablet views"
 source: "https://community.rockrms.com/developer/mobile-docs"
 sourceLabel: Mobile Docs
 ---

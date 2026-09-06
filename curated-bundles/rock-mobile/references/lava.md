@@ -251,3 +251,13 @@ What's available to the client is much less detailed than the server. For now, t
 ```
 {{ Context.Campus.Guid }}
 ```
+
+---
+
+## Lava Application {#lava-application}
+
+A **Lava Application** exposes endpoints whose Code Template emits XAML instead of HTML, so you can build dynamic, interactive mobile screens in Lava without writing any C#.
+
+This section documents **Helix**, Rock's HTMX-based approach for the mobile app: an endpoint returns a chunk of XAML, the app swaps it into the live page, and the person never leaves the screen they were on. Start with the [Overview](https://community.rockrms.com/developer/mobile-docs/essentials/lava/lava-application/overview), then read [Writing Fragments](https://community.rockrms.com/developer/mobile-docs/essentials/lava/lava-application/writing-fragments) before you write your first endpoint.
+
+## In this section

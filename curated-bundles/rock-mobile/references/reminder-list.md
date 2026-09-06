@@ -109,6 +109,6 @@ This block looks for the following page parameters (query string).
 
 ---
 
-## Security {#security}
+## Security {#blocks-security}
 
 This section refers to the "Security" mobile block group.
