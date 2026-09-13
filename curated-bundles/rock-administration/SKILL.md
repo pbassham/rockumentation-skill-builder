@@ -3,7 +3,7 @@ name: rock-administration
 description: "Use when administering Rock RMS — running check-in (legacy and NextGen), configuring and building workflows, designing assessments, sending email and SMS, running BI reports, scaling a Rock instance, and managing universal search. Bundles every 'Administration' manual plus the full Workflow Actions catalog (every action grouped by category — AI, Communications, Finance, etc.) and the Blasting Off With Workflows guide."
 metadata:
   generator: rockumentation-skill-builder
-  generatedAt: 2026-09-06T09:13:48.666Z
+  generatedAt: 2026-09-13T09:37:00.592Z
   sources:
     - url: "https://community.rockrms.com/documentation/bookcontent/9/368"
       label: Rock Admin Hero Guide
