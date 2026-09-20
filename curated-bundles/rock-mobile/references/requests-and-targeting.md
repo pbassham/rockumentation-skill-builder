@@ -61,11 +61,9 @@ A verb is not limited to `^` Lava Application routes. Any absolute server path i
 
 ## Hx.Target
 
-| Property | Type | Description |
-| --- | --- | --- |
-| `Hx.Target` | string | The `Hx.Id` of the element to place the response into, or `this`, or `coversheet`. |
-
-**Inherits: yes.** Default: the enclosing block.
+| Property | Type | Description | Inherits |
+| --- | --- | --- | --- |
+| `Hx.Target` | string | The `Hx.Id` of the element to place the response into, or `this`, or `coversheet`. | **Yes.** Default: the enclosing block. |
 
 ```
 <!-- A named element somewhere on the page. -->
@@ -82,7 +80,11 @@ A verb is not limited to `^` Lava Application routes. Any absolute server path i
 
 Ids are looked up across the whole page, so **one block can target an element inside another block**. This is the capability Callbacks never had; a Callback could only ever replace its own block.
 
-Bindings keep working wherever a fragment lands. The standard client commands (`PopPage`, `ShowToast`, `OpenBrowser`, and so on) are available in every block, so `Command="{Binding PopPage}"` in your fragment works no matter which block hosts it. This means the element that carries the attribute, not the element that fired. Think of the English word: whoever says "this" is pointing from where they stand.
+Bindings keep working wherever a fragment lands. The standard client commands (`PopPage`, `ShowToast`, `OpenBrowser`, and so on) are available in every block, so `Command="{Binding PopPage}"` in your fragment works no matter which block hosts it.
+
+### "this" means the element that carries the attribute
+
+Not the element that fired. Think of the English word: whoever says "this" is pointing from where they stand.
 
 Written directly on your trigger, the two are the same element:
 
@@ -118,11 +120,9 @@ That is exactly what inline validation needs. Your endpoint returns a fresh `Fie
 
 ## Hx.Id
 
-| Property | Type | Description |
-| --- | --- | --- |
-| `Hx.Id` | string | Registers this element as a named swap target, and names it for value inclusion. |
-
-**Inherits: no.**
+| Property | Type | Description | Inherits |
+| --- | --- | --- | --- |
+| `Hx.Id` | string | Registers this element as a named swap target, and names it for value inclusion. | **No** |
 
 `Hx.Id` fills the role of the DOM `id` attribute. It does two jobs: it makes an element targetable, and it gives a form control the name its value is submitted under.
 
@@ -138,11 +138,9 @@ Details:
 
 ## Hx.Swap
 
-| Property | Type | Description |
-| --- | --- | --- |
-| `Hx.Swap` | string | How the fragment is placed: `inner` (default), `outer`, `append`, `prepend`, `after`, or `none`, plus optional [animation modifiers](https://community.rockrms.com/developer/mobile-docs/#animating-a-swap). |
-
-**Inherits: yes.**
+| Property | Type | Description | Inherits |
+| --- | --- | --- | --- |
+| `Hx.Swap` | string | How the fragment is placed: `inner` (default), `outer`, `append`, `prepend`, `after`, or `none`, plus optional [animation modifiers](https://community.rockrms.com/developer/mobile-docs/#animating-a-swap). | **Yes** |
 
 | Strategy | What it does | The target must be |
 | --- | --- | --- |
@@ -159,7 +157,7 @@ Details:
 
 ### Animating a swap
 
-A swap is instant unless you ask for motion. Everything after the strategy is an optional modifier, and their order does not matter:
+A swap is instant unless you ask for motion. Everything after the strategy is optional, and the order of the modifiers does not matter:
 
 ```
 <strategy> [animate:<name>] [swap:<time>] [settle:<time>] [easing:<name>] [distance:<units>]
@@ -176,7 +174,7 @@ A swap is instant unless you ask for motion. Everything after the strategy is an
 | `animate:` | none, an instant swap | Which motion to run |
 | `swap:` | `150ms` | How long outgoing content animates away |
 | `settle:` | `200ms` | How long incoming content animates in |
-| `easing:` | `ease-in` out, `ease-out` in | The curve, applied to both halves when you set it |
+| `easing:` | `ease-in` on the exit, `ease-out` on the enter | The curve, applied to both halves when you set it |
 | `distance:` | `24` | How far `slide-*` travels, in device-independent units |
 
 **`animate:`** takes `none`, `fade`, `slide-up`, `slide-down`, `slide-left`, `slide-right`, or `scale`. Slide directions name the *direction of travel*, so `slide-up` arrives from below and leaves upward.

@@ -125,6 +125,14 @@ Sometimes shown when a property has an invalid value, for example a Grid's `RowD
 
 You may have client-side Lava defined with Lava tags, but the block doesn't have "Process Lava on Client" enabled.
 
+## Client-Side Lava Not Running
+
+If Lava meant for the device is showing up as literal text, rendering empty, or throwing a filter error, check these in order:
+
+1. **Process Lava On Client is unchecked.** The device never runs a Lava pass, so client-side tags are handed to the XAML parser as text.
+2. **Both Process Lava On Server and Process Lava On Client are checked, but the client-side Lava is not wrapped in `{% raw %}` `{% endraw %}`.** The server processed it first and there was nothing left for the device to run. Client-only filters such as `PersonImpersonationToken` fail on the server for the same reason.
+3. **The block ignores the settings.** Most mobile blocks show these checkboxes but do nothing with them. Only Content and Hero honor both; a few template blocks honor only the client setting. See the block table under Mixing Server and Client Lava in the [Render Pipeline](https://community.rockrms.com/essentials/advanced-topics/render-pipeline) article.
+
 ---
 
 ## 🎨 Styling {#styling}

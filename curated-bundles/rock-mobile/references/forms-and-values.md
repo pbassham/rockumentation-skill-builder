@@ -114,10 +114,15 @@ The one place you still need `x:Name` is `{x:Reference ...}`, which resolves XAM
 | --- | --- |
 | any `Rock:` field | see the table below |
 | `Entry`, `Editor`, `SearchBar` | `Text` |
-| `Switch` | `"true"` or `"false"` |
+| `Switch`, `CheckBox` | `"true"` or `"false"` |
+| `Picker` | the selected item's text, omitted when nothing is selected |
+| `DatePicker` | `yyyy-MM-dd`, omitted when unset |
+| `TimePicker` | `hh:mm`, omitted when unset |
 | **anything else** | **nothing. The control is skipped.** |
 
-That last row surprises people. **A bare MAUI `Picker`, `DatePicker`, `CheckBox`, or `Slider` contributes nothing**, because none of them is a text input or a `Switch`. Use the `Rock:` equivalents, which report their own values:
+That last row is narrower than it looks. A `Slider`, a `Stepper`, a `Label`, or a layout contributes nothing, because Helix has no value property to read from it.
+
+Prefer the `Rock:` fields inside a form anyway. They carry the label, `IsRequired` and the validation behavior, and they usually report the value you actually want: `Rock:Picker` submits its `SelectedValue`, where a bare MAUI `Picker` submits the selected item's display text. Here is what each one contributes:
 
 | Field | Value format |
 | --- | --- |
@@ -136,11 +141,9 @@ Your endpoint must treat `Form` and `QueryString` as untrusted no matter what th
 
 ## Hx.Include
 
-| Property | Type | Description |
-| --- | --- | --- |
-| `Hx.Include` | list of `Rock:Parameter` | Explicit request values, as element content. |
-
-**Inherits: no**, deliberately.
+| Property | Type | Description | Inherits |
+| --- | --- | --- | --- |
+| `Hx.Include` | list of `Rock:Parameter` | Explicit request values, as element content. | **No**, deliberately. |
 
 Use it for values automatic inclusion cannot reach: something computed, or a control outside the initiator's scope.
 
@@ -166,11 +169,9 @@ This is the exception to preferring `Hx.Id`. `{x:Reference}` resolves XAML names
 
 ## Hx.Params
 
-| Property | Type | Description |
-| --- | --- | --- |
-| `Hx.Params` | string | `none` excludes this control from automatic inclusion. |
-
-**Inherits: yes.** `none` is the only supported value; anything else is ignored.
+| Property | Type | Description | Inherits |
+| --- | --- | --- | --- |
+| `Hx.Params` | string | `none` excludes this control from automatic inclusion. | **Yes,**`none` is the only supported value; anything else is ignored. |
 
 ```
 <Rock:TextBox Hx.Id="scratch" Label="Notes (not submitted)" Hx.Params="none" />
@@ -204,11 +205,9 @@ A form submission validates the form's visible fields automatically, before send
 
 ### Outside a form: Hx.Validator
 
-| Property | Type | Description |
-| --- | --- | --- |
-| `Hx.Validator` | `Validator` | A validator that must pass before the request fires. |
-
-**Inherits: yes.** This one takes an object reference rather than an id, so unlike `Hx.Target` it cannot reach across a fragment boundary.
+| Property | Type | Description | Inherits |
+| --- | --- | --- | --- |
+| `Hx.Validator` | `Validator` | A validator that must pass before the request fires. | **yes,** This one takes an object reference rather than an id, so unlike `Hx.Target` it cannot reach across a fragment boundary. |
 
 ```
 <Rock:Validator x:Name="checks">

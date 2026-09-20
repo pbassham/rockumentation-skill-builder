@@ -72,11 +72,9 @@ Tapping **Next** refills `Detail`. The walk starts at the button, leaves the fra
 
 ## Hx.Disinherit
 
-| Property | Type | Description |
-| --- | --- | --- |
-| `Hx.Disinherit` | string | Property names this element's descendants should stop inheriting, or `*` for all. |
-
-**Inherits: no.**
+| Property | Type | Description | **Inherits** |
+| --- | --- | --- | --- |
+| `Hx.Disinherit` | string | Property names this element's descendants should stop inheriting, or `*` for all. | No |
 
 Names are space- or comma-separated, and the `Hx.` prefix is optional. Matching is case-insensitive.
 

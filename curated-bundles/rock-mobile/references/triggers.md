@@ -7,11 +7,9 @@ sourceLabel: Mobile Docs
 
 By default, a Helix request fires on the element's natural interaction: a tap. `Hx.Trigger` changes that.
 
-| Property | Type | Description |
-| --- | --- | --- |
-| `Hx.Trigger` | string | An event name, then optional modifiers, separated by spaces. |
-
-**Inherits: no.** A trigger belongs to the element it is written on.
+| Property | Type | Description | Inherits |
+| --- | --- | --- | --- |
+| `Hx.Trigger` | string | An event name, then optional modifiers, separated by spaces. | **No.** A trigger belongs to the element it is written on. |
 
 ```
 <!-- Fire once, when the element first appears. The lazy-load idiom. -->
@@ -88,7 +86,7 @@ One of each, on a control that suits it:
 
 Times accept `400ms`, `2s`, or a bare number of milliseconds. A time that cannot be parsed is dropped, leaving the trigger with no delay or throttle at all.
 
-Modifiers stack, and they apply in the order `once`, `changed`, `throttle`, `delay`, whatever order you write them in. The search box at the top of this page combines two: `TextChanged changed delay:400ms` waits for a pause in typing *and* skips the request when the text came back to what it already was.
+Modifiers stack. They always apply in the order `once`, `changed`, `throttle`, `delay`, no matter what order you write them in. The search example at the top of this page combines two: `TextChanged changed delay:400ms` waits for a pause in typing *and* skips the request when the text came back to what it already was.
 
 Note
 

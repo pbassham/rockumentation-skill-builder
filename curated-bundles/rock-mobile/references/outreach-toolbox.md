@@ -28,10 +28,12 @@ Warning
 
 Each block has its own page with full settings and linking details.
 
+![](https://community.rockrms.com/GetImage.ashx?Guid=28287580-e7fe-486c-83d9-3ae42af9f388)
+
 | Block | Description |
 | --- | --- |
 | [Outreach Dashboard](https://community.rockrms.com/developer/mobile-docs/essentials/blocks/engagement/outreach-dashboard) | The home of the toolbox. Greets the person, shows their impact (touchpoints completed on schedule, total prayers and connections), surfaces upcoming special events, and provides entry points to add contacts, view contacts, edit preferences, and start their touchpoints. |
-| [Outreach Onboarding](https://community.rockrms.com/developer/mobile-docs/essentials/blocks/engagement/outreach-onboarding) | The first-run flow that explains the toolbox and helps the person add their first contact. The add-contact steps are skipped automatically when they already have one. |
+| [Outreach Onboarding](https://community.rockrms.com/developer/mobile-docs/essentials/blocks/engagement/outreach-onboarding) | The first-run flow that explains the toolbox and helps the person add their first contact. The add-contact steps are skipped automatically when they already have one. Individuals should be linked here first. |
 | [My Contacts](https://community.rockrms.com/developer/mobile-docs/essentials/blocks/engagement/my-contacts) | A searchable, paginated list of the people the person is caring for. |
 | [Add Contact](https://community.rockrms.com/developer/mobile-docs/essentials/blocks/engagement/add-contact) | Adds a contact by hand or imports one from the device address book, with duplicate detection. Gender is required, and a photo, key dates, cadences, and a note can be captured. |
 | [Contact Profile](https://community.rockrms.com/developer/mobile-docs/essentials/blocks/engagement/contact-profile) | The detail page for a single contact: prayer and connection cadences, personal note, more info (focus, strength, birthday, age, anniversary, social links), recent activity, salvation and baptism badges, and quick actions to remind, call, text, email, or edit. |

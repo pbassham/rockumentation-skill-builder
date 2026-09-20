@@ -130,7 +130,13 @@ Host the interstitial page on a different host than your deep link domain. A sub
 
 ### Redirects and scripted navigation 
 
-Universal links and app links require a direct user tap. A server redirect, a window.location assignment, or a timer-driven navigation will land in the browser instead. Link to the deep link URL directly rather than routing through a shortener or a redirect.
+A shortener or redirect is the most common cause of a deep link that works for one person and fails for everyone else. Safari re-checks each destination in a redirect chain against your associated domains, so a shortened link usually does open the app there. No other browser on iOS does that second check. Chrome, Edge, Firefox, and Brave follow the redirect inside their own web view and simply render the destination page, so the link quietly falls through to your fallback. Scripted navigation is stricter still: a **window.location** assignment or a timer-driven redirect fires without a user gesture and will not open the app on either platform. Always publish the deep link URL itself rather than a shortened or redirecting one.
+
+### QR codes
+
+A QR code is the most common place this goes wrong, because the code is usually generated from a shortened link so it can be repointed later without reprinting. When the camera scans a code, it compares that URL against the associated domains of the apps installed on the device. If the URL is one of yours, the camera offers to open your app directly and no browser is involved at all. If it is a shortener's domain, the camera has nothing to match, so it hands the URL off to the device's default browser, and whether the app opens then comes down entirely to which browser that is.
+
+Encode the deep link URL itself in the QR code. This also means the code has to point at the exact host listed in your associated domains. If your association file is served on **example.com** but the code points at **www.example.com**, the camera has no match even though the two resolve to the same site.
 
 ### Getting into the app from a typed URL
 
@@ -139,5 +145,3 @@ Add a [Smart App Banner](https://developer.apple.com/library/archive/documentati
 ### The app opens but lands on the homepage
 
 This is a Rock configuration issue rather than a platform one. The app matches the incoming path against the deep link routes in the mobile bundle. When no route matches, it navigates to the homepage and shows "Unable to find the page specified." Check the Route value on the Deep Links tab against the actual URL path, including the Deep Link Path Prefix.
-
-Two notes before you publish. The Smart App Banner subsection now describes the meta tag in prose rather than showing markup, so add the actual snippet in your CMS code block if you want partners copying it directly. And keep the last subsection even though it isn't an OS behavior, since it's the failure people most often misreport as "deep linking is broken."

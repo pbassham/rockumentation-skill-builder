@@ -3,7 +3,7 @@ name: rock-mobile
 description: "Use when building a Rock Mobile app — iOS, Android, Apple TV, or Roku. Covers the Mobile Docs (shell setup, blocks, styling, deep links, push, app store submission), Apple TV docs, and Roku docs. This is the bundle to load whenever the question is about a native Rock-powered mobile or TV app."
 metadata:
   generator: rockumentation-skill-builder
-  generatedAt: 2026-09-13T09:38:57.121Z
+  generatedAt: 2026-09-20T09:15:14.580Z
   sources:
     - url: "https://community.rockrms.com/developer/mobile-docs"
       label: Mobile Docs
@@ -111,7 +111,7 @@ This skill bundles 119 references from 3 sources. Load topics on demand via the 
 - [Attribute Reference](references/attribute-reference.md) — Use when looking up HTMX attributes (Hx.*) available in Rock Mobile views, their types, inheritance behavior, and applicable targets
 - [Performance](references/performance.md) — Use when optimizing XAML layout performance, choosing between layout types, or reducing view hierarchy overhead in Rock Mobile apps
 - [Tips and Tricks](references/essentials-tips-and-tricks.md) — Use when styling Rock Mobile layouts, managing spacing and margins, or applying device-specific customization for phone and tablet views
-- [Custom Site Attributes](references/custom-site-attributes.md) — Use when configuring custom entity attributes for Rock mobile applications accessible via Lava in XAML components
+- [Custom Site Settings](references/custom-site-settings.md) — Use when configuring static or dynamic values in a Persisted Dataset for mobile app access without Site entities or attributes
 - [Migrating to .NET MAUI (V6)](references/migrating-to-net-maui-v6.md) — Use when users need guidance on upgrading Rock Mobile applications from Xamarin Forms V5 to .NET MAUI V6, including layout changes and migration steps
 - [Page Anchors](references/page-anchors.md) — Use when implementing deep linking or navigation that scrolls to specific page elements using anchor fragments or AnchorScrollParameters
 - [Walkthrough](references/walkthrough.md) — Use when building responsive mobile UI layouts with Rock Mobile styling utilities, typography, colors, and component styling for XAML views

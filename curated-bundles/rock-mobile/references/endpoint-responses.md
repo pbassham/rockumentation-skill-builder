@@ -179,7 +179,7 @@ Sometimes you do not want to swap content into the current screen; you want to s
 
 ## A sheet is its own Helix scope
 
-This is the part to plan around. The sheet is not part of the page it covers, and it gets:
+This is the part to plan around. The sheet is not part of the page it covers, and that has four consequences:
 
 - **Ids are scoped to the sheet.** Requests inside the sheet target ids inside the sheet. A sheet **cannot** target the presenting page, and the page cannot target into the sheet.
 - **Dismissing the sheet cancels its in-flight requests.**
@@ -190,11 +190,9 @@ To update the presenting page from inside a sheet, use `HX-Refresh` or an `X-Hel
 
 ## The title comes from the fragment
 
-| Property | Type | Description |
-| --- | --- | --- |
-| `Hx.PageTitle` | string | Sets the title of whatever is presenting the fragment. |
-
-**Inherits: no.** **Read only from a response fragment's root element.**
+| Property | Type | Description | **Inherits** |
+| --- | --- | --- | --- |
+| `Hx.PageTitle` | string | Sets the title of whatever is presenting the fragment. | No, Read only from a response fragment's root element. |
 
 ```
 <!-- Returned by your endpoint. -->

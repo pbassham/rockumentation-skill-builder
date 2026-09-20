@@ -9,11 +9,9 @@ Everything on this page is about what the person sees while a request is in flig
 
 ## Hx.Indicator
 
-| Property | Type | Description |
-| --- | --- | --- |
-| `Hx.Indicator` | string | The `Hx.Id` of an element to show during the request. |
-
-**Inherits: yes.**
+| Property | Type | Description | Inherits |
+| --- | --- | --- | --- |
+| `Hx.Indicator` | string | The `Hx.Id` of an element to show during the request. | Yes |
 
 There are two ways to show a spinner, and which one you use depends on whether your trigger can hold children.
 
@@ -56,11 +54,9 @@ The app sets the named element's opacity to 1 and adds `htmx-request` to it, so 
 
 ## Hx.Confirm
 
-| Property | Type | Description |
-| --- | --- | --- |
-| `Hx.Confirm` | string | A message shown in a native alert before the request fires. |
-
-**Inherits: yes.**
+| Property | Type | Description | **Inherits** |
+| --- | --- | --- | --- |
+| `Hx.Confirm` | string | A message shown in a native alert before the request fires. | Yes |
 
 ```
 <Button Text="Remove"
@@ -68,15 +64,13 @@ The app sets the named element's opacity to 1 and adds `htmx-request` to it, so 
         Hx.Confirm="Remove this person from the group?" />
 ```
 
-The alert has no title, and OK and Cancel buttons. Cancelling aborts before any request state changes. Because it inherits, a container or a form can declare one confirmation that covers all of its triggers.
+The alert has no title, just OK and Cancel buttons. Cancelling aborts before any request state changes. Because it inherits, a container or a form can declare one confirmation that covers all of its triggers.
 
 ## Hx.Prompt
 
-| Property | Type | Description |
-| --- | --- | --- |
-| `Hx.Prompt` | string | A message shown in a native text-input dialog before the request fires. |
-
-**Inherits: yes.**
+| Property | Type | Description | Inherits |
+| --- | --- | --- | --- |
+| `Hx.Prompt` | string | A message shown in a native text-input dialog before the request fires. | Yes |
 
 The value the person types is sent as the **`X-Helix-Prompt` request header**, not as a form value.
 
@@ -97,11 +91,9 @@ Two details:
 
 ## Hx.DisabledElt
 
-| Property | Type | Description |
-| --- | --- | --- |
-| `Hx.DisabledElt` | string | The id of one more element to disable while the request is in flight. |
-
-**Inherits: yes.**
+| Property | Type | Description | **Inherits** |
+| --- | --- | --- | --- |
+| `Hx.DisabledElt` | string | The id of an element to disable during the request, in addition to the initiator. | Yes |
 
 ```
 <Button Text="Save" Hx.Post="^/sink/save" Hx.DisabledElt="cancelButton" />
@@ -134,11 +126,9 @@ It does three jobs at once, which is worth knowing:
 
 ## Hx.Notification
 
-| Property | Type | Description |
-| --- | --- | --- |
-| `Hx.Notification` | string | The id of an element that request errors render into. |
-
-**Inherits: yes.**
+| Property | Type | Description | **Inherits** |
+| --- | --- | --- | --- |
+| `Hx.Notification` | string | The id of an element that request errors render into. | Yes |
 
 This is mobile-only, and it is the single most useful thing on this page. It declares an error slot by id: request errors render *there* instead of into your target or beside your button.
 

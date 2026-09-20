@@ -221,7 +221,7 @@ Validate on the server regardless of what the shell "should" have sent.
 
 ## Limitations {#limitations}
 
-Helix follows the web Helix subset that makes sense in MAUI, not the full HTMX spec. This page is the honest list of what is missing, so you can plan around it instead of discovering it halfway through a build.
+Helix follows the web Helix subset that makes sense in MAUI, not the full HTMX spec. This page covers the pieces that are only partly there, and the behaviors most likely to surprise you, so you can plan around them instead of discovering them halfway through a build.
 
 ## Supported, but only partly
 

@@ -7,9 +7,17 @@ sourceLabel: Mobile Docs
 
 Reference to the Lava functionalities and in what context they are available.
 
+### Where Lava Runs
+
+Lava in a Rock Mobile block can run in two places: on the server, before the XAML is sent to the app, and on the device, after it arrives. Each block controls this with two checkboxes under Block Settings \> Mobile Settings: **Process Lava On Server** and **Process Lava On Client**. They are independent and can both be enabled.
+
+When both are on, the server always finishes first. Wrap any Lava meant for the device in `{% raw %}` and `{% endraw %}` (the same [raw tag](https://community.rockrms.com/lava/tags/raw-tags) used in server Lava) so the server passes it through untouched. See [Mixing Server and Client Lava](https://community.rockrms.com/essentials/advanced-topics/render-pipeline) in the Render Pipeline article for the full rendering order, a worked example, and the list of blocks that actually honor these two settings. Most blocks show the checkboxes but ignore them; the Content and Hero blocks are the only ones that respect both.
+
+Client-side Lava has a much smaller engine: only filters tagged Mobile, no shortcodes, no entity commands, and a limited set of merge fields (listed under Shell Lava Variables below). The rule of thumb is to do anything that needs data on the server and keep the device pass for things only the device knows.
+
 ### Lava Filters
 
-The [Community](https://community.rockrms.com/lava) page has a list of all the available filters. If a filter is available to run locally on the mobile shell (Process Lava On Client under Block Settings \> Mobile Settings tab) it will be marked as such in the docs along with the compatible shell version.
+The [Community](https://community.rockrms.com/lava) page has a list of all the available filters. If a filter is available to run locally on the mobile shell (Process Lava On Client under Block Settings \> Mobile Settings tab) it will be marked as such in the docs along with the compatible shell version. Some Mobile filters, such as [PersonImpersonationToken](https://community.rockrms.com/lava/filters/person-filters#personimpersonationtoken), have no server equivalent; use the matching server filter ([PersonTokenCreate](https://community.rockrms.com/lava/filters/person-filters#persontokencreate)) when rendering on the server.
 
 ### Escape
 

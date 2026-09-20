@@ -37,6 +37,10 @@ Rock's server-side `{% renderlavaendpoint %}` Lava command runs the endpoint in-
 </VerticalStackLayout>
 ```
 
+Note
+
+`renderlavaendpoint` needs the full `app-slug/endpoint-slug` route. The short `^/endpoint-slug` form only works on an element, where the shell resolves it against the enclosing Lava Application Content block. The command has no such context, and a route it cannot split in two renders nothing at all, with no error. That is why this example spells out `group-toolbox` and the `load` version above does not.
+
 One request, the card is already in the XAML the app parses, and nothing moves after the screen paints. The endpoint stays reusable either way: the same route can still be fetched over Helix from elsewhere, or called from a web page's template, because inlining is just another caller.
 
 ### Every region you add is another request
