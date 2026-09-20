@@ -169,30 +169,6 @@ As you can see, you can combine a pre-defined entity search with a custom expres
 
 For more on setting up Entity Search, see the [Entity Search Documentation](https://community.rockrms.com/documentation/core-concepts/rock-fundamentals/entities/use-entity-search).
 
-## Expression v13 - Fluid
-
-Allows you to provide a more complex filter than can be achieved by the 'where' parameter. Expressions can't filter on attributes, however. You can use both Expression and Where parameters for added flexibility.
-
-```
-{% financialtransactiondetail expression:'Transaction.AuthorizedPersonAlias.Person.GivingId == "P01"' %}
-    {% for financialtransactiondetail in financialtransactiondetailItems %}
-        {{ financialtransactiondetail.Account.Name }} - {{ financialtransactiondetail.Amount }} <br>
-    {% endfor %}
-{% endfinancialtransactiondetail %}
-```
-
-You can use aggregates too:
-
-```
-{% person expression:'PhoneNumbers.Count() > 1' %}
-
-    {% for person in personItems %}
-        {{ person.FullName }} <br>
-    {% endfor %}
-
-{% endperson %}
-```
-
 ## Sort
 
 The 'sort' parameter does exactly what you'd think it would do. It orders the results by the fields you define (fields are delimited by a comma). These fields can consist of either entity properties or attributes. By default the sort is ascending, but you can make it descending by adding 'desc' as shown below:
@@ -460,7 +436,7 @@ You can also build your own return grouping as shown below.
 
 ## Disable Attribute Prefetch v15
 
-Starting in v15, Rock will automatically prefetch all of the attributes for the entities that are returned. This makes use of new cababilities that greatly improve the attribute lookup performance when done on a collection of entities. Since most use-cases of the entity command show attribute information, attribute prefetching was enabled by default. This immediately improves existing templates. If you know for certain that you will not be needing attributes in your return set, you can choose to disable the prefetch. This will save ~10ms on your query.
+Starting in v15, Rock will automatically prefetch all of the attributes for the entities that are returned. This makes use of new capabilities that greatly improve the attribute lookup performance when done on a collection of entities. Since most use-cases of the entity command show attribute information, attribute prefetching was enabled by default. This immediately improves existing templates. If you know for certain that you will not be needing attributes in your return set, you can choose to disable the prefetch. This will save ~10ms on your query.
 
 ```
 {% person where:'Gender == 1' disableattributeprefetch:'true' %}

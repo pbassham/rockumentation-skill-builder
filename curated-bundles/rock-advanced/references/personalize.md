@@ -7,7 +7,7 @@ sourceLabel: Lava
 
 v14.0
 
-The Personalize command allows you to control the content you show to somone currently viewing your page, based on something you know about them or the nature of the request they are making. You can set the visibility of this block by specifying Personalization Segments and Request Filters that are relevant to particular visitors to your site.
+The Personalize command allows you to control the content you show to someone currently viewing your page, based on something you know about them or the nature of the request they are making. You can set the visibility of this block by specifying Personalization Segments and Request Filters that are relevant to particular visitors to your site.
 
 Personalization Segments provide information about the demographics of registered Rock users. Request Filters give details about the page request that is currently being processed: the location and type of the device being used, previously stored cookies, or parameters from the current URL.
 

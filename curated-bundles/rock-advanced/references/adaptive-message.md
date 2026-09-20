@@ -82,7 +82,7 @@ Defines the number of matching adaptations to return for each Adaptive Message.
 
 ## Category Id
 
-This is the Id of an Adaptive Message category to search. Enables *Category Mode*, allowing you to retrive adaptations from multiple messages within the specified category. Use this when you don't want a particular Adaptive Message, but instead want to find a variety of matching adaptations all the Adaptive Messages for the given category.
+This is the Id of an Adaptive Message category to search. Enables *Category Mode*, allowing you to retrieve adaptations from multiple messages within the specified category. Use this when you don't want a particular Adaptive Message, but instead want to find a variety of matching adaptations all the Adaptive Messages for the given category.
 
 ## Max Adaptations
 

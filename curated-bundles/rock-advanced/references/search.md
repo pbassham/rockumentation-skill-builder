@@ -169,7 +169,7 @@ The culture setting only applies to the following Lava filters:
 - Format
 - FormatAsCurrency
 
-**Warning:** Nesting the `setculture` command is not supported and will likekly result in unexpected behavior.
+**Warning:** Nesting the `setculture` command is not supported and will likely result in unexpected behavior.
 
 # Parameters
 

@@ -952,7 +952,7 @@ Sorts a primitive array (in case-sensitive order in Fluid). To sort by the prope
 ```
 
 **Note:**  
-The default sort order is always ascending. To create a decending sorted list use the Reverse filter.  
+The default sort order is always ascending. To create a descending sorted list use the Reverse filter.  
 `{% assign fruitsSorted = Fruits | Sort | Reverse %}`  
   
 In Fluid, the items are sorted in case sensitive order, where capitalized letters \[A-Z\] come before \[a-z\]. To sort without case sensitivity use SortNatural or OrderBy.
@@ -1049,7 +1049,7 @@ Fluid only: Sorts a primitive array, in case-insensitive order. To sort by the p
 ```
 
 **Note:**  
-The sort order is always ascending. To create a decending sorted list use the Reverse filter.  
+The sort order is always ascending. To create a descending sorted list use the Reverse filter.  
 `{% assign fruitsSorted = Fruits | SortNatural | Reverse %}`
 
  
