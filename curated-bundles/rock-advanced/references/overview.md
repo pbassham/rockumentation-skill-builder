@@ -5,7 +5,7 @@ sourceLabel: Helix
 ---
 > **Path:** 
 
-Helix is the codename for an upcoming project that represents the next evolution of Lava for web development, integrating four distinct technologies.
+Helix is Rock's toolkit for building interactive web pages with Lava. It brings together four technologies, and all of them are part of core Rock. Lava Applications came to core in Rock v18.1.
 
 - [HTMX](https://community.rockrms.com/developer/helix/overview#htmx)
 - [Lava Applications](https://community.rockrms.com/developer/helix/overview#lava-applications)
@@ -22,7 +22,7 @@ Ever felt limited by Lava's single opportunity to construct a page at load time?
 
 ![](https://www.youtube.com/watch?v=r-GSGH2RxJs)
 
-Helix seamlessly incorporates HTMX into Rock. Just drop a Helix content block onto your page, and you're all set. From there, you can use HTML snippets like the one below, which effortlessly interact with the endpoint, updating the target element—such as a div with the 'group-list' CSS class—with the endpoint's contents.
+Helix seamlessly incorporates HTMX into Rock. Just add a Lava Application Content block to your page, and you're all set. From there, you can use HTML snippets like the one below, which effortlessly interact with the endpoint, updating the target element (such as a div with the 'group-list' CSS class) with the endpoint's contents.
 
 ```
 <a class="btn btn-primary" hx-get="^/group-toolbox/my-groups" hx-target=".group-list">
@@ -42,11 +42,11 @@ The next step involves setting up endpoints within your application, which is wh
 
 ## Lava Commands
 
-Once you familiarize yourself with HTMX, you'll likely recognize its vast potential. Soon enough, you'll be imagining all sorts of features you could create. A common hurdle, however, is Lava's complexity in updating data—until Helix came along. Helix introduces new Lava commands designed for data modification. For example, consider the Entity Command that enables data updates. Key commands include:
+Once you familiarize yourself with HTMX, you'll likely recognize its vast potential. Soon enough, you'll be imagining all sorts of features you could create. A common hurdle is updating data from Lava. Lava includes commands built for changing data, not just reading it. They're documented in the Lava reference:
 
-- **Modify Command**: The core of Helix's new offerings, enabling you to alter or add to entity data. [Read More](https://community.rockrms.com/developer/helix/lava-commands/modify-entity)
-- **DB Transaction**: Facilitates updates across multiple entities with transaction support, allowing for rollbacks if necessary. [Read More](https://community.rockrms.com/developer/helix/lava-commands/db-transaction)
-- **HTTP Response**: Leverages HTMX's capability for server-side logic execution with straightforward HTTP response construction. [Read More](https://community.rockrms.com/developer/helix/lava-commands/http-response)
+- **Modify Entity**: Change or add entity data. [Read More](https://community.rockrms.com/page/3758)
+- **DB Transaction**: Update several entities at once, with rollback if something fails. [Read More](https://community.rockrms.com/page/3759)
+- **HTTP Response**: Build an HTTP response from server-side logic. [Read More](https://community.rockrms.com/page/3760)
 
 ## Control Shortcodes
 
@@ -72,7 +72,7 @@ So instead of this:
 </div>
 ```
 
-You can simply to this:
+You can simply do this:
 
 ```
 {[ campuspicker label:'Primary Campus' value:'1,2' types:'768' statuses:'765' selectablecampuses:'1' ]}
@@ -120,14 +120,11 @@ As with many aspects of life, it's possible to take customization too far. Lava 
 
 ## Plugin Installation {#plugin-installation}
 
-**Helix Is Currently in Limited Beta**
+**Helix Is Part of Core Rock**
 
-With great power comes a great amount of testing. Helix is currently being tested by a few select organizations. Keep checking back for the latest details. 
+There's nothing to install. Lava Applications, the data-changing Lava commands and the control shortcodes all ship with Rock, starting with Rock v18.1. You don't need a separate Helix plugin.
 
-Helix operates seamlessly with the aid of two complimentary plugins, both freely available. Simply navigate to the Rock Shop to install the following:
-
-1. Helix Plugin - This is the main plugin that contains all of the logic described on this site.
-2. Magnus Plugin - Magnus is required to install and utilize Helix. Otherwise, the plugin will fail to load. Be sure to read through the
+Magnus, Triumph Tech's VS Code extension, is optional. It makes editing Lava Applications and their endpoints easier. See [Magnus](https://community.rockrms.com/developer/helix/lava-applications/magnus) for details.
 
 ---
 
@@ -135,15 +132,13 @@ Helix operates seamlessly with the aid of two complimentary plugins, both freely
 
 Here you'll find a comprehensive list of frequently asked questions about the Helix project, accompanied by detailed answers.
 
-**Why is Helix not a part of core?**
+**Is Helix part of core Rock?**
 
-~~Helix is a R&D project by Triumph Tech. Only Spark Development Network can decide to put code into core.~~
-
-It is now in core!
+Yes. Lava Applications came to core in Rock v18.1, so there's no plugin to install.
 
 **Is Helix available in Rock Mobile?**
 
-We like the way you think! Helix would be very powerful if it was a part of Rock Mobile. Since Rock Mobile however is a closed framework at this point we're not able to add support as a plugin. With community adoption and support perhaps that could change if Helix was ever added to core.
+Not at this time. Helix is built for web pages.
 
 ---
 
@@ -234,8 +229,7 @@ They say if you're going to do something, do it with style—and we believe that
 <a class="btn btn-primary btn-xs"
     hx-post="^/cato/link-client?ClientGuid={{ client.Guid }}&OrganizationGuid={{ organization.Guid }}"
     hx-target="closest .unlinked-client"
-    hx-swap="outerHTML swap:1s"
-    hx-swap="outerHTML">{{ organization.Name }}</a>
+    hx-swap="outerHTML swap:1s">{{ organization.Name }}</a>
 ```
 
 Note the following:

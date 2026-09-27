@@ -25,12 +25,12 @@ The last column indicates whether an attribute of a given type can be used to qu
 | Achievement Type | The GUID of the Achievement Type | Yes |
 | Adaptive Message | The GUID of the Adaptive Message | No |
 | Address | The GUID of the location associated with the address | Yes |
-| Assessment Types | A comma-delimited list of assessment type GUIDs | Yes |
 | AI Provider | An AI Provider's GUID | Yes |
+| Assessment Types | A comma-delimited list of assessment type GUIDs | No |
 | Asset | A string containing the properties of an asset | No |
-| Asset Storage Provider | An asset storage provider's GUID | No |
+| Asset Storage Provider | An asset storage provider's GUID | Yes |
 | Attendance | An attendance record's GUID | Yes |
-| Attribute | An attribute's GUID | No |
+| Attribute | An attribute's GUID | Yes |
 | Audio File | The audio file's GUID | Yes |
 | Audio URL | The URL of the audio file | No |
 | Background Check | - For the legacy Protect My Ministry provider, this is the GUID of the document binaryfile. - For Checkr, this is the EntityTypeId and RecordKey value, separated by a comma. - For other background check providers, this is the provider's EntityTypeId and the GUID of the document binaryfile, separated by a comma. | No |
@@ -46,10 +46,10 @@ The last column indicates whether an attribute of a given type can be used to qu
 | Campuses | A comma-delimited list of campus GUIDs | No |
 | Captcha | 'True' or 'False' depending on whether or not the person is verified | No |
 | Categories | A comma-delimited list of category GUIDs | No |
-| Categorized Defined Value | The Id of the selected Defined Value | No |
+| Categorized Defined Value | The Id of the selected Defined Value | Yes |
 | Category | A category's GUID | Yes |
 | Check List | The GUID for each selected item in the list | No |
-| Checkin Configuration Type | The GUID of the Group Type for the selected Checkin Configuration Type | No |
+| Checkin Configuration Type | A comma-delimited list of the GUIDs of the Group Types for the selected check-in configuration types | No |
 | Code Editor | The text of the code editor | No |
 | Color | The rgb string for the color, or the name of the named color | No |
 | Color Selector | The hex string for the color (e.g. "#EE7725"). If multiple selection is allowed in the future, a pipe-delimited list of hex colors will be stored (e.g. "#EE7725\|#F3F3F3"). | No |
@@ -57,7 +57,7 @@ The last column indicates whether an attribute of a given type can be used to qu
 | Communication Preference | The value of the communication preference (e.g. "1" for email, "2" for SMS) | No |
 | Communication Template | A communication template's GUID | Yes |
 | Comparison | '1' for Equal To, '2' for Not Equal To, '4' for Starts With, '8' for Contains, '16' for Does Not Contain, '32' for Is Blank, '64' for Is Not Blank, '128' for Greater Than, '256' for Greater Than or Equal To, '512' for Less Than, '1024' for Less Than Or Equal To, '2048' for Ends With, '4096' for Between, or '8192' for Regular Expression | No |
-| Component | The GUID of the Entity Type for the selected component | Yes |
+| Component | The GUID of the Entity Type for the selected component | No |
 | Components | A pipe-delimited list of Entity Type GUIDs for the selected components | No |
 | Conditional Scale | The value of the provided number | No |
 | Connection Activity Type | A connection activity type's GUID | Yes |
@@ -69,7 +69,7 @@ The last column indicates whether an attribute of a given type can be used to qu
 | Connection Type | A connection type's GUID | Yes |
 | Connection Types | A comma-delimited list of connection type GUIDs | No |
 | Content Channel | A content channel's GUID | Yes |
-| Content Channel Item | A content channel item's GUID | No |
+| Content Channel Item | A content channel item's GUID | Yes |
 | Content Channel Type | A content channel type's GUID | Yes |
 | Content Channel Types | A comma-delimited list of content channel type GUIDs | No |
 | Content Channels | A comma-delimited list of content channel GUIDs | No |
@@ -85,24 +85,22 @@ The last column indicates whether an attribute of a given type can be used to qu
 | Decimal | A decimal value | No |
 | Decimal Range | Two comma-delimited decimal values where first number is lower value, and second number is upper value | No |
 | Defined Type | A defined type's GUID | Yes |
-| Defined Value | A comma-delimited list of defined value GUIDs (if attribute is not configured for multiple values, there should only be one GUID) | No |
+| Defined Value | A comma-delimited list of defined value GUIDs (if attribute is not configured for multiple values, there should only be one GUID) | Yes |
 | Defined Value Range | Two comma-delimited GUID values where first GUID is the lower defined value GUID, and second GUID is the upper defined value GUID | No |
+| Device | The Device's GUID | No |
 | Document Type | The document type's Id. If multiple document types are selected, a comma-delimted list of document type Ids. | No |
-| Device | The Device's GUID | Yes |
 | Email | An email address | No |
-| Email Template | The value of the textbox | No |
 | Encrypted Text | The text value encrypted using Rock's Encryption.EncryptString() static helper method | No |
 | Entity | A pipe-delimited GUID and integer, where the GUID is an entity type's GUID, and the integer is the Id of the selected entity | Yes |
 | Entity Type | An entity type's GUID | Yes |
 | Event Calendar | An event calendar's GUID | Yes |
 | Event Item | An event item's GUID | Yes |
 | File | The file's GUID | Yes |
-| Filter Date | The value of the textbox. This field type is intended to only be used for report filters when specifying date comparisons. | No |
 | Financial Account | A financial account's GUID | Yes |
 | Financial Accounts | A comma-delimited list of financial account GUIDs | No |
 | Financial Gateway | A financial gateway's GUID | Yes |
-| Financial Transaction | The Id of the Financial Transaction | Yes |
 | Financial Statement Template | A financial statement template's GUID | Yes |
+| Financial Transaction | A financial transaction's GUID | Yes |
 | Gender | The value of a gender (e.g. Male returns "1") | No |
 | Group | A group's GUID | Yes |
 | Group And Role | Three pipe-delimited GUID values where first GUID is a group type's GUID, second GUID is a group's GUID, and third GUID is a group type role's GUID | No |
@@ -127,16 +125,14 @@ The last column indicates whether an attribute of a given type can be used to qu
 | Location | A location's GUID | Yes |
 | LocationList | A location's GUID | Yes |
 | Markdown | The markdown text | No |
-| Matrix | A matrix's GUID | No |
+| Matrix | A matrix's GUID | Yes |
 | Media Element | A media element's GUID | Yes |
 | Media Selector | A caret-delimited name^url value of the selected item. To get the Url using Lava, you can use the 'Url' option: `{{ ... \| Attribute:'<KEY>', 'Url' }}` | No |
 | Media Watch | A number representing the percentage of the Media Element that has been watched | No |
 | Memo | The value of the textbox | No |
-| Merge Template | A merge template's GUID | No |
+| Merge Template | A merge template's GUID | Yes |
 | Metric | The metric's GUID | Yes |
 | Metric Categories | A comma-delimited list of two pipe-delimited GUIDs where the first GUID is a metric's GUID, and the second is a category's GUID (ex: MetricGUID1\|CategoryGUID1,MetricGUID2\|CategoryGUID2) | No |
-| Metric Entity | Five pipe-delimited values where first is the metric's GUID, second is the entity's Id, third is a 'True' or 'False' indicating if metric should be gotten from page context, fourth is a 'True' or 'False' indicating if multiple values should be combined, and final value is a metric category's GUID (ex: 'MetricGuid\|EntityId\|False\|False\|CategoryGuid') | No |
-| Metrics | A comma-delimited list of metric GUIDs | No |
 | Mobile Navigation Action | The action Type, the Pop Count and the Page Guid. Note that this field type is not meant to be used directly in places like workflows or person attributes, and is intended for use as a block setting. | No |
 | Month Day | The selected month and day, formatted as: M/d | No |
 | Multi-Select | A comma-delimited list of the values (e.g. 1,2,3) of the selected items | No |
@@ -144,15 +140,14 @@ The last column indicates whether an attribute of a given type can be used to qu
 | Note Types | A comma-delimited list of GUIDs for each selected type of note | No |
 | Open AI Model Picker | The selected Open AI model as a text string | No |
 | Page Reference | Value is in format 'Page.Guid,PageRoute.Guid' but only 'Page.Guid' is required. | No |
-| Persisted Dataset | The persisted dataset's GUID | No |
+| Persisted Dataset | The persisted dataset's GUID | Yes |
 | Person | A person alias GUID | Yes |
-| Person Badges | A comma-delimited list of person badge GUIDs | No |
 | Phone Number | A formatted phone number | No |
-| Prayer Request | A prayer request's GUID | No |
+| Prayer Request | A prayer request's GUID | Yes |
 | Range Slider | The integer value of the selected number | No |
 | Rating | The integer value of the selected rating (e.g. four stars is stored as "4") | No |
-| Registration Instance | The registration instance's GUID | No |
-| Registration Template | A registration template's GUID | No |
+| Registration Instance | The registration instance's GUID | Yes |
+| Registration Template | A registration template's GUID | Yes |
 | Registration Templates | A comma-delimited list of registration template GUIDs | No |
 | Registry Entry | The values for the volume, page and line of the registry entry, separated by commas (e.g. "2,39,7") | No |
 | Reminder Type | The GUID of the Reminder Type | Yes |
@@ -160,11 +155,10 @@ The last column indicates whether an attribute of a given type can be used to qu
 | Remote Auths | A pipe-delimited list of entity type GUIDs (entity types should only be active authentication components that require remote authentication) | No |
 | Report | A report's GUID | Yes |
 | Schedule | A schedule's GUID | Yes |
+| ScheduleBuilder | A schedule's GUID | Yes |
 | Schedules | A comma-delimited list of schedule GUIDs | No |
-| ScheduleBuilder | A schedule's GUID | \- |
 | Secondary Auths | A list of authentication method (e.g., Passwordless Authentication) GUIDs | No |
-| Security Role | A security role (group) GUID | Yes |
-| Sequence | The value of the textbox | No |
+| Security Role | A security role (group) GUID | No |
 | Signature Document Template | A signature document template's GUID | Yes |
 | Single-Select | The value (e.g. "1") of the selected item | No |
 | Site | A site's Id | Yes |
@@ -177,8 +171,8 @@ The last column indicates whether an attribute of a given type can be used to qu
 | Step Program Step Type | A step program's GUID and a step type's GUID, pipe-delimited | No |
 | Streak Type | A streak type's GUID | Yes |
 | Structure Content Editor | Code representing the contents of the editor | No |
-| System Communication | A system communication's GUID | No |
-| System Phone Number | A system phone number's GUID | Yes |
+| System Communication | A system communication's GUID | Yes |
+| System Phone Number | A system phone number's GUID, or a comma-delimited list of GUIDs if the attribute allows multiple | Yes |
 | Text | The value of the textbox | No |
 | Time | A timespan value formatted as 'd.hh:mm:ss.fff' | No |
 | Time Zone | The worded description of a time zone (e.g. "US Mountain Standard Time") | No |
@@ -189,7 +183,7 @@ The last column indicates whether an attribute of a given type can be used to qu
 | Video Url | A video file's URL, or a text string provided | No |
 | Workflow | A workflow's GUID | Yes |
 | Workflow Activity | A workflow activity type's GUID | Yes |
-| Workflow Attribute | The key of the selected attribute | Yes |
+| Workflow Attribute | The key of the selected attribute | No |
 | Workflow Text Or Attribute | The contents of Text field or the GUID of selected attribute | No |
 | Workflow Type | A workflow type's GUID | Yes |
 | Workflow Types | A comma-delimited list of workflow type GUIDs | No |
