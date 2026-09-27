@@ -46,7 +46,11 @@ The one attribute without a home elsewhere. Extra request headers, written as a 
         Hx.Headers="X-Sink-Mode=compact&X-Sink-Page=2" />
 ```
 
-**Inherits: yes.** Your headers are applied **after** the standard Helix headers, so deliberately overriding a standard header works. Read them from the `Headers` merge field.
+**Inherits: yes.** Read them from the `Headers` merge field. Your headers are sent **alongside** the standard Helix headers, not in place of them. If you name one of the app's own headers, it is sent twice, and the server sees both values joined by a comma. `X-Helix-Client=Web` arrives as `RockMobile,Web`. Setting `X-Helix-CSRF-Protection` to anything, even `true`, makes an endpoint with cross-site forgery protection return 401.
+
+Note
+
+Use your own header names. Do not set `X-Helix-Client`, `X-Helix-Shell-Version`, `X-Helix-CSRF-Protection`, or `X-Helix-Prompt` in `Hx.Headers`.
 
 ## Reserved values
 
@@ -199,7 +203,7 @@ It is the same trust model as the section above: anyone with Edit on the Applica
 
 ## X-Helix-Client and ClientType are hints, never inputs
 
-The app sends `X-Helix-Client: RockMobile`, and the server derives the `ClientType` merge field from it. Any caller can send that header with curl.
+The app sends `X-Helix-Client: RockMobile`, and the server derives the `ClientType` merge field from it. The server also treats any request carrying `X-Rock-DeviceData` as Mobile, and the app sends that header on every request. Any caller can send either header with curl.
 
 Branch **presentation** on it. Never gate **data access** on it.
 

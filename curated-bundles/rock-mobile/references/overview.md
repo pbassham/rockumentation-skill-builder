@@ -16,15 +16,17 @@ Three pieces: an element to receive the content, an element to go get it, and an
 ### On the page
 
 ```
-<VerticalStackLayout Hx.Id="GroupList">
-    <Label Text="Nothing loaded yet." />
-</VerticalStackLayout>
+<VerticalStackLayout Spacing="12">
+    <VerticalStackLayout Hx.Id="GroupList">
+        <Label Text="Nothing loaded yet." />
+    </VerticalStackLayout>
 
-<Button Text="Load My Groups"
-        StyleClass="btn,btn-primary"
-        Hx.Get="^/group-toolbox/my-groups"
-        Hx.Target="GroupList"
-        Hx.Swap="inner" />
+    <Button Text="Load My Groups"
+            StyleClass="btn,btn-primary"
+            Hx.Get="^/group-toolbox/my-groups"
+            Hx.Target="GroupList"
+            Hx.Swap="inner" />
+</VerticalStackLayout>
 ```
 
 ### The endpoint

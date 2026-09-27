@@ -82,7 +82,7 @@ Inline what is fast and certain. Fetch what is slow or changeable.
 
 Note
 
-If a block's entire content comes from one endpoint, you do not need a template at all. The Lava Application Content block's **Initial Endpoint** setting takes a route the shell fetches when the block loads, and it is used instead of the Initial Template. It costs the same second request a `load` trigger would, and it saves you maintaining a template whose only job is to call one endpoint.
+If a block's entire content comes from one endpoint, you do not need a template at all. The Lava Application Content block's **Initial Endpoint** setting takes a route the shell fetches when the block loads, and it is used instead of the Initial Template. The block skips its usual initial content request, so the endpoint is the only request, the same count as inlining. It also saves you maintaining a template whose only job is to call one endpoint.
 
 ## Refresh on return without rebuilding the page
 
@@ -101,13 +101,13 @@ Prefer `appear` and keep the refresh scoped to the part that actually goes stale
 <ContentView Hx.Get="^/group-toolbox/pending-count"
              Hx.Trigger="appear"
              Hx.Target="this"
-             Hx.Swap="outer" />
+             Hx.Swap="inner" />
 ```
 
 On a screen people bounce in and out of, add `throttle` so a quick there-and-back does not fire a second request:
 
 ```
-<ContentView Hx.Get="^/group-toolbox/dashboard" Hx.Trigger="appear throttle:30s" Hx.Target="this" Hx.Swap="outer" />
+<ContentView Hx.Get="^/group-toolbox/dashboard" Hx.Trigger="appear throttle:30s" Hx.Target="this" Hx.Swap="inner" />
 ```
 
 Reach for `HX-Refresh` when a write invalidated more of the screen than you can reasonably point at, or when the change came from a cover sheet, which cannot target ids on the page it covers.
@@ -121,6 +121,6 @@ Because `appear` fires on the first appearance too, it is a superset of `load` r
 These come up just as often, but each belongs to one attribute and is covered where that attribute lives:
 
 - **Load More** without stranding the button: `outer` targeting `this`. See [Requests and Targeting](https://community.rockrms.com/developer/mobile-docs/essentials/lava/lava-application/requests-and-targeting).
-- **Inline field validation**: `Hx.Target="this"` on the `FieldContainer`, not the input. See [Forms and Values](https://community.rockrms.com/developer/mobile-docs/essentials/lava/lava-application/forms-and-values).
+- **Inline field validation**: `Hx.Target="this"` on a layout that wraps the `FieldContainer`, not on the input or the container itself. See [Forms and Values](https://community.rockrms.com/developer/mobile-docs/essentials/lava/lava-application/forms-and-values).
 - **An error slot** so a failed `append` does not wipe the list it was appending to. See [Indicators and Errors](https://community.rockrms.com/developer/mobile-docs/essentials/lava/lava-application/indicators-and-errors).
 - **Declaring the target once** on a container and letting swapped-in fragments inherit it. See [Inheritance](https://community.rockrms.com/developer/mobile-docs/essentials/lava/lava-application/inheritance).

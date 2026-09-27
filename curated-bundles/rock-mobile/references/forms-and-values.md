@@ -16,13 +16,15 @@ On the web, a form posts its inputs because each one has a `name`. Mobile does t
 
     <ContentView Hx.Id="formErrors" />
 
-    <Rock:FieldContainer Hx.Target="this" Hx.Swap="outer">
-        <Rock:TextBox Hx.Id="email"
-                      Label="Email"
-                      IsRequired="True"
-                      Hx.Post="^/sink/contact/email"
-                      Hx.Trigger="Unfocused changed" />
-    </Rock:FieldContainer>
+    <VerticalStackLayout Hx.Target="this" Hx.Swap="outer">
+        <Rock:FieldContainer>
+            <Rock:TextBox Hx.Id="email"
+                          Label="Email"
+                          IsRequired="True"
+                          Hx.Post="^/sink/contact/email"
+                          Hx.Trigger="Unfocused changed" />
+        </Rock:FieldContainer>
+    </VerticalStackLayout>
 
     <Rock:FieldContainer>
         <Rock:TextBox Hx.Id="firstName" Label="First Name" IsRequired="True" />
@@ -55,22 +57,24 @@ To opt a button out, give it any one of these:
 
 ### Inline validation, and why this matters
 
-Look again at the email field above. `Hx.Target="this" Hx.Swap="outer"` sits on the **`FieldContainer`**, not on the `TextBox`. The `TextBox` inherits both, and `this` resolves to the element that *declared* it, which is the container. So every time the person leaves that field, the response replaces that one field's container in place.
+Look again at the email field above. `Hx.Target="this" Hx.Swap="outer"` sits on the **`VerticalStackLayout`** that wraps the field, not on the `TextBox`. The `TextBox` inherits both, and `this` resolves to the element that *declared* it, which is the wrapper. So every time the person leaves that field, the response replaces that one field's wrapper in place.
 
-**Which means your endpoint has to return the field, not just a message.** `outer` destroys the container it replaces, so whatever comes back *is* the field from then on. Return the whole container:
+**Which means your endpoint has to return the field, not just a message.** `outer` destroys the wrapper it replaces, so whatever comes back *is* the field from then on. Return the whole wrapper, with the message *beside* the `FieldContainer` rather than inside it. A `FieldContainer` only accepts Rock fields, so a `Label` inside one stops the fragment from loading, and only in the case where there is a message to show:
 
 ```
-<Rock:FieldContainer Hx.Target="this" Hx.Swap="outer">
-    <Rock:TextBox Hx.Id="email"
-                  Label="Email"
-                  IsRequired="True"
-                  Text="{{ Form['email'] | Escape }}"
-                  Hx.Post="^/sink/contact/email"
-                  Hx.Trigger="Unfocused changed" />
+<VerticalStackLayout Hx.Target="this" Hx.Swap="outer">
+    <Rock:FieldContainer>
+        <Rock:TextBox Hx.Id="email"
+                      Label="Email"
+                      IsRequired="True"
+                      Text="{{ Form['email'] | Escape }}"
+                      Hx.Post="^/sink/contact/email"
+                      Hx.Trigger="Unfocused changed" />
+    </Rock:FieldContainer>
     {% if isTaken %}
     <Label Text="That email is already in use." StyleClass="footnote, text-danger-strong" />
     {% endif %}
-</Rock:FieldContainer>
+</VerticalStackLayout>
 ```
 
 Every attribute reappears, and each one breaks something different if you leave it out:
@@ -80,7 +84,7 @@ Every attribute reappears, and each one breaks something different if you leave 
 | `Text="{{ Form['email'] }}"` | the field comes back empty and the person loses what they typed |
 | `Hx.Id="email"` | the field stops contributing its value, so submitting the form silently drops `email` |
 | `Hx.Post` or `Hx.Trigger` | validation runs once and never again |
-| `Hx.Target` or `Hx.Swap` on the container | the next validation targets the enclosing block instead of the field |
+| `Hx.Target` or `Hx.Swap` on the wrapper | the next validation targets the enclosing block instead of the field |
 
 That is the standing cost of `outer`: it is the only swap that removes the element carrying your attributes, so the response has to re-declare them. See [Requests and Targeting](https://community.rockrms.com/developer/mobile-docs/essentials/lava/lava-application/requests-and-targeting).
 

@@ -64,7 +64,7 @@ The app sets the named element's opacity to 1 and adds `htmx-request` to it, so 
         Hx.Confirm="Remove this person from the group?" />
 ```
 
-The alert has no title, just OK and Cancel buttons. Cancelling aborts before any request state changes. Because it inherits, a container or a form can declare one confirmation that covers all of its triggers.
+The message is the alert's title, with no body text, and OK and Cancel buttons. Cancelling aborts before any request state changes. Because it inherits, a container can declare one confirmation that covers all of its triggers. Be careful on a form: its fields' own triggers inherit it too, so a field with `Hx.Trigger="Unfocused changed"` asks for confirmation each time its own request fires. `Hx.Prompt` behaves the same way. To confirm only the submission, wrap the fields in a layout with `Hx.Disinherit="Confirm Prompt"`. A submission's initiator is the form itself, so it keeps the confirmation.
 
 ## Hx.Prompt
 
@@ -156,10 +156,10 @@ If the named slot cannot be found, the error still appears using the default pla
 Three placements, chosen in this order:
 
 1. **The `Hx.Notification` slot**, if one is declared and resolves.
-2. **Beside the initiator**, if there is no target, or if the requested swap would have removed the initiating element (`outer` on `this`, or a target that contains it). This keeps the control usable so the person can retry, instead of deleting the thing they just tapped.
+2. **Beside the initiator**, if there is no target, or if an `inner` or `outer` swap would remove the initiating element (`outer` on `this`, or a target that contains it, which includes the default block target). The error goes right after the initiator, or after its ancestor that sits in the nearest layout, which keeps the control usable so the person can retry. If there is no layout between the initiator and its block or cover sheet, the nearest layout is a grid the app owns: the page's zone, or the grid that holds the sheet's content. The error then lands in that grid's first cell, on top of whatever is there. Wrap your triggers in a layout, or declare an `Hx.Notification` slot.
 3. **Into the target**, otherwise.
 
-Errors render as a notification box with an "Error" header. Both the slot placement and the beside-the-initiator placement replace the previous error rather than stacking, and both clear on the next success.
+Errors render as a notification box with an "Error" header. An error beside an initiator replaces only that initiator's previous error, and clears only when that same initiator next succeeds. A success from another trigger leaves it in place. A slot error clears on the next success from any trigger that uses the slot.
 
 ### What produces an error
 

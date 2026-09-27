@@ -32,8 +32,10 @@ Never return a XAML fragment with an error status code. Non-2xx bodies are never
 All of them are set the same way, with the existing `httpresponse` Lava command, and a template can send more than one. No server changes are needed.
 
 ```
-{% httpresponse header:'HX-Reswap' value:'outer' %}
-{% httpresponse header:'X-Helix-Command' value:'ShowToast' %}
+{% httpresponse %}
+    [[ header key:'HX-Reswap' ]]outer[[ endheader ]]
+    [[ header key:'X-Helix-Command' ]]ShowToast[[ endheader ]]
+{% endhttpresponse %}
 ```
 
 They are read in the order listed above, which matters because the first two short-circuit everything after them: if you send `HX-Redirect`, your body is never swapped and your `X-Helix-Command` never runs. Both are also read *before* the status code, so a redirect or a refresh is honored even on a non-2xx response, and the error notification you might have expected never appears.
@@ -43,12 +45,16 @@ They are read in the order listed above, which matters because the first two sho
 Replaces the current page with another one. The value is a **page Guid**, optionally carrying a query string and an anchor.
 
 ```
-{% httpresponse header:'HX-Redirect' value:'0d1a1e37-e5f1-4a0f-9d0a-0d0e1a9d3b21' %}
+{% httpresponse %}
+    [[ header key:'HX-Redirect' ]]0d1a1e37-e5f1-4a0f-9d0a-0d0e1a9d3b21[[ endheader ]]
+{% endhttpresponse %}
 ```
 ```
 {% comment %} Page parameters, and an anchor to scroll to on arrival. {% endcomment %}
 {% assign target = '0d1a1e37-e5f1-4a0f-9d0a-0d0e1a9d3b21?GroupId=' | Append:groupIdKey %}
-{% httpresponse header:'HX-Redirect' value:'{{ target }}#roster' %}
+{% httpresponse %}
+    [[ header key:'HX-Redirect' ]]{{ target }}#roster[[ endheader ]]
+{% endhttpresponse %}
 ```
 - **It takes a page Guid, not a URL.** A value that does not parse as a Guid, or one naming a page the app has not cached, does nothing at all and reports nothing. Check the Guid first when a redirect looks like it was ignored.
 - The query string arrives as page parameters, readable with `PageParameter`.
@@ -59,7 +65,9 @@ Replaces the current page with another one. The value is a **page Guid**, option
 Reloads the current page, so every block on it re-renders.
 
 ```
-{% httpresponse header:'HX-Refresh' value:'true' %}
+{% httpresponse %}
+    [[ header key:'HX-Refresh' ]]true[[ endheader ]]
+{% endhttpresponse %}
 ```
 - **Only the exact value `true` does anything**, case-insensitively. Any other value, including `1` or `yes`, is ignored and the response swaps normally.
 - This is the blunt instrument. Prefer swapping the one region that changed, and reach for a refresh when a write invalidated more of the screen than you can reasonably target.
@@ -74,7 +82,9 @@ The common use is the one the Note above describes: keep the 200, but send failu
 ```
 {% if isEmailTaken %}
     {% comment %} Land in the form's error slot rather than replacing the field. {% endcomment %}
-    {% httpresponse header:'HX-Retarget' value:'formErrors' %}
+    {% httpresponse %}
+        [[ header key:'HX-Retarget' ]]formErrors[[ endheader ]]
+    {% endhttpresponse %}
     <Rock:NotificationBox NotificationType="Error" Text="That email is already in use." />
 {% else %}
     <Rock:FieldContainer>
@@ -92,7 +102,9 @@ Overrides the strategy. Reach for it when the response is a different *shape* th
 ```
 {% if rows == empty %}
     {% comment %} Nothing to append, so replace the list with an empty state instead. {% endcomment %}
-    {% httpresponse header:'HX-Reswap' value:'outer' %}
+    {% httpresponse %}
+        [[ header key:'HX-Reswap' ]]outer[[ endheader ]]
+    {% endhttpresponse %}
     <Label Text="No more results." StyleClass="text-interface-medium" />
 {% else %}
     <VerticalStackLayout>
@@ -116,7 +128,9 @@ It accepts **both** vocabularies, so a shared endpoint can emit one value that w
 
 ```
 {% comment %} Understood by both clients, so no ClientType branch is needed. {% endcomment %}
-{% httpresponse header:'HX-Reswap' value:'outerHTML' %}
+{% httpresponse %}
+    [[ header key:'HX-Reswap' ]]outerHTML[[ endheader ]]
+{% endhttpresponse %}
 ```
 
 The strategy you name still has to suit the target. `HX-Reswap` overrides your `Hx.Swap`, it does not exempt you from the target type rules in [Requests and Targeting](https://community.rockrms.com/developer/mobile-docs/essentials/lava/lava-application/requests-and-targeting), and an unknown strategy is an error.
@@ -125,7 +139,9 @@ The strategy you name still has to suit the target. `HX-Reswap` overrides your `
 
 ```
 {% comment %} An empty state replaces the list, and should fade rather than slide. {% endcomment %}
-{% httpresponse header:'HX-Reswap' value:'outer animate:fade' %}
+{% httpresponse %}
+    [[ header key:'HX-Reswap' ]]outer animate:fade[[ endheader ]]
+{% endhttpresponse %}
 ```
 
 Because the header replaces the whole declaration, any modifiers the element declared are replaced along with the strategy. Repeat the ones you still want.
@@ -136,12 +152,16 @@ The mobile-only extension to the header channel. It runs one of the app's named 
 
 ```
 {% comment %} An object parameter, sent as JSON. {% endcomment %}
-{% httpresponse header:'X-Helix-Command' value:'ShowToast' %}
-{% httpresponse header:'X-Helix-Command-Parameter' value:'{"Message":"Saved."}' %}
+{% httpresponse %}
+    [[ header key:'X-Helix-Command' ]]ShowToast[[ endheader ]]
+    [[ header key:'X-Helix-Command-Parameter' ]]{"Message":"Saved."}[[ endheader ]]
+{% endhttpresponse %}
 ```
 ```
 {% comment %} No parameter needed. Swap in the saved state, then close the page behind you. {% endcomment %}
-{% httpresponse header:'X-Helix-Command' value:'PopPage' %}
+{% httpresponse %}
+    [[ header key:'X-Helix-Command' ]]PopPage[[ endheader ]]
+{% endhttpresponse %}
 ```
 - Only the app's standard client commands are reachable. It cannot call arbitrary code.
 - A parameter value starting with `{` or `[` is parsed as JSON. Anything else is passed as a string.

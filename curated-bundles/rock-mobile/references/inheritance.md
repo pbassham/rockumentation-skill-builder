@@ -92,4 +92,4 @@ Names are space- or comma-separated, and the `Hx.` prefix is optional. Matching 
 
 Note
 
-An element's own `Hx.Disinherit` does not affect that element. It affects its descendants. So the inner layout above could still declare its own `Hx.Target` and use it; it just stops passing the outer one down.
+An element's own `Hx.Disinherit` does not affect that element, only its descendants. It also hides the element's **own** value from them, the same as HTMX's `hx-disinherit`. If the inner layout above declared its own `Hx.Target`, the button inside it still would not see it. To give the children a new target, put it on each child, or on a layout nested inside this one.

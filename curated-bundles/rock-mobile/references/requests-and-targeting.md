@@ -96,17 +96,19 @@ Written directly on your trigger, the two are the same element:
 Inherited from an ancestor, they are not:
 
 ```
-<!-- The FieldContainer says "this", so "this" is the FieldContainer. -->
-<Rock:FieldContainer Hx.Target="this" Hx.Swap="outer">
-    <Rock:TextBox Hx.Id="email"
-                  Hx.Post="^/sink/contact/email"
-                  Hx.Trigger="Unfocused changed" />
-</Rock:FieldContainer>
+<!-- The wrapper says "this", so "this" is the wrapper. -->
+<VerticalStackLayout Hx.Target="this" Hx.Swap="outer">
+    <Rock:FieldContainer>
+        <Rock:TextBox Hx.Id="email"
+                      Hx.Post="^/sink/contact/email"
+                      Hx.Trigger="Unfocused changed" />
+    </Rock:FieldContainer>
+</VerticalStackLayout>
 ```
 
-The `TextBox` fires the request, but it declares no `Hx.Target` of its own, so it inherits the container's. `this` resolves to the **`FieldContainer`**, and the response replaces that whole container: label, input, and all.
+The `TextBox` fires the request, but it declares no `Hx.Target` of its own, so it inherits the wrapper's. `this` resolves to the **`VerticalStackLayout`**, and the response replaces that whole wrapper: container, label, input, and all.
 
-That is exactly what inline validation needs. Your endpoint returns a fresh `FieldContainer` holding the field plus an error message. If `this` meant "the element that fired," the swap would replace only the `TextBox` and there would be nowhere to put the message. See [Forms and Values](https://community.rockrms.com/developer/mobile-docs/essentials/lava/lava-application/forms-and-values).
+That is exactly what inline validation needs. Your endpoint returns a fresh wrapper holding the field plus an error message beside it. If `this` meant "the element that fired," the swap would replace only the `TextBox` and there would be nowhere to put the message. The wrapper is a plain layout rather than the `FieldContainer` itself because a `FieldContainer` only accepts Rock fields, so it cannot hold the message. See [Forms and Values](https://community.rockrms.com/developer/mobile-docs/essentials/lava/lava-application/forms-and-values).
 
 ### Other targeting details
 
@@ -273,7 +275,7 @@ A `Grid` does not work that way. It positions children by `Grid.Row` and `Grid.C
 
 `outer` gets away with a `Grid` parent because it *replaces* the target, so it can copy the target's exact row and column and land where the old element was. `after` would need the *next* cell, and in a grid there is no such thing.
 
-**One consequence to remember:** a block's parent is a `Zone`, which is a grid. Since the default target is the enclosing block, `Hx.Swap="after"` with no `Hx.Target` always fails. Point `after` at a target that sits inside a stack layout.
+**One consequence to remember:** with no `Hx.Target`, the target is the enclosing block, which is a `ContentView` sitting in a `Zone`, and a `Zone` is a grid. Only `inner` (the default) and `none` are useful there. `append` and `prepend` always fail, because a `ContentView` is not a `Layout`. `after` always fails, because the block's parent is a grid. `outer` succeeds but replaces the whole block, and everything the block provided goes with it: later requests from that content lose their default target and the short `^/endpoint-slug` route, and `X-Helix-Command` has nothing to run on. Give these strategies an explicit `Hx.Target`.
 
 ### Other swap details
 

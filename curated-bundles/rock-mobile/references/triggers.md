@@ -119,7 +119,7 @@ If you set `Hx.Trigger="load"` on an element that is already on screen, it fires
 <ContentView Hx.Get="^/group-toolbox/pending-count"
              Hx.Trigger="appear"
              Hx.Target="this"
-             Hx.Swap="outer" />
+             Hx.Swap="inner" />
 ```
 
 The case it exists for: the person taps into a detail screen, changes something there, and comes back. With `load` the summary they return to is the one rendered before they left, and it is now wrong. With `appear` it re-fetches on the way back in.
@@ -127,14 +127,14 @@ The case it exists for: the person taps into a detail screen, changes something 
 Pair it with `throttle` when the screen is one people bounce in and out of, so a quick there-and-back does not fire a second request:
 
 ```
-<ContentView Hx.Get="^/group-toolbox/dashboard" Hx.Trigger="appear throttle:30s" Hx.Target="this" Hx.Swap="outer" />
+<ContentView Hx.Get="^/group-toolbox/dashboard" Hx.Trigger="appear throttle:30s" Hx.Target="this" Hx.Swap="inner" />
 ```
 
 Four things to know:
 
 - **It fires exactly once per appearance**, no matter which order the platform raises the page's appearance and the element's own load. You will not get a double fire on one platform and a single fire on the other.
 - **A cover sheet is its own page here.** A fragment presented in a sheet hooks the sheet, not the page underneath, matching how sheets scope ids and cancellation. See [Cover Sheets](https://community.rockrms.com/developer/mobile-docs/essentials/lava/lava-application/cover-sheets).
-- **An element that swaps itself away stops firing**, because the subscription belongs to the element and it is gone. If the replacement should keep refreshing, it has to declare `Hx.Trigger="appear"` again, the same re-declaration `outer` always requires. See [Requests and Targeting](https://community.rockrms.com/developer/mobile-docs/essentials/lava/lava-application/requests-and-targeting).
+- **Swap with `inner`, not `outer`.** The subscription belongs to the element, so `outer` throws it away along with the element. If the fragment leaves out `Hx.Trigger="appear"`, the region refreshes once and never again. If the fragment declares it again, the new element fires as soon as it loads, its response replaces it with another element that does the same, and the requests never stop. `throttle` does not prevent this, because each new element starts with its own clock. `inner` keeps the element and replaces only its content, so the subscription survives. Return plain content from the endpoint, with no trigger of its own. See [Requests and Targeting](https://community.rockrms.com/developer/mobile-docs/essentials/lava/lava-application/requests-and-targeting).
 - **An element outside a page is not wired**, silently. In practice this only happens in places a fragment does not normally live.
 
 Note
