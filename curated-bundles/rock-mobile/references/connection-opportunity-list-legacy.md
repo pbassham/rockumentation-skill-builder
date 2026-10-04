@@ -1,5 +1,5 @@
 ---
-description: Use when displaying available connection opportunities for a specific connection type in Rock mobile applications
+description: Use when displaying a list of connection opportunities filtered by a single connection type in Rock mobile applications
 source: "https://community.rockrms.com/developer/mobile-docs"
 sourceLabel: Mobile Docs
 ---
@@ -33,7 +33,7 @@ To provide the guid we just obtained to the block, we do so by providing it with
 | --- | --- | --- |
 | connectionTypeGuid | Guid | The guid of the type of connection you want to display opportunities for. |
 
-Conveniently, that is the same value we just obtained by [getting the connection types](https://community.rockrms.com/developer/mobile-docs/essentials/blocks/connection/connection-opportunity-list#getting-the-connection-types). Create a new page that only contains a '[Content](https://community.rockrms.com/developer/mobile-docs/essentials/blocks/cms/content)' block. Provide the following as the content, but change `pageGuid`to represent the guid of the page you just created and the `connectionTypeGuid` to represent the guid that we got earlier.
+Conveniently, that is the same value we just obtained by [getting the connection types](https://community.rockrms.com/developer/mobile-docs/essentials/blocks/connection/legacy/connection-opportunity-list-legacy#getting-the-connection-types). Create a new page that only contains a '[Content](https://community.rockrms.com/developer/mobile-docs/essentials/blocks/cms/content)' block. Provide the following as the content, but change `pageGuid`to represent the guid of the page you just created and the `connectionTypeGuid` to represent the guid that we got earlier.
 
 ```
 {% assign pageGuid = '' %}
@@ -50,7 +50,7 @@ Conveniently, that is the same value we just obtained by [getting the connection
 
 Deploy, press that button, and voila! The block should display the list of connection opportunities for the specific type. So now you can see how to show the opportunities for one specific connection type... but that would rarely be the actual intended use case.
 
-If only there was some type of list to display all of the types for us... Oh, wait! There is. To fetch all of your connection types, create a new page with a '[Connection Type List](https://community.rockrms.com/developer/mobile-docs/essentials/blocks/connection/connection-type-list)' block, and set the '[Detail Page](https://community.rockrms.com/developer/mobile-docs/essentials/blocks/connection/connection-type-list#detail-page)' to a page containing this block.
+If only there was some type of list to display all of the types for us... Oh, wait! There is. To fetch all of your connection types, create a new page with a '[Connection Type List](https://community.rockrms.com/developer/mobile-docs/essentials/blocks/connection/legacy/connection-type-list-legacy)' block, and set the '[Detail Page](https://community.rockrms.com/developer/mobile-docs/essentials/blocks/connection/legacy/connection-type-list-legacy#detail-page)' to a page containing this block.
 
 ## Header Template
 
@@ -115,9 +115,9 @@ This is the page that is linked when a specific request is selected. You can see
 {% endif %}
 ```
 
-If you are lost, this is within the main for-loop of the [Opportunity Template](https://community.rockrms.com/developer/mobile-docs/essentials/blocks/connection/connection-opportunity-list#opportunity-template), and by doing this, each opportunity passes its individual Guid as a query string parameter for the detail page.
+If you are lost, this is within the main for-loop of the [Opportunity Template](https://community.rockrms.com/developer/mobile-docs/essentials/blocks/connection/legacy/connection-opportunity-list-legacy#opportunity-template), and by doing this, each opportunity passes its individual Guid as a query string parameter for the detail page.
 
-Psst! This setting would be utilized as intended if it was set to a page that had the [Connection Request List](https://community.rockrms.com/developer/mobile-docs/essentials/blocks/connection/connection-request-list) block on it.
+Psst! This setting would be utilized as intended if it was set to a page that had the [Connection Request List](https://community.rockrms.com/developer/mobile-docs/essentials/blocks/connection/legacy/connection-request-list-legacy) block on it.
 
 ### Styling
 

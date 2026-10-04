@@ -1,5 +1,5 @@
 ---
-description: Use when displaying a mobile list of connection types with customizable templates and request counts
+description: Use when displaying or configuring a list of connection types with customizable templates and request counts
 source: "https://community.rockrms.com/developer/mobile-docs"
 sourceLabel: Mobile Docs
 ---
@@ -91,9 +91,9 @@ This is the page that is linked when a specific request is selected. You can see
 {% endif %}
 ```
 
-If you are lost, this is within the main for-loop of the [Type Template](https://community.rockrms.com/developer/mobile-docs/essentials/blocks/connection/connection-type-list#type-template), and by doing this, each opportunity passes its' individual Guid as a query string parameter for the detail page.
+If you are lost, this is within the main for-loop of the [Type Template](https://community.rockrms.com/developer/mobile-docs/essentials/blocks/connection/legacy/connection-type-list-legacy#type-template), and by doing this, each opportunity passes its' individual Guid as a query string parameter for the detail page.
 
-Pssst! This setting would be utilized as intended if it was set to a page that contained the [Connection Opportunity List](https://community.rockrms.com/developer/mobile-docs/essentials/blocks/connection/connection-opportunity-list) block.
+Pssst! This setting would be utilized as intended if it was set to a page that contained the [Connection Opportunity List](https://community.rockrms.com/developer/mobile-docs/essentials/blocks/connection/legacy/connection-opportunity-list-legacy) block.
 
 ### Styling
 

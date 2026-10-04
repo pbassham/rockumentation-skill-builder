@@ -1,5 +1,5 @@
 ---
-description: Use when displaying pending connection requests for a specific ministry opportunity or managing volunteer assignments in Rock mobile
+description: Use when configuring or troubleshooting a Rock mobile connection request list block for displaying pending connection opportunities and managing incomplete requests
 source: "https://community.rockrms.com/developer/mobile-docs"
 sourceLabel: Mobile Docs
 ---
@@ -13,9 +13,9 @@ Note
 
 Requests that are in a "Connected" state are not pulled down by this block. The purpose is to manage requests that have not been completed yet.
 
-To summarize, this block looks for the `connectionOpportunityGuid` as a [query string parameter](https://community.rockrms.com/developer/mobile-docs/essentials/blocks/connection/connection-request-list#using-query-parameters) upon loading. You can provide this specifically (demonstrated below), or by following these steps below:
+To summarize, this block looks for the `connectionOpportunityGuid` as a [query string parameter](https://community.rockrms.com/developer/mobile-docs/essentials/blocks/connection/legacy/connection-request-list-legacy#using-query-parameters) upon loading. You can provide this specifically (demonstrated below), or by following these steps below:
 
-1. Create another page that contains a [Connection Opportunity List](https://community.rockrms.com/developer/mobile-docs/essentials/blocks/connection/connection-opportunity-list) (COL) block.
+1. Create another page that contains a [Connection Opportunity List](https://community.rockrms.com/developer/mobile-docs/essentials/blocks/connection/legacy/connection-opportunity-list-legacy) (COL) block.
 2. Set the 'Detail Page' setting within the COL block to a page that contains this block.
 3. Navigate to the page containing the COL block, and tap!
 
@@ -56,7 +56,7 @@ Conveniently, that is the same value we just obtained by getting the connection 
 
 Deploy, press that button, and *voila*! The block should display the list of connection opportunities for the specific type. So now you can see how to show the opportunities for one specific connection type... but that would rarely be the actual intended use case.
 
-If only there was some type of list to display all of the opportunities for us... Oh, wait! There is. To fetch all of your connection opportunities, create a new page with a '[Connection Opportunity List](https://community.rockrms.com/developer/mobile-docs/essentials/blocks/connection/connection-opportunity-list)' block, and set the 'Detail Page' to a page containing this block.
+If only there was some type of list to display all of the opportunities for us... Oh, wait! There is. To fetch all of your connection opportunities, create a new page with a '[Connection Opportunity List](https://community.rockrms.com/developer/mobile-docs/essentials/blocks/connection/legacy/connection-opportunity-list-legacy)' block, and set the 'Detail Page' to a page containing this block.
 
 ## Block Configuration
 
@@ -115,6 +115,6 @@ This is the page that is linked when a specific request is selected. You can see
 {% endif %}
 ```
 
-If you are lost, this is within the main for-loop of the [Request Template](https://community.rockrms.com/developer/mobile-docs/essentials/blocks/connection/connection-request-list), and by doing this, each opportunity passes its' individual Guid as a query string parameter for the detail page.
+If you are lost, this is within the main for-loop of the [Request Template](https://community.rockrms.com/developer/mobile-docs/essentials/blocks/connection/legacy/connection-request-list-legacy), and by doing this, each opportunity passes its' individual Guid as a query string parameter for the detail page.
 
-Psst! This setting would be utilized as intended if it was set to a page that had the [Connection Request Detail](https://community.rockrms.com/developer/mobile-docs/essentials/blocks/connection/connection-request-detail) block on it.
+Psst! This setting would be utilized as intended if it was set to a page that had the [Connection Request Detail](https://community.rockrms.com/developer/mobile-docs/essentials/blocks/connection/legacy/connection-request-detail-legacy) block on it.

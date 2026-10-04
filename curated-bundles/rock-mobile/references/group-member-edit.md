@@ -9,7 +9,7 @@ Edits a member of a group.
 
 ## Getting Content
 
-Content is passed in through a page parameter, referenced as `GroupMemberGuid`. There are quite a few examples of passing page parameters (also known as query parameters) lying around the documentation, and here is a great [example](https://community.rockrms.com/developer/mobile-docs/essentials/blocks/connection/connection-request-list#using-query-parameters).
+Content is passed in through a page parameter, referenced as `GroupMemberGuid`. There are quite a few examples of passing page parameters (also known as query parameters) lying around the documentation, and here is a great [example](https://community.rockrms.com/developer/mobile-docs/essentials/blocks/connection/legacy/connection-request-list-legacy#using-query-parameters).
 
 ### Page parameters
 

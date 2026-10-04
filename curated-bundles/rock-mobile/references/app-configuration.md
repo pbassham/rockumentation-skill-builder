@@ -61,6 +61,8 @@ Be aware that certain special characters will not compile when it's time to publ
 
 **Better**: Gr33nToolb0x, ctr2p7
 
+Keep a copy of this key somewhere safe outside Rock. If it's ever lost, see [API Key](https://community.rockrms.com/developer/mobile-docs/essentials/advanced-topics/api-key) for how to restore it.
+
 ## Flyout XAML
 
 If you've selected an Application Type of Flyout then you can customize what appears inside via XAML. The default template will include a `<ListView>` that references a `{Binding MenuItems}` source; this will automatically add any pages with the Display In Navigation option checked. It is recommended to leave this alone unless you need custom functionality.

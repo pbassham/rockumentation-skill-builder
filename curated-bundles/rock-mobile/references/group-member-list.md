@@ -11,7 +11,7 @@ M v5.0 C v15.1 [Integrated Scroll](https://community.rockrms.com/page/3516?slu
 
 ## Getting Content
 
-Context is passed in through a page parameter, referenced as `GroupGuid`. There are quite a few examples of passing page parameters (also known as query parameters) lying around the documentation, and here is a great [example](https://community.rockrms.com/developer/mobile-docs/essentials/blocks/connection/connection-request-list#using-query-parameters).
+Context is passed in through a page parameter, referenced as `GroupGuid`. There are quite a few examples of passing page parameters (also known as query parameters) lying around the documentation, and here is a great [example](https://community.rockrms.com/developer/mobile-docs/essentials/blocks/connection/legacy/connection-request-list-legacy#using-query-parameters).
 
 The parameters that this block looks for are as follows.
 

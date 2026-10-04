@@ -133,6 +133,10 @@ If Lava meant for the device is showing up as literal text, rendering empty, or 
 2. **Both Process Lava On Server and Process Lava On Client are checked, but the client-side Lava is not wrapped in `{% raw %}` `{% endraw %}`.** The server processed it first and there was nothing left for the device to run. Client-only filters such as `PersonImpersonationToken` fail on the server for the same reason.
 3. **The block ignores the settings.** Most mobile blocks show these checkboxes but do nothing with them. Only Content and Hero honor both; a few template blocks honor only the client setting. See the block table under Mixing Server and Client Lava in the [Render Pipeline](https://community.rockrms.com/essentials/advanced-topics/render-pipeline) article.
 
+## API Key Missing After a Person Merge
+
+If the app stops loading content after someone merged person records, the app's API key may have been deleted or moved to another person. The API Key field on your mobile application's detail page is often blank, and saving a new value fails. See [API Key](https://community.rockrms.com/developer/mobile-docs/essentials/advanced-topics/api-key) to find out what happened and restore it.
+
 ---
 
 ## 🎨 Styling {#styling}

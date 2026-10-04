@@ -3,7 +3,7 @@ name: rock-mobile
 description: "Use when building a Rock Mobile app — iOS, Android, Apple TV, or Roku. Covers the Mobile Docs (shell setup, blocks, styling, deep links, push, app store submission), Apple TV docs, and Roku docs. This is the bundle to load whenever the question is about a native Rock-powered mobile or TV app."
 metadata:
   generator: rockumentation-skill-builder
-  generatedAt: 2026-09-27T09:17:46.622Z
+  generatedAt: 2026-10-04T10:59:44.813Z
   sources:
     - url: "https://community.rockrms.com/developer/mobile-docs"
       label: Mobile Docs
@@ -29,6 +29,7 @@ This skill bundles 119 references from 3 sources. Load topics on demand via the 
 - [Deep Linking](references/deep-linking.md) — Use when configuring deep links to route external URLs directly into a Rock mobile application on iOS or Android
 - [Proximity Attendance](references/proximity-attendance.md) — Use when configuring automatic check-in/check-out via Bluetooth beacons or implementing proximity-based attendance tracking in mobile apps
 - [Render Pipeline](references/render-pipeline.md) — Use when understanding how Rock Mobile renders blocks through server Lava processing, client-side rendering, XAML parsing, and visual tree construction stages
+- [API Key](references/api-key.md) — Use when users need to manage, protect, or troubleshoot their mobile app's API key, including setup, security best practices, and fixing broken keys
 - [Animations](references/animations.md) — Use when building UI animations in Rock Mobile to respond to user actions or view loading events
 - [Content](references/content.md) — Use when building Rock Mobile app layouts that display dynamic or static content using Lava and XAML markup
 - [Content Collection View](references/content-collection-view.md) — Use when helping users search, filter, and sort content across multiple content collection sources in Rock Mobile
@@ -42,10 +43,11 @@ This skill bundles 119 references from 3 sources. Load topics on demand via the 
 - [Chat View](references/chat-view.md) — Use when a user needs help setting up or using real-time chat messaging in Rock Mobile, including channels, direct messages, threads, and group communications
 - [Communication Entry](references/communication-entry.md) — Use when user needs to send bulk email or SMS messages to groups of recipients in Rock Mobile
 - [SMS Conversation](references/sms-conversation.md) — Use when a user needs to display, configure, or style SMS text message conversations in a Rock mobile app interface
-- [Connection Type List](references/connection-type-list.md) — Use when displaying a mobile list of connection types with customizable templates and request counts
-- [Connection Opportunity List](references/connection-opportunity-list.md) — Use when displaying available connection opportunities for a specific connection type in Rock mobile applications
-- [Connection Request List](references/connection-request-list.md) — Use when displaying pending connection requests for a specific ministry opportunity or managing volunteer assignments in Rock mobile
 - [Connection Request Detail](references/connection-request-detail.md) — Use when displaying detailed information about a specific connection request including its status, activities, and contact options in a Rock mobile application
+- [Connection Type List (Legacy)](references/connection-type-list-legacy.md) — Use when displaying or configuring a list of connection types with customizable templates and request counts
+- [Connection Opportunity List (Legacy)](references/connection-opportunity-list-legacy.md) — Use when displaying a list of connection opportunities filtered by a single connection type in Rock mobile applications
+- [Connection Request List (Legacy)](references/connection-request-list-legacy.md) — Use when configuring or troubleshooting a Rock mobile connection request list block for displaying pending connection opportunities and managing incomplete requests
+- [Connection Request Detail (Legacy)](references/connection-request-detail-legacy.md) — Use when displaying or customizing details for a specific connection request, including styling, templates, and activity information in Rock mobile
 - [Notes](references/notes.md) — Use when displaying, adding, or editing notes for people or other entities in Rock Mobile applications
 - [Search](references/search.md) — Use when implementing a search interface with configurable search components, result templates, and search history display functionality in Rock Mobile
 - [Smart Search](references/smart-search.md) — Use when implementing multi-component search functionality to find people by birthdate, name, email, address or groups by name with configurable results display
