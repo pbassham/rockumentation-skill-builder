@@ -3,7 +3,7 @@ name: rock-advanced
 description: "Use when a Rock RMS staff developer is building inside Rock day to day — authoring Lava templates and shortcodes, writing Helix blocks, designing and building Rock-powered websites, writing custom SQL reports or dataview filters, and theming/styling. Covers Lava (filters, tags, commands, shortcodes), Helix, Designing and Building Websites Using Rock, Styling, the SQL Style Guide, Dynamic LINQ syntax, and shortcode authoring."
 metadata:
   generator: rockumentation-skill-builder
-  generatedAt: 2026-10-04T10:58:56.489Z
+  generatedAt: 2026-10-11T09:15:54.960Z
   sources:
     - url: "https://community.rockrms.com/Lava"
       label: Lava
@@ -51,12 +51,12 @@ This skill bundles 73 references from 7 sources. Load topics on demand via the i
 - [Adaptive Message](references/adaptive-message.md) — Use when retrieving personalized adaptive messages for individuals in message or category mode using Lava commands
 - [Cache](references/cache.md) — Use when configuring caching strategies for Lava commands to improve performance, including setting cache keys, duration, and handling personalized cached content
 - [Calendar Events](references/calendar-events.md) — Use when you need to retrieve upcoming calendar events from a specific calendar, optionally filtered by audience, campus, or date range
-- [DB Transaction](references/db-transaction.md) — Use when you need to bundle multiple database modifications together so all changes rollback if any operation fails
+- [DB Transaction](references/db-transaction.md) — Use when implementing database transactions to modify multiple entities atomically with rollback on failure
 - [Entity](references/entity.md) — Use when querying Rock entities like People, Groups, and Transactions with Lava parameters such as where, filtering, sorting, limiting results, or applying security settings
-- [Delete Entity](references/delete-entity.md) — Use when user needs to delete database entities in Lava workflows with security controls and validation error handling
-- [Modify Entity](references/modify-entity.md) — Use when updating or inserting entity properties and attributes in Rock RMS databases through Lava commands
+- [Delete Entity](references/delete-entity.md) — Use when you need to delete database entities using Lava's deleteentity command with security and validation options
+- [Modify Entity](references/modify-entity.md) — Use when updating or inserting entity properties and attributes in Rock RMS database via Lava commands
 - [Event Scheduled Instance](references/event-scheduled-instance.md) — Use when querying recurring event instances, scheduling calendars, or displaying upcoming event occurrences with iCal pattern support
-- [Execute](references/execute.md) — Use when user needs to embed and execute C# code directly within Lava templates to generate dynamic content or perform complex logic
+- [Execute](references/execute.md) — Use when user needs to execute custom C# code within Lava templates or needs to reference external assemblies and classes in Rock
 - [Interaction Content Channel Item Write](references/interaction-content-channel-item-write.md) — Use when logging content channel item interactions programmatically or tracking user engagement with content channel items using Lava commands
 - [Interaction Intent Write](references/interaction-intent-write.md) — Use when you need to log interaction records for intents in Rock using the InteractionIntentWrite Lava command
 - [Interaction Write](references/interaction-write.md) — Use when you need to log interaction records in Lava with channel type, component, and entity details

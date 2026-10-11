@@ -1,5 +1,5 @@
 ---
-description: Use when updating or inserting entity properties and attributes in Rock RMS databases through Lava commands
+description: Use when updating or inserting entity properties and attributes in Rock RMS database via Lava commands
 source: "https://community.rockrms.com/Lava"
 sourceLabel: Lava
 ---

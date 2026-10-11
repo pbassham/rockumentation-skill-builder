@@ -1,5 +1,5 @@
 ---
-description: Use when user needs to delete database entities in Lava workflows with security controls and validation error handling
+description: Use when you need to delete database entities using Lava's deleteentity command with security and validation options
 source: "https://community.rockrms.com/Lava"
 sourceLabel: Lava
 ---

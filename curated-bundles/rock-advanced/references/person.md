@@ -958,6 +958,80 @@ If the input cannot be resolved to a valid Person reference, only the request fi
 
  
 
+# PersonAvatarUrl
+
+Server: v20.1
+
+Returns a URL for a person's avatar image, showing their photo when they have one and their initials otherwise.
+
+**Additional Details**
+
+The input can be a Person object (such as `CurrentPerson`) or a person's Id, IdKey or Guid.
+
+The URL shows the person's photo for seven days from the start of the day it was created. After that it shows their initials instead (or an icon when there are no initials), and the image still loads. Because of this, build the URL when the page or email renders rather than storing it. A saved copy, such as one in a persisted dataset, a Lava `cache` block or saved HTML, shows initials once it expires.
+
+This filter has two optional input parameters:
+
+- **Size** (optional): The width and height of the avatar in pixels. If it's blank or not passed, the avatar uses its default size of 128. The maximum is 1024.
+- **Root URL** (optional): If a value of true or 'rootUrl' is passed, the URL includes Rock's public application root, making it a complete URL. Use this in emails and anywhere else the image loads outside your Rock site. If it's not passed, the URL is site-relative.
+
+To pass a Root URL without setting a size, leave the size blank: `{{ CurrentPerson | PersonAvatarUrl:'',true }}`
+
+**Example:**
+
+```
+"CurrentPerson": {
+    "FullName": "Ted Decker",
+    "Id": 42,
+    "IdKey": "Xy7Qa",
+    "Guid": "8fedc6ee-8630-41ed-9fc5-c7157fd1eaa4",
+    "PhotoId": 1234
+    ...
+}
+```
+
+```
+<img src="{{ CurrentPerson | PersonAvatarUrl }}" alt="{{ CurrentPerson.FullName }}">
+
+<img src="{{ CurrentPerson | PersonAvatarUrl:64 }}" width="64" height="64" alt="{{ CurrentPerson.FullName }}">
+
+<img src="{{ CurrentPerson | PersonAvatarUrl:64,true }}" width="64" height="64" alt="{{ CurrentPerson.FullName }}">
+
+{{ 42 | PersonAvatarUrl }}
+
+{{ 'Xy7Qa' | PersonAvatarUrl }}
+
+{{ '8fedc6ee-8630-41ed-9fc5-c7157fd1eaa4' | PersonAvatarUrl }}
+```
+
+```
+<img src="/GetAvatar.ashx?fileIdKey=a1B2c3D4e5&AgeClassification=Adult&Gender=Male&RecordTypeId=1&Text=TD&e=2026-10-14T00%3A00%3A00&t=kW3f9xQ2rN8qVb0yLk" alt="Ted Decker">
+
+<img src="/GetAvatar.ashx?fileIdKey=a1B2c3D4e5&AgeClassification=Adult&Gender=Male&RecordTypeId=1&Text=TD&Size=64&e=2026-10-14T00%3A00%3A00&t=kW3f9xQ2rN8qVb0yLk" width="64" height="64" alt="Ted Decker">
+
+<img src="https://www.rocksolidchurchdemo.com/GetAvatar.ashx?fileIdKey=a1B2c3D4e5&AgeClassification=Adult&Gender=Male&RecordTypeId=1&Text=TD&Size=64&e=2026-10-14T00%3A00%3A00&t=kW3f9xQ2rN8qVb0yLk" width="64" height="64" alt="Ted Decker">
+
+/GetAvatar.ashx?fileIdKey=a1B2c3D4e5&AgeClassification=Adult&Gender=Male&RecordTypeId=1&Text=TD&e=2026-10-14T00%3A00%3A00&t=kW3f9xQ2rN8qVb0yLk
+
+/GetAvatar.ashx?fileIdKey=a1B2c3D4e5&AgeClassification=Adult&Gender=Male&RecordTypeId=1&Text=TD&e=2026-10-14T00%3A00%3A00&t=kW3f9xQ2rN8qVb0yLk
+
+/GetAvatar.ashx?fileIdKey=a1B2c3D4e5&AgeClassification=Adult&Gender=Male&RecordTypeId=1&Text=TD&e=2026-10-14T00%3A00%3A00&t=kW3f9xQ2rN8qVb0yLk
+```
+
+**Note:**  
+
+**Same URL as Person.PhotoUrl:** `{{ Person.PhotoUrl }}` returns the same kind of URL. Use this filter when you have an Id, IdKey or Guid instead of a Person object, or when you need a size or a complete URL for an email.
+
+**Display options:** You can add display options to the end of the URL. These change how the avatar looks without affecting whether the photo shows. For example: `{{ CurrentPerson | PersonAvatarUrl:128 }}&Radius=circle&Bold=true`. Common options are `Radius` (a number of pixels, or `circle`), `Style=icon`, `BackgroundColor` and `ForegroundColor` (a hex value without the #) and `Bold=true`. Set the size with the filter's Size parameter rather than adding `Size` to the URL.
+
+**Build URLs with this filter:** An avatar URL typed out by hand, such as `/GetAvatar.ashx?PhotoId=1234` or `/GetAvatar.ashx?PersonId=42`, shows initials only. Only URLs built by this filter or `Person.PhotoUrl` show the photo.
+
+**Security:** This filter doesn't check permissions on the person, the same as `PersonById` and `PersonByGuid`. Each time the image loads, Rock confirms the URL hasn't been changed and hasn't expired. If the Person Image file type requires view security, Rock also checks that the viewer is allowed to see the photo and shows initials to anyone who isn't.
+
+**Unknown person:** If no person matches the input, the filter returns an empty string. Wrap the `<img>` in an `{% if %}` when the input might not match anyone.
+
+ 
+
 # PersonByAliasGuid
 
 Server: v8.4
