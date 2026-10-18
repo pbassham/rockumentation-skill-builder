@@ -860,16 +860,20 @@ The token that is created identifies a person and a corresponding action. It req
 
 This filter has one required input parameter:
 
-1. Action: The name of an action that the corresponding block knows how to decode.
+1. Action: The name of an action that the corresponding block knows how to decode. It must match the block's action exactly.
 
-Here is the list of blocks that can decode these tokens:
+Here is the list of blocks that can decode these tokens, with the action each one expects:
 
-- Assessment Blocks (Conflict Profile, DISC, EQ Inventory, Gifts Assessment, Motivators)
-- Email Preference Entry
-- Group Schedule Confirmation
-- Photo Opt Out
-- RSVP Response
-- GetCommunication.ashx (communication viewer)
+- Assessment Blocks (Conflict Profile, DISC, EQ Inventory, Gifts Assessment, Motivators): `Assessment`
+- Contribution Statement Generator: `contribution-statement`
+- Email Preference Entry: `Unsubscribe`
+- GetCommunication.ashx (communication viewer): `Unsubscribe`
+- Group Schedule Confirmation: `ScheduleConfirm`
+- Photo Opt Out: `OptOut`
+- Pledge Detail: `pledge`
+- RSVP Response: `RSVP`
+- Transaction Entry and Transaction Entry (Legacy): `transaction`
+- Utility Payment Entry: `transaction`
 
 **Example:**
 
@@ -880,8 +884,8 @@ Here is the list of blocks that can decode these tokens:
 ```
 
 ```
-Your token is: 
-{{ Person | PersonActionIdentifier: 'photo-opt-out' }}
+Your token is:
+{{ Person | PersonActionIdentifier: 'OptOut' }}
 ```
 
 ```
@@ -890,16 +894,7 @@ Your token is: EAAAAEgOBBKHKHzZ7vg2Jl6mSJ!2fQsI6lz3QhqRsjoYp4EgKpdSkvE2gR2nG4yq6
 
 **Note:**  
 
-It is intended for use with specific blocks that need to know who a person is and what action they are attempting to perform, but without authenticating the person to log them into the site.
-
-The following is a list of blocks/items that can decode these tokens:
-
-- Assessment Blocks (Conflict Profile, DISC, EQ Inventory, Gifts Assessment, Motivators)
-- Email Preference Entry
-- Group Schedule Confirmation
-- Photo Opt Out
-- RSVP Response
-- GetCommunication.ashx
+It is intended for use with specific blocks that need to know who a person is and what action they are attempting to perform, but without authenticating the person to log them into the site. See the list above for each block and the action it expects.
 
  
 
@@ -1171,7 +1166,7 @@ This filter has one required input parameter:
 ```
 
 ```
-{% assign person = PersonActionIdentifier | PersonByPersonActionIdentifier: 'photo-opt-out' %}
+{% assign person = PersonActionIdentifier | PersonByPersonActionIdentifier: 'OptOut' %}
 Welcome {{ person.NickName }}
 ```
 

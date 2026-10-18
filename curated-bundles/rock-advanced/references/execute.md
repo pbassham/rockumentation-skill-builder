@@ -1,5 +1,5 @@
 ---
-description: "Use when user needs to execute custom C# code within Lava templates or needs to reference external assemblies and classes in Rock"
+description: "Use when you need to execute custom C# code within Lava templates to generate dynamic output or perform complex scripting tasks"
 source: "https://community.rockrms.com/Lava"
 sourceLabel: Lava
 ---

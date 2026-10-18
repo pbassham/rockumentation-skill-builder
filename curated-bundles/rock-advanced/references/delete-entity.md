@@ -1,5 +1,5 @@
 ---
-description: Use when you need to delete database entities using Lava's deleteentity command with security and validation options
+description: "Use when deleting entities from the database in Lava, including syntax, parameters, security settings, and handling delete results"
 source: "https://community.rockrms.com/Lava"
 sourceLabel: Lava
 ---

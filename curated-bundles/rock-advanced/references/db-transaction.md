@@ -1,5 +1,5 @@
 ---
-description: Use when implementing database transactions to modify multiple entities atomically with rollback on failure
+description: Use when user needs to bundle multiple database modifications together with automatic rollback on failure to maintain data consistency
 source: "https://community.rockrms.com/Lava"
 sourceLabel: Lava
 ---
