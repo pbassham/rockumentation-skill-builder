@@ -94,7 +94,7 @@ If selected (and there is a valid reminder type), a 'Reminder' button will be sh
 
 ## Add Contact {#add-contact}
 
-C19.0S19.0
+C19.0M19.0
 
 ![](https://community.rockrms.com/GetImage.ashx?Id=74773)
 
@@ -127,7 +127,7 @@ Adds a new contact to a person's Outreach Toolbox, either by hand or by importin
 
 ## Contact Profile {#contact-profile}
 
-C19.0S19.0
+C19.0M19.0
 
 ![](https://community.rockrms.com/GetImage.ashx?Id=74771)
 
@@ -160,7 +160,7 @@ This block has no settings.
 
 ## My Contacts {#my-contacts}
 
-C19.0S19.0
+C19.0M19.0
 
 ![](https://community.rockrms.com/GetImage.ashx?Id=74770)
 
@@ -194,7 +194,7 @@ A searchable list of the people a person is caring for through the Outreach Tool
 
 ## Outreach Dashboard {#outreach-dashboard}
 
-C19.0S19.0
+C19.0M19.0
 
 ![](https://community.rockrms.com/GetImage.ashx?Id=74765)
 
@@ -235,7 +235,7 @@ The home of the Outreach Toolbox. It greets the person, shows their impact, surf
 
 ## Outreach Onboarding {#outreach-onboarding}
 
-C19.0S19.0
+C19.0M19.0
 
 ![](https://community.rockrms.com/GetImage.ashx?Id=74767)
 
@@ -270,7 +270,7 @@ The first-run flow for the Outreach Toolbox. It explains the toolbox, captures t
 
 ## Outreach Recent Activity {#outreach-recent-activity}
 
-C19.0S19.0
+C19.0M19.0
 
 ![](https://community.rockrms.com/GetImage.ashx?Id=74768)
 
@@ -301,7 +301,7 @@ A compact block that surfaces a person's recent outreach activity. It hides itse
 
 ## Touchpoint Detail {#touchpoint-detail}
 
-C19.0S19.0
+C19.0M19.0
 
 ![](https://community.rockrms.com/GetImage.ashx?Id=74769)
 

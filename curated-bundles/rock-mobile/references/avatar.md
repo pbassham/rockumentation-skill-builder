@@ -17,12 +17,16 @@ Visit the link below to learn more about this Rock feature:
 
 This control constructs an avatar image source based on the provided parameters or displays the current person's avatar.
 
+Important
+
+Starting with Rock v20.1, `GetAvatar.ashx` only shows a person's photo on a URL the server signed. A `PersonGuid` on its own can't unlock a photo, so `<Rock:Avatar PersonGuid="..." />` shows initials for anyone other than the current person. Pass the person's photo URL in `Source` as well, as shown in the examples below. Signed URLs expire after about seven days, so a photo falls back to initials if page content is cached longer than that.
+
 ## Properties
 
 | Property | Type | Description |  |
 | --- | --- | --- | --- |
-| Source | string | The direct source to the Avatar URL. |  |
-| PersonGuid | Guid | The person to display the avatar for. |  |
+| Source | string | The photo URL the server built for the person, such as their `PhotoUrl`. When it points at `GetAvatar.ashx`, the avatar styling properties below are added to it. M19.6 |  |
+| PersonGuid | Guid | The person to display the avatar for. Used to refresh the avatar when that person's photo changes. |  |
 | Rounded | bool | Whether or not the avatar should be rounded. |  |
 | ShowStroke | bool | Whether or not a default stroke shape should be applied to the avatar. |  |
 | AvatarBackgroundColor | Color | The background color of the avatar. This is passed along to the GetAvatar request. |  |
@@ -41,7 +45,8 @@ An Avatar refreshes itself when a person's photo is updated through the [UpdateP
 
 | Form | Refreshes Automatically? |
 | --- | --- |
-| `<Rock:Avatar PersonGuid="..." />` | Yes, when that person's photo changes |
+| `<Rock:Avatar Source="..." PersonGuid="..." />` | Yes, when that person's photo changes M19.6 |
+| `<Rock:Avatar PersonGuid="..." />` | Yes, when that person's photo changes. On Rock v20.1 and later this shows initials unless it is the current person. |
 | `<Rock:Avatar />` | Yes, for the current person |
 | `<Rock:Avatar Source="..." />` | No. Displays whatever URL you supplied, and only changes when that value does |
 | Styled avatars with no `PersonGuid` (initials, icon,  custom text) | No, they render no photo |
@@ -54,18 +59,19 @@ When using `PersonGuid`, the control may append a cache parameter to the genera
 
 ## Examples
 
-Both forms below produce a valid avatar. Which one to use depends on whether the photo can change while the page is open.
+Which form to use depends on whose avatar you are showing.
 
-Pass `PersonGuid` when the photo might be updated in the app while this avatar is on screen. The control builds its own URL, so it refreshes itself when that person's photo changes.
+For anyone other than the current person, pass both `Source` and `PersonGuid`. `Source` supplies the photo URL the server built, and `PersonGuid` lets the avatar refresh when that person's photo changes. This works on every Rock version. `PhotoUrl` is a site-relative path, so prefix it with the public application root, and use `Escape` since the URL contains `&`.
+
+```
+<Rock:Avatar Source="{{ 'Global' | Attribute:'PublicApplicationRoot' }}{{ member.Person.PhotoUrl | Escape }}"
+   PersonGuid="{{ member.Person.Guid }}" />
+```
+
+For the current person, `PersonGuid` on its own is enough. The app already has their photo URL from the server, so the avatar shows and refreshes their photo without a `Source`.
 
 ```
 <Rock:Avatar PersonGuid="{{ CurrentPerson.Guid }}" />
-```
-
-Pass `Source` when you already have a person object and the photo will not change while the page is open, such as a read-only detail view or a long list. This avoids a person lookup on the server for every avatar request, so it is the lighter option at scale, but the image will not update until the value you bound to changes.  
-
-```
-<Rock:Avatar Source="{{ CurrentPerson.PhotoUrl | Escape }}" />
 ```
 ```
 <Rock:Avatar AvatarBackgroundColor="{Rock:PaletteColor App-Primary-Soft}" 

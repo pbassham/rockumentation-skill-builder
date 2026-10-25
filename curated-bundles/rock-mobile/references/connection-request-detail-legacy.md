@@ -1,5 +1,5 @@
 ---
-description: "Use when displaying or customizing details for a specific connection request, including styling, templates, and activity information in Rock mobile"
+description: "Use when displaying detailed information about a specific connection request, including its status, activities, and contact options in Rock mobile applications"
 source: "https://community.rockrms.com/developer/mobile-docs"
 sourceLabel: Mobile Docs
 ---

@@ -167,7 +167,15 @@ Then create a second for Google in the same pattern. It is ok to use the same pa
 
 ## Shell Update Requirements {#shell-update-requirements}
 
-In general, the goal of Rock Mobile is to always keep shell versions compatible with future versions of Rock Core so that you aren't required to update until you want access to the latest additions. That being said, every app shell will need to be updated infrequently to target the latest versions of Android and iOS, otherwise your app may be unavailable to those on the latest OS versions.
+Every app shell needs to be updated periodically to target the latest versions of Android and iOS. Apple and Google require apps to keep up with their newest OS releases, and an app that falls behind may become unavailable to people on those versions. Rock and Rock Mobile each release about two major versions per year, so plan on a shell update at least once a year to stay current, available on the latest devices, and covered by the latest security fixes.
+
+Outside of OS requirements, older shells generally keep working as you update Rock. Some new features do require a newer shell version, so check the release notes when you upgrade Rock.
+
+## Match Your Shell to Your Rock Version
+
+We recommend keeping your app's shell version at or below the version of Rock on your server. Each shell release is built and tested primarily against its matching version of Rock, so the best time to request a shell update is after you upgrade Rock.
+
+Running a shell that's newer than your Rock server isn't something we officially support. It will often work fine, but some features may depend on a newer version of Rock, and issues that only occur in this setup may not be prioritized.
 
 ## Android
 

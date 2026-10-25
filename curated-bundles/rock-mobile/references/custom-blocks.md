@@ -224,7 +224,7 @@ Java Keystores (.jks or .keystore) are binary files that serve as repositories o
 
 The keystore is generated and uploaded with the initial publish to Google Play and is used for all subsequent updates. It essentially denotes ownership, meaning it should not be shared and if it is lost, unless the app is enrolled into Play App Signing, access to the app is also lost.
 
-If you'd like to publish a Rock Mobile app over an existing Android app, the original keystore must be provided to the App Factory team (.jks or .keystore). If you worked with a development partner, you may need to reach out and get the keystore from them. In some cases, development partners use the same keystore to publish multiple apps, meaning they will not release the keystore to you. In this case, you will be required to publish a brand new app in the Google Play store.
+If you'd like to publish a Rock Mobile app over an existing Android app, the original keystore must be provided to the App Factory team (.jks or .keystore). If you worked with a development partner, you may need to reach out and get the keystore from them. In some cases, development partners use the same keystore to publish multiple apps, meaning they will not release the keystore to you. In this case, additional steps will be required to request the use of a new keystore file when uploading builds to the Google Play Console.
 
 ### Android App Bundle
 

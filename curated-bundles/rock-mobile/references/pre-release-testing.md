@@ -1,5 +1,5 @@
 ---
-description: Use when a user asks about testing pre-release versions of Rock Mobile or how to install beta builds through TestFlight or Firebase App Distribution
+description: "Use when asking about pre-release testing procedures, TestFlight setup, Firebase App Distribution, or how to access beta versions of Rock Mobile"
 source: "https://community.rockrms.com/developer/mobile-docs"
 sourceLabel: Mobile Docs
 ---
@@ -33,7 +33,7 @@ We only respond to and address issues reported on the [Rock Mobile Issues board]
 
 1. Install the [TestFlight app](https://apps.apple.com/us/app/testflight/id899247664) from the App Store, if you haven't already.
 2. Join the Community Testers group: open this link on your iOS device and tap Start Testing (or Accept, then Install): [https://testflight.apple.com/join/Q6nTq83v](https://testflight.apple.com/join/Q6nTq83v)
-3. Once installed, you'll notice the app icon shows a small dot before the app name on your home screen — this is how you know you're running a TestFlight build rather than the App Store version.
+3. Once installed, you'll notice the app icon shows a small dot before the app name on your home screen. This is how you know you're running a TestFlight build rather than the App Store version.
 4. Switching between available versions: open the TestFlight app, select the Rock Core app, and scroll down to **Previous Builds** to choose a different version to install.
 
 Apple's own guide covers installing TestFlight, accepting invitations, and general tester behavior in more detail:  
@@ -43,13 +43,23 @@ Apple's own guide covers installing TestFlight, accepting invitations, and gener
 
 ![](https://community.rockrms.com/GetImage.ashx?Id=75332)
 
-1. Join the Community Testers group: open this link on your Android device: [https://appdistribution.firebase.dev/i/88ce459a5eccaddf](https://appdistribution.firebase.dev/i/88ce459a5eccaddf)
-2. Sign in with a Google account and accept the invitation.
-3. We're distributing APK files, so after accepting the invite you'll download and install the APK directly rather than going through the Play Store. Android may prompt you to allow installs from this source the first time — approve that prompt to continue.
-4. **When moving to a different APK versions, it's best to:**
-	1. Force stop the app
-		2. Clear its cache and storage/data
-		3. Uninstall it completely before installing the new APK. This avoids leftover data or config issues between versions.
+We recommend Firebase's **App Tester** app for Android testing. It keeps every pre-release Rock Mobile build in one place, so you can install the latest build and come back for the next one.
+
+App Tester isn't in the Google Play Store. You download it from the Firebase App Distribution site in your device's browser.
+
+1. Join the Community Testers group by opening this link on your Android device: [https://appdistribution.firebase.dev/i/88ce459a5eccaddf](https://appdistribution.firebase.dev/i/88ce459a5eccaddf)
+2. Sign in with a Google account and accept the invitation. Use this same Google account for every step that follows. Your access to test builds is tied to the account that accepted the invite.
+3. When the browser offers App Tester, download and install it. If you skipped that prompt, open `appdistribution.firebase.google.com` in your device's browser to find it again.
+4. Android may ask you to allow installs from this source. Approve that prompt to continue.
+5. Open App Tester, sign in with the same Google account, select the Rock Mobile build and tap Download. Once it installs, the app shows up on your home screen.
+
+**Stay up to date** - New pre-release builds show up in App Tester. A test build doesn't update itself the way the Play Store version does, so open App Tester and download the newest build whenever you're waiting on a specific fix.
+
+**Switch versions cleanly** - When moving to a different build, it's best to:
+
+- Force stop the app
+- Clear its cache and storage/data
+- Uninstall it completely before installing the new build. This avoids leftover data or config issues between versions.
 
 Firebase's tester guide covers accepting invitations and installing builds in more detail: [Get set up as a tester with App Distribution](https://firebase.google.com/docs/app-distribution/get-set-up-as-a-tester). If you run into installation problems, check their [troubleshooting & FAQ](https://firebase.google.com/docs/app-distribution/troubleshooting).
 

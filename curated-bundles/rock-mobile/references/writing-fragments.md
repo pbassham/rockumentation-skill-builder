@@ -1,5 +1,5 @@
 ---
-description: "Use when building Rock mobile endpoints that return XAML fragments, troubleshooting fragment rendering issues, or understanding namespace and Lava execution requirements for mobile responses"
+description: "Use when building XAML fragments for Rock Mobile endpoints to understand fragment structure rules, namespace requirements, and how Lava templating works server-side"
 source: "https://community.rockrms.com/developer/mobile-docs"
 sourceLabel: Mobile Docs
 ---
@@ -7,27 +7,27 @@ sourceLabel: Mobile Docs
 
 A **fragment** is the XAML your endpoint returns. Throughout these docs "fragment" always means the response body, never the page XAML that fired the request.
 
-This page is short on purpose: the rules below are the most common reason a fragment fails to render. The namespace rule in particular applies to **any** XAML the server sends the shell, so a Lava Application Content block's Initial Template plays by it too.
+This page is short on purpose: the rules below are the most common reason a fragment fails to render. The namespace rule in particular applies to **any** XAML the server sends the app, so a [Lava Application Content](https://community.rockrms.com/developer/mobile-docs/essentials/blocks/cms/lava-application-content) block's Initial Template plays by it too.
 
-## The rules
+## Fragment rules
 
-**One root element.** A fragment has exactly one root. If you need to return several cards, wrap them in a layout. HTMX allows sibling nodes for `append` and `prepend`; mobile does not.
+**One root element.** A fragment has exactly one root. If you need to return several cards, wrap them in a layout. HTMX accepts a response with several top-level nodes; mobile does not.
 
 **Lava runs on the server, not on the device.** Write as much Lava in your Code Template as you like. The device never evaluates Lava, so what it receives is the rendered result. That has a consequence worth its own section, **Where Lava runs**, below.
 
-## Why you must not declare xmlns
+## Namespaces
 
-The `Hx.*` attributes only resolve in the namespace the app sets up for you. If your fragment root declares its own `xmlns`, it overrides that for the whole fragment. Standard controls still work, so the fragment looks fine at a glance, but **every `Hx.*` attribute stops working** and your interactions silently do nothing.
+**Never declare `xmlns` in a fragment.** The `Hx.*` attributes only resolve in the namespace the app sets up for you. If your fragment root declares its own `xmlns`, it overrides that for the whole fragment. Standard controls still work, so the fragment looks fine at a glance, but **every `Hx.*` attribute stops working** and your interactions silently do nothing.
 
 ```
 <!-- Wrong. Hx.Get will not resolve anywhere inside this fragment. -->
 <VerticalStackLayout xmlns="http://schemas.microsoft.com/dotnet/2021/maui">
-    <Button Text="Load" Hx.Get="^/sink/rows" />
+    <Button Text="Load" Hx.Get="^/group-toolbox/rows" Hx.Target="RowList" />
 </VerticalStackLayout>
 
 <!-- Right. Let the wrapper handle namespaces. -->
 <VerticalStackLayout>
-    <Button Text="Load" Hx.Get="^/sink/rows" />
+    <Button Text="Load" Hx.Get="^/group-toolbox/rows" Hx.Target="RowList" />
 </VerticalStackLayout>
 ```
 

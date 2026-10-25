@@ -5,7 +5,7 @@ sourceLabel: Mobile Docs
 ---
 > **Path:** 
 
-C20.0S20.0
+C20.0M20.0
 
 Displays a single connection request and lets connectors work it from their phone.
 
@@ -60,7 +60,7 @@ Displays a single connection request and lets connectors work it from their phon
 
 ## My Connection Requests {#my-connection-requests}
 
-C20.0S20.0
+C20.0M20.0
 
 Displays every connection request assigned to the current person, across all opportunities, in one worklist.
 

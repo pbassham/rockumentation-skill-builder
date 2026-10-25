@@ -1,5 +1,5 @@
 ---
-description: "Use when understanding how Hx.* attributes cascade down the visual tree and which attributes inherit versus require explicit declaration on each element"
+description: Use when understanding how HTMX attributes cascade through the visual tree and which attributes can be inherited versus must be declared per-element
 source: "https://community.rockrms.com/developer/mobile-docs"
 sourceLabel: Mobile Docs
 ---
@@ -9,9 +9,9 @@ sourceLabel: Mobile Docs
 
 ```
 <VerticalStackLayout Hx.Target="Sidebar" Hx.Swap="inner">
-    <Button Text="Announcements" Hx.Get="^/sink/announcements" />
-    <Button Text="Events"        Hx.Get="^/sink/events" />
-    <Button Text="Serving"       Hx.Get="^/sink/serving" />
+    <Button Text="Announcements" Hx.Get="^/group-toolbox/announcements" />
+    <Button Text="Events"        Hx.Get="^/group-toolbox/events" />
+    <Button Text="Serving"       Hx.Get="^/group-toolbox/serving" />
 </VerticalStackLayout>
 ```
 
@@ -27,9 +27,9 @@ When a request fires, the app walks up from the initiating element looking for t
 | `Hx.Swap` | `Hx.Trigger` |
 | `Hx.Confirm` | `Hx.Id` |
 | `Hx.Prompt` | `Hx.PageTitle` |
-| `Hx.Indicator` | `Hx.Include` |
-| `Hx.Params` |  |
-| `Hx.Headers` |  |
+| `Hx.Indicator` | `Hx.SheetNavigationBar` |
+| `Hx.Params` | `Hx.SheetPresentation` |
+| `Hx.Headers` | `Hx.Include` |
 | `Hx.DisabledElt` |  |
 | `Hx.Validator` |  |
 | `Hx.Notification` |  |
@@ -37,15 +37,15 @@ When a request fires, the app walks up from the initiating element looking for t
 
 The "never" list is not arbitrary. A verb, a trigger, and an id are all specific to one element by definition; inheriting them would mean every child of a button became a button.
 
-`Hx.Include` is the one deliberate exception to HTMX parity. It carries element content (a list of parameters) rather than a selector, and automatic value inclusion already covers the "gather values from up the tree" case, so it stays per-element. See [Forms and Values](https://community.rockrms.com/developer/mobile-docs/essentials/lava/lava-application/forms-and-values).
+`Hx.Include` is the one deliberate exception to HTMX parity. It carries element content (a list of parameters) rather than a selector, and automatic value inclusion already covers the "gather values from up the tree" case, so it stays per-element. See [Forms and Values](https://community.rockrms.com/developer/mobile-docs/essentials/lava/helix-lava-applications/forms-and-values).
 
-## An attribute inherits as one value, not as parts
+## Whole-value inheritance
 
 The walk finds the nearest ancestor that sets the property and takes **its whole value**. For most attributes that distinction never comes up, because the value is a single thing: one id, one message, one route.
 
-It matters for `Hx.Swap`, which packs a strategy and its animation modifiers into one string. A child that wants different motion cannot override just the `animate:` part; it has to restate the strategy too, because its own declaration replaces the ancestor's entirely. See [Requests and Targeting](https://community.rockrms.com/developer/mobile-docs/essentials/lava/lava-application/requests-and-targeting#overriding-an-inherited-animation-means-restating-the-strategy).
+It matters for `Hx.Swap`, which packs a strategy and its animation modifiers into one string. A child that wants different motion cannot override just the `animate:` part; it has to restate the strategy too, because its own declaration replaces the ancestor's entirely. See [Swaps and Animations](https://community.rockrms.com/developer/mobile-docs/essentials/lava/helix-lava-applications/swaps-and-animations).
 
-## Inheritance crosses fragment boundaries
+## Across fragments
 
 The walk happens when the request fires, up through the screen as it exists at that moment. A swapped-in fragment is part of that screen, so **a fragment inherits from the container it landed in**, even though the two were authored in separate endpoints and never saw each other.
 
@@ -54,7 +54,7 @@ Declare the target once, on the page:
 ```
 <!-- On the page. Anything inside Detail targets Detail. -->
 <VerticalStackLayout Hx.Id="Detail" Hx.Target="Detail" Hx.Swap="inner">
-    <Button Text="Load page 1" Hx.Get="^/sink/detail?page=1" />
+    <Button Text="Load page 1" Hx.Get="^/group-toolbox/detail?page=1" />
 </VerticalStackLayout>
 ```
 
@@ -64,7 +64,7 @@ Now the fragment that lands there needs no target at all:
 <!-- Returned by the endpoint. Note: no Hx.Target, no Hx.Swap anywhere. -->
 <VerticalStackLayout>
     <Label Text="Page 1" />
-    <Button Text="Next" Hx.Get="^/sink/detail?page=2" />
+    <Button Text="Next" Hx.Get="^/group-toolbox/detail?page=2" />
 </VerticalStackLayout>
 ```
 
@@ -72,7 +72,7 @@ Tapping **Next** refills `Detail`. The walk starts at the button, leaves the fra
 
 ## Hx.Disinherit
 
-| Property | Type | Description | **Inherits** |
+| Property | Type | Description | Inherits |
 | --- | --- | --- | --- |
 | `Hx.Disinherit` | string | Property names this element's descendants should stop inheriting, or `*` for all. | No |
 
@@ -81,15 +81,15 @@ Names are space- or comma-separated, and the `Hx.` prefix is optional. Matching 
 ```
 <VerticalStackLayout Hx.Target="Sidebar" Hx.Swap="inner">
 
-    <Button Text="Updates the sidebar" Hx.Get="^/sink/side" />
+    <Button Text="Updates the sidebar" Hx.Get="^/group-toolbox/side" />
 
     <VerticalStackLayout Hx.Disinherit="Target Swap">
-        <!-- Falls back to the block default instead of Sidebar. -->
-        <Button Text="Updates the block" Hx.Get="^/sink/main" />
+        <!-- Ignores Sidebar and falls back to the default: it fills itself. -->
+        <ContentView Hx.Get="^/group-toolbox/main" Hx.Trigger="load" />
     </VerticalStackLayout>
 </VerticalStackLayout>
 ```
 
 Note
 
-An element's own `Hx.Disinherit` does not affect that element, only its descendants. It also hides the element's **own** value from them, the same as HTMX's `hx-disinherit`. If the inner layout above declared its own `Hx.Target`, the button inside it still would not see it. To give the children a new target, put it on each child, or on a layout nested inside this one.
+An element's own `Hx.Disinherit` does not affect that element, only its descendants. It also hides the element's **own** value from them, the same as HTMX's `hx-disinherit`. If the inner layout above declared its own `Hx.Target`, the `ContentView` inside it still would not see it. To give the children a new target, put it on each child, or on a layout nested inside this one.

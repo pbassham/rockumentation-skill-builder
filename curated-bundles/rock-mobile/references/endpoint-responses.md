@@ -1,5 +1,5 @@
 ---
-description: "Use when building endpoint responses for XAML swaps, setting response headers like HX-Redirect or HX-Refresh, or handling error notifications in rock-mobile"
+description: "Use when building endpoint responses for rock-mobile that need to return XAML fragments, set redirect/refresh headers, or execute client commands"
 source: "https://community.rockrms.com/developer/mobile-docs"
 sourceLabel: Mobile Docs
 ---
@@ -11,8 +11,8 @@ Your endpoint's job is to return a XAML fragment. It can also send response head
 
 | Response | What the app does |
 | --- | --- |
-| **2xx with a body** | Treats the body as a XAML fragment and swaps it per the initiator's target and swap. |
-| **2xx with an empty body** | Nothing. This is a valid fire-and-forget response, not an error. |
+| **2xx with a body** | Treats the body as a XAML fragment and swaps it per the initiator's target and swap. For an items swap, the body is a JSON array instead. See [Data Lists and Paging](https://community.rockrms.com/developer/mobile-docs/essentials/lava/helix-lava-applications/data-lists-and-paging). |
+| **2xx with an empty body** | No swap. This is a valid fire-and-forget response, not an error, and response headers such as `X-Helix-Command` are still honored. For an items swap it counts as an empty array. |
 | **Non-2xx** | Treats the body as a **plain text message** and shows it in an error notification. |
 
 Note
@@ -28,6 +28,7 @@ Never return a XAML fragment with an error status code. Non-2xx bodies are never
 | `HX-Retarget` | Override the request's target id for this response. |
 | `HX-Reswap` | Override the request's swap strategy for this response. |
 | `X-Helix-Command` / `X-Helix-Command-Parameter` | **Mobile only.** Run a named client command. |
+| `X-Helix-Next` | **Mobile only.** The next page's route for an items swap. See [Data Lists and Paging](https://community.rockrms.com/developer/mobile-docs/essentials/lava/helix-lava-applications/data-lists-and-paging). |
 
 All of them are set the same way, with the existing `httpresponse` Lava command, and a template can send more than one. No server changes are needed.
 
@@ -71,7 +72,7 @@ Reloads the current page, so every block on it re-renders.
 ```
 - **Only the exact value `true` does anything**, case-insensitively. Any other value, including `1` or `yes`, is ignored and the response swaps normally.
 - This is the blunt instrument. Prefer swapping the one region that changed, and reach for a refresh when a write invalidated more of the screen than you can reasonably target.
-- It is one way to re-run an `Hx.Trigger="load"` fragment, since `load` never fires twice on the same element. For the specific case of refreshing when the person returns to a screen, `Hx.Trigger="appear"` is the lighter tool: it re-fetches one element instead of rebuilding the page. See [Triggers](https://community.rockrms.com/developer/mobile-docs/essentials/lava/lava-application/triggers).
+- It is one way to re-run an `Hx.Trigger="load"` fragment, since `load` never fires twice on the same element. For the specific case of refreshing when the person returns to a screen, `Hx.Trigger="appear"` is the lighter tool: it re-fetches one element instead of rebuilding the page. See [Triggers](https://community.rockrms.com/developer/mobile-docs/essentials/lava/helix-lava-applications/triggers).
 
 ### HX-Retarget
 
@@ -125,6 +126,7 @@ It accepts **both** vocabularies, so a shared endpoint can emit one value that w
 | `prepend` | `afterbegin` |
 | `after` | `afterend` |
 | `none` | `none` |
+| `items-append`, `items-replace` | none, mobile only |
 
 ```
 {% comment %} Understood by both clients, so no ClientType branch is needed. {% endcomment %}
@@ -133,9 +135,9 @@ It accepts **both** vocabularies, so a shared endpoint can emit one value that w
 {% endhttpresponse %}
 ```
 
-The strategy you name still has to suit the target. `HX-Reswap` overrides your `Hx.Swap`, it does not exempt you from the target type rules in [Requests and Targeting](https://community.rockrms.com/developer/mobile-docs/essentials/lava/lava-application/requests-and-targeting), and an unknown strategy is an error.
+The strategy you name still has to suit the target. `HX-Reswap` overrides your `Hx.Swap`, it does not exempt you from the target type rules in [Swaps and Animations](https://community.rockrms.com/developer/mobile-docs/essentials/lava/helix-lava-applications/swaps-and-animations), and an unknown strategy is an error.
 
-`HX-Reswap` goes through the same parser `Hx.Swap` does, so it can carry the [animation modifiers](https://community.rockrms.com/developer/mobile-docs/essentials/lava/lava-application/requests-and-targeting#animating-a-swap) too. That lets an endpoint pick the motion to match the content it is returning:
+`HX-Reswap` goes through the same parser `Hx.Swap` does, so it can carry the [animation modifiers](https://community.rockrms.com/developer/mobile-docs/essentials/lava/helix-lava-applications/swaps-and-animations) too. That lets an endpoint pick the motion to match the content it is returning:
 
 ```
 {% comment %} An empty state replaces the list, and should fade rather than slide. {% endcomment %}
@@ -173,64 +175,12 @@ The mobile-only extension to the header channel. It runs one of the app's named 
 
 `HX-Location`, `HX-Push-Url`, `HX-Replace-Url`, and `HX-Trigger` do nothing. The app has no URL bar and no history stack, and client-side event triggering is not implemented.
 
-## Redirect and refresh from inside a cover sheet
+## From a cover sheet
 
-`HX-Redirect` and `HX-Refresh` act on the **presenting page**, and they do **not** dismiss the sheet. Refreshing the presenting page is the supported way for a sheet to update it, since a sheet cannot target ids on the page. See [Cover Sheets](https://community.rockrms.com/developer/mobile-docs/essentials/lava/lava-application/cover-sheets).
+`HX-Redirect` and `HX-Refresh` act on the **presenting page**, and they do **not** dismiss the sheet. Refreshing the presenting page is the supported way for a sheet to update it, since a sheet cannot target ids on the page. See [Cover Sheets](https://community.rockrms.com/developer/mobile-docs/essentials/lava/helix-lava-applications/cover-sheets).
 
 ## Caching and rate limiting
 
 **The app does not cache Helix responses.** Every request goes to the server, and response cache headers are ignored. Your endpoint's cache settings still apply to web clients.
 
 The per-endpoint rate limit fields in the endpoint editor are **not currently enforced** on the execute route, so do not rely on them to protect an expensive endpoint. If the app does receive a 429, it shows it as an error and never retries automatically.
-
----
-
-## Cover Sheets {#cover-sheets}
-
-Sometimes you do not want to swap content into the current screen; you want to slide up a detail view over it. `Hx.Target="coversheet"` presents the response fragment in a cover sheet instead of swapping it in place.
-
-```
-<Button Text="Get Person Information"
-        Hx.Get="^/sink/person-details"
-        Hx.Target="coversheet" />
-```
-
-`coversheet` is a reserved target name, alongside `this`. Both are case-insensitive.
-
-## A sheet is its own Helix scope
-
-This is the part to plan around. The sheet is not part of the page it covers, and that has four consequences:
-
-- **Ids are scoped to the sheet.** Requests inside the sheet target ids inside the sheet. A sheet **cannot** target the presenting page, and the page cannot target into the sheet.
-- **Dismissing the sheet cancels its in-flight requests.**
-- **The opener's application carries over**, so short `^/endpoint-slug` routes keep working inside the sheet.
-- **The sheet stands in for the block.** A request inside it with no `Hx.Target` fills the sheet, and errors render there.
-
-To update the presenting page from inside a sheet, use `HX-Refresh` or an `X-Helix-Command` header. See [Endpoint Responses](https://community.rockrms.com/developer/mobile-docs/essentials/lava/lava-application/endpoint-responses).
-
-## The title comes from the fragment
-
-| Property | Type | Description | **Inherits** |
-| --- | --- | --- | --- |
-| `Hx.PageTitle` | string | Sets the title of whatever is presenting the fragment. | No, Read only from a response fragment's root element. |
-
-```
-<!-- Returned by your endpoint. -->
-<VerticalStackLayout Hx.PageTitle="Group Details">
-    <Label Text="..." />
-</VerticalStackLayout>
-```
-
-For a `coversheet` target this sets the sheet title. For a normal swap it sets the page title.
-
-Note
-
-Putting `Hx.PageTitle` on the *initiating* element does nothing at all, silently. That is a decision, not an oversight: keeping the title server-controlled is better than a pile of `Hx.CoverSheet.*` properties on every button that opens a sheet. Put it on what you return.
-
-## Behaviors to expect
-
-- **One sheet at a time.** Presenting while a sheet is already open **drops the response** rather than queueing it or stacking a second sheet.
-- **Retitling an open sheet does not repaint the title bar** before iOS 26. The sheet reads its title when it is presented, so a later swap that changes `Hx.PageTitle` updates nothing visible.
-- **`HX-Refresh` from inside a sheet reloads the presenting page but leaves the sheet open.**
-
-The general cover sheet guidance still applies: use them for secondary detail, and keep to one at a time.

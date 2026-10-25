@@ -1,5 +1,5 @@
 ---
-description: Use when configuring or troubleshooting a Rock mobile connection request list block for displaying pending connection opportunities and managing incomplete requests
+description: "Use when managing pending connection requests for a specific opportunity in Rock mobile apps, including setup and query parameter configuration"
 source: "https://community.rockrms.com/developer/mobile-docs"
 sourceLabel: Mobile Docs
 ---

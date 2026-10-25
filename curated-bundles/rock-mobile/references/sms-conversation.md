@@ -69,7 +69,7 @@ This section refers to the "Connection" mobile block group.
 
 ## Add Connection Request {#add-connection-request}
 
-C20.0S20.0
+C20.0M20.0
 
 Creates a new connection request through a step-by-step wizard.
 
@@ -112,7 +112,7 @@ Creates a new connection request through a step-by-step wizard.
 
 ## Connection Type List {#connection-type-list}
 
-C20.0S20.0
+C20.0M20.0
 
 Displays the connection types the person can view, with request counts for each.
 
@@ -149,7 +149,7 @@ Displays the connection types the person can view, with request counts for each.
 
 ## Connection Opportunity List {#connection-opportunity-list}
 
-C20.0S20.0
+C20.0M20.0
 
 Displays the opportunities of a connection type with request counts and type-level metrics.
 
@@ -189,7 +189,7 @@ Displays the opportunities of a connection type with request counts and type-lev
 
 ## Connection Request List {#connection-request-list}
 
-C20.0S20.0
+C20.0M20.0
 
 Displays the connection requests of a single opportunity with search, filters, sorting, and infinite scroll.
 

@@ -1,5 +1,5 @@
 ---
-description: "Use when asking how to build forms in rock-mobile, handle form submission, validate fields, or structure form inputs with HelixForm and Hx attributes"
+description: "Use when building mobile forms with HelixForm, handling form submission, validation, and understanding how form inputs are posted with Hx.Id names"
 source: "https://community.rockrms.com/developer/mobile-docs"
 sourceLabel: Mobile Docs
 ---
@@ -12,7 +12,7 @@ On the web, a form posts its inputs because each one has a `name`. Mobile does t
 `HelixForm` is the mobile analog of web Helix's `lava-form`. It needs no prefix, and it **is a `VerticalStackLayout`**, so it stacks its children vertically and takes `Spacing`, `Padding`, and the rest.
 
 ```
-<HelixForm Hx.Post="^/sink/contact" Hx.Notification="formErrors" Spacing="8">
+<HelixForm Hx.Post="^/group-toolbox/contact" Hx.Notification="formErrors" Spacing="8">
 
     <ContentView Hx.Id="formErrors" />
 
@@ -21,7 +21,7 @@ On the web, a form posts its inputs because each one has a `name`. Mobile does t
             <Rock:TextBox Hx.Id="email"
                           Label="Email"
                           IsRequired="True"
-                          Hx.Post="^/sink/contact/email"
+                          Hx.Post="^/group-toolbox/contact/email"
                           Hx.Trigger="Unfocused changed" />
         </Rock:FieldContainer>
     </VerticalStackLayout>
@@ -36,7 +36,7 @@ On the web, a form posts its inputs because each one has a `name`. Mobile does t
 </HelixForm>
 ```
 
-### The form carries the verb
+### Verbs and submit buttons
 
 `Hx.Post` goes on the `HelixForm`, not on the submit button. Any `Button` inside the form with no verb of its own and no `Command` **is** a submit button. That is the default, so the Submit button above needs no Helix attributes at all.
 
@@ -48,14 +48,16 @@ To opt a button out, give it any one of these:
 
 **Tapping the form's background does not submit it.** Forms are excluded from natural tap wiring. If you genuinely want a tappable form surface, say so explicitly with `Hx.Trigger="tapped"`.
 
-### Form behavior details
-
 - **Only `Button` submits by default, not `ImageButton`.** An `ImageButton` that should submit needs its own verb.
 - **Depth does not matter.** A button nested several layouts deep still submits, including one that arrives later in a fragment swapped into the form.
 - If a submit button is tapped and the form declares no verb, nothing is sent.
-- **A submission's initiator is the form**, not the button. So the *form's* `Hx.Target`, `Hx.Swap`, `Hx.Confirm`, and `Hx.Notification` are what apply. Putting `Hx.Target` on the submit button does nothing useful.
 
-### Inline validation, and why this matters
+### The form as initiator
+
+- **A submission's initiator is the form**, not the button. So the *form's* `Hx.Target`, `Hx.Swap`, `Hx.Confirm`, and `Hx.Notification` are what apply. Putting `Hx.Target` on the submit button does nothing useful.
+- **With no `Hx.Target`, the response replaces the form's children.** That suits a thank-you message, or the form re-rendered with the person's values and an error. To land the response somewhere else, set `Hx.Target` on the form.
+
+### Inline validation
 
 Look again at the email field above. `Hx.Target="this" Hx.Swap="outer"` sits on the **`VerticalStackLayout`** that wraps the field, not on the `TextBox`. The `TextBox` inherits both, and `this` resolves to the element that *declared* it, which is the wrapper. So every time the person leaves that field, the response replaces that one field's wrapper in place.
 
@@ -68,7 +70,7 @@ Look again at the email field above. `Hx.Target="this" Hx.Swap="outer"` sits on 
                       Label="Email"
                       IsRequired="True"
                       Text="{{ Form['email'] | Escape }}"
-                      Hx.Post="^/sink/contact/email"
+                      Hx.Post="^/group-toolbox/contact/email"
                       Hx.Trigger="Unfocused changed" />
     </Rock:FieldContainer>
     {% if isTaken %}
@@ -84,35 +86,34 @@ Every attribute reappears, and each one breaks something different if you leave 
 | `Text="{{ Form['email'] }}"` | the field comes back empty and the person loses what they typed |
 | `Hx.Id="email"` | the field stops contributing its value, so submitting the form silently drops `email` |
 | `Hx.Post` or `Hx.Trigger` | validation runs once and never again |
-| `Hx.Target` or `Hx.Swap` on the wrapper | the next validation targets the enclosing block instead of the field |
+| `Hx.Target` on the wrapper | the next validation targets the `TextBox` itself instead of the wrapper, and fails with an error |
+| `Hx.Swap` on the wrapper | each validation nests a new wrapper inside the old one instead of replacing it |
 
-That is the standing cost of `outer`: it is the only swap that removes the element carrying your attributes, so the response has to re-declare them. See [Requests and Targeting](https://community.rockrms.com/developer/mobile-docs/essentials/lava/lava-application/requests-and-targeting).
+That is the standing cost of `outer`: it is the only swap that removes the element carrying your attributes, so the response has to re-declare them. See [Swaps and Animations](https://community.rockrms.com/developer/mobile-docs/essentials/lava/helix-lava-applications/swaps-and-animations).
 
-This is a direct port of HTMX's canonical inline validation pattern, and it is the clearest reason to understand [Inheritance](https://community.rockrms.com/developer/mobile-docs/essentials/lava/lava-application/inheritance).
+This is a direct port of HTMX's canonical inline validation pattern, and it is the clearest reason to understand [Inheritance](https://community.rockrms.com/developer/mobile-docs/essentials/lava/helix-lava-applications/inheritance).
 
 ## Automatic value inclusion
-
-### What gets included
 
 - **Inside a `HelixForm`**, a submission includes every named, value-carrying control in the form.
 - **Outside a form**, only the initiating element's own value is included, and only if it is a named input. Helix does not sweep up arbitrary siblings, matching HTMX.
 
 A control with no name is **never** included. That is the mobile stand-in for HTML's "no `name`, no submit."
 
-### Naming a control: prefer Hx.Id
+### Naming controls
 
 Either `Hx.Id` or `x:Name` gives a control the name its value is submitted under, and Helix checks `Hx.Id` first, so it wins if a control carries both. Prefer `Hx.Id`: it is the name Helix actually looks for, and it says plainly that the name exists for Helix rather than for something else. `x:Name` works only because MAUI mirrors it onto a property Helix falls back to.
 
 The one place you still need `x:Name` is `{x:Reference ...}`, which resolves XAML names and **cannot see an `Hx.Id`**. If you need to both reference a control in a binding and submit its value, give it both.
 
-### How it travels
+### How values are sent
 
 | Verb | Where values go |
 | --- | --- |
 | GET | the query string, so your `QueryString` merge field sees them |
 | POST, PUT, DELETE | an `application/x-www-form-urlencoded` body, so your `Form` merge field behaves exactly as it does on web |
 
-### What the app can read
+### Supported controls
 
 | Control | Value contributed |
 | --- | --- |
@@ -141,13 +142,13 @@ Prefer the `Rock:` fields inside a form anyway. They carry the label, `IsRequire
 
 Note
 
-Your endpoint must treat `Form` and `QueryString` as untrusted no matter what the app "should" have sent. See [Security](https://community.rockrms.com/developer/mobile-docs/essentials/lava/lava-application/security).
+Your endpoint must treat `Form` and `QueryString` as untrusted no matter what the app "should" have sent. See [Security](https://community.rockrms.com/developer/mobile-docs/essentials/lava/helix-lava-applications/security).
 
 ## Hx.Include
 
 | Property | Type | Description | Inherits |
 | --- | --- | --- | --- |
-| `Hx.Include` | list of `Rock:Parameter` | Explicit request values, as element content. | **No**, deliberately. |
+| `Hx.Include` | list of `Rock:Parameter` | Explicit request values, as element content. | No. This is deliberate. |
 
 Use it for values automatic inclusion cannot reach: something computed, or a control outside the initiator's scope.
 
@@ -155,7 +156,7 @@ Use it for values automatic inclusion cannot reach: something computed, or a con
 <!-- A control the form does not contain, so automatic inclusion cannot see it. -->
 <Rock:TextBox x:Name="promoCode" Label="Promo code" />
 
-<Button Text="Submit" Hx.Post="^/sink/contact">
+<Button Text="Submit" Hx.Post="^/group-toolbox/contact" Hx.Target="ContactResult">
     <Hx.Include>
         <Rock:Parameter Name="promoCode" Value="{Binding Text, Source={x:Reference promoCode}}" />
         <Rock:Parameter Name="source" Value="mobile-app" />
@@ -175,7 +176,7 @@ This is the exception to preferring `Hx.Id`. `{x:Reference}` resolves XAML names
 
 | Property | Type | Description | Inherits |
 | --- | --- | --- | --- |
-| `Hx.Params` | string | `none` excludes this control from automatic inclusion. | **Yes,**`none` is the only supported value; anything else is ignored. |
+| `Hx.Params` | string | `none` excludes this control from automatic inclusion. | Yes. The only supported value is `none`; anything else is ignored. |
 
 ```
 <Rock:TextBox Hx.Id="scratch" Label="Notes (not submitted)" Hx.Params="none" />
@@ -207,11 +208,11 @@ A form submission validates the form's visible fields automatically, before send
 
 **Validation runs only for a form submission.** Inline field triggers inside the form, and buttons with their own verbs, are not submissions and skip it.
 
-### Outside a form: Hx.Validator
+### Outside a form
 
 | Property | Type | Description | Inherits |
 | --- | --- | --- | --- |
-| `Hx.Validator` | `Validator` | A validator that must pass before the request fires. | **yes,** This one takes an object reference rather than an id, so unlike `Hx.Target` it cannot reach across a fragment boundary. |
+| `Hx.Validator` | `Validator` | A validator that must pass before the request fires. | Yes. It takes an object reference rather than an id, so unlike `Hx.Target` it cannot reach across a fragment boundary. |
 
 ```
 <Rock:Validator x:Name="checks">
@@ -220,7 +221,7 @@ A form submission validates the form's visible fields automatically, before send
     </Rock:Validator.ControlsToValidate>
 </Rock:Validator>
 
-<Button Text="Send" Hx.Post="^/sink/contact" Hx.Validator="{x:Reference checks}" />
+<Button Text="Send" Hx.Post="^/group-toolbox/contact" Hx.Target="ContactResult" Hx.Validator="{x:Reference checks}" />
 ```
 
 Failure shows the validator's messages and aborts. No request is sent.

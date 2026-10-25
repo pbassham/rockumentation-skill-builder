@@ -1,5 +1,5 @@
 ---
-description: Use when displaying or configuring a list of connection types with customizable templates and request counts
+description: Use when displaying a list of available connection types with request counts and customizing templates for connection type presentation
 source: "https://community.rockrms.com/developer/mobile-docs"
 sourceLabel: Mobile Docs
 ---

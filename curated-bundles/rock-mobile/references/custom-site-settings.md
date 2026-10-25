@@ -1,5 +1,5 @@
 ---
-description: Use when configuring static or dynamic values in a Persisted Dataset for mobile app access without Site entities or attributes
+description: "Use when configuring mobile app settings like colors, labels, or feature flags through persisted datasets without using site entities"
 source: "https://community.rockrms.com/developer/mobile-docs"
 sourceLabel: Mobile Docs
 ---

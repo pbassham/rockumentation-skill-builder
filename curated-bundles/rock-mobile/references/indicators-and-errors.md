@@ -1,5 +1,5 @@
 ---
-description: "Use when user asks about loading indicators, spinners, confirmation dialogs, or text prompts during request execution in rock-mobile apps"
+description: "Use when answering questions about loading indicators, error states, confirmation dialogs, and user feedback during HTMX requests in rock-mobile"
 source: "https://community.rockrms.com/developer/mobile-docs"
 sourceLabel: Mobile Docs
 ---
@@ -13,14 +13,14 @@ Everything on this page is about what the person sees while a request is in flig
 | --- | --- | --- | --- |
 | `Hx.Indicator` | string | The `Hx.Id` of an element to show during the request. | Yes |
 
-There are two ways to show a spinner, and which one you use depends on whether your trigger can hold children.
+How you show a spinner depends on whether your trigger can hold children.
 
-### Container triggers: the CSS class convention
+### Container triggers
 
 If your trigger is a layout, nest an indicator inside it with `StyleClass="htmx-indicator"`. While a request is in flight the initiating element gets the `htmx-request` class, and the default stylesheet reveals any indicator inside it.
 
 ```
-<VerticalStackLayout Hx.Get="^/sink/slow">
+<VerticalStackLayout Hx.Get="^/group-toolbox/slow">
     <Label Text="Tap to load" />
     <ActivityIndicator StyleClass="htmx-indicator" IsRunning="True" />
 </VerticalStackLayout>
@@ -35,13 +35,13 @@ These rules ship in the default styles, matching web:
 
 Opacity rather than `IsVisible` is intentional. It matches HTMX and avoids the layout jump you would get from collapsing the indicator's space.
 
-### Buttons and other leaf triggers: Hx.Indicator
+### Button triggers
 
 A MAUI `Button` has no child content, only `Text` and `ImageSource`, and a sibling is not a descendant, so the CSS rule above cannot reach it. Point `Hx.Indicator` at the sibling's id instead.
 
 ```
 <HorizontalStackLayout>
-    <Button Text="Save" Hx.Post="^/sink/save" Hx.Indicator="saving" />
+    <Button Text="Save" Hx.Post="^/group-toolbox/save" Hx.Target="SaveStatus" Hx.Indicator="saving" />
     <ActivityIndicator Hx.Id="saving" StyleClass="htmx-indicator" IsRunning="True" />
 </HorizontalStackLayout>
 ```
@@ -54,13 +54,14 @@ The app sets the named element's opacity to 1 and adds `htmx-request` to it, so 
 
 ## Hx.Confirm
 
-| Property | Type | Description | **Inherits** |
+| Property | Type | Description | Inherits |
 | --- | --- | --- | --- |
 | `Hx.Confirm` | string | A message shown in a native alert before the request fires. | Yes |
 
 ```
 <Button Text="Remove"
         Hx.Post="^/group-toolbox/remove-member?id=GMxxxx"
+        Hx.Target="MemberList"
         Hx.Confirm="Remove this person from the group?" />
 ```
 
@@ -75,7 +76,7 @@ The message is the alert's title, with no body text, and OK and Cancel buttons. 
 The value the person types is sent as the **`X-Helix-Prompt` request header**, not as a form value.
 
 ```
-<Button Text="Add Note" Hx.Post="^/sink/note" Hx.Prompt="What should the note say?" />
+<Button Text="Add Note" Hx.Post="^/group-toolbox/note" Hx.Target="Notes" Hx.Prompt="What should the note say?" />
 ```
 
 Read it in your endpoint from the `Headers` merge field:
@@ -84,19 +85,19 @@ Read it in your endpoint from the `Headers` merge field:
 {% assign note = Headers['X-Helix-Prompt'] %}
 ```
 
-Two details:
+About what the person types:
 
 - **An empty entry is a real value.** Only Cancel aborts the request.
 - Newlines in the entry become spaces, because the value travels in a header and headers cannot carry newlines.
 
 ## Hx.DisabledElt
 
-| Property | Type | Description | **Inherits** |
+| Property | Type | Description | Inherits |
 | --- | --- | --- | --- |
 | `Hx.DisabledElt` | string | The id of an element to disable during the request, in addition to the initiator. | Yes |
 
 ```
-<Button Text="Save" Hx.Post="^/sink/save" Hx.DisabledElt="cancelButton" />
+<Button Text="Save" Hx.Post="^/group-toolbox/save" Hx.Target="SaveStatus" Hx.DisabledElt="cancelButton" />
 <Button Hx.Id="cancelButton" Text="Cancel" Command="{Binding PopPage}" />
 ```
 
@@ -106,9 +107,9 @@ It takes a single id, not a list. The prior enabled state is captured and restor
 
 ## Hx.Disable
 
-| Property | Type | Description |
-| --- | --- | --- |
-| `Hx.Disable` | bool | Turns Helix processing off for this element and everything under it. |
+| Property | Type | Description | Inherits |
+| --- | --- | --- | --- |
+| `Hx.Disable` | bool | Turns Helix processing off for this element and everything under it. | No. It applies to its whole subtree, and `Hx.Disinherit` cannot break that. |
 
 Default `false`. It applies to the element and everything beneath it.
 
@@ -118,7 +119,7 @@ Default `false`. It applies to the element and everything beneath it.
 </VerticalStackLayout>
 ```
 
-It does three jobs at once, which is worth knowing:
+It does several jobs at once, which is worth knowing:
 
 1. Blocks requests from the subtree.
 2. Opts a button out of `HelixForm` submit defaulting.
@@ -126,19 +127,20 @@ It does three jobs at once, which is worth knowing:
 
 ## Hx.Notification
 
-| Property | Type | Description | **Inherits** |
+| Property | Type | Description | Inherits |
 | --- | --- | --- | --- |
 | `Hx.Notification` | string | The id of an element that request errors render into. | Yes |
 
 This is mobile-only, and it is the single most useful thing on this page. It declares an error slot by id: request errors render *there* instead of into your target or beside your button.
 
 ```
-<VerticalStackLayout Hx.Notification="formErrors">
+<VerticalStackLayout Hx.Notification="formErrors" Hx.Target="cardStatus">
 
     <ContentView Hx.Id="formErrors" />
+    <ContentView Hx.Id="cardStatus" />
 
-    <Button Text="Save" Hx.Post="^/sink/save" />
-    <Button Text="Archive" Hx.Post="^/sink/archive" />
+    <Button Text="Save" Hx.Post="^/group-toolbox/save" />
+    <Button Text="Archive" Hx.Post="^/group-toolbox/archive" />
 </VerticalStackLayout>
 ```
 - **Errors replace rather than stack.** A second failure overwrites the first instead of piling up notifications.
@@ -153,15 +155,15 @@ If the named slot cannot be found, the error still appears using the default pla
 
 ## Where errors go
 
-Three placements, chosen in this order:
+The app uses the first placement that applies, in this order:
 
 1. **The `Hx.Notification` slot**, if one is declared and resolves.
-2. **Beside the initiator**, if there is no target, or if an `inner` or `outer` swap would remove the initiating element (`outer` on `this`, or a target that contains it, which includes the default block target). The error goes right after the initiator, or after its ancestor that sits in the nearest layout, which keeps the control usable so the person can retry. If there is no layout between the initiator and its block or cover sheet, the nearest layout is a grid the app owns: the page's zone, or the grid that holds the sheet's content. The error then lands in that grid's first cell, on top of whatever is there. Wrap your triggers in a layout, or declare an `Hx.Notification` slot.
-3. **Into the target**, otherwise.
+2. **Beside the initiator**, if the request could not be resolved (two verbs, a bad route, or an `Hx.Target` id that does not exist), or if an `inner` or `outer` swap would remove the initiating element (`outer` on `this`, or a target that contains it). The error goes right after the initiator, or after its ancestor that sits in the nearest layout, which keeps the control usable so the person can retry. If there is no layout between the initiator and its block or cover sheet, the nearest layout is a grid the app owns: the page's zone, or the grid that holds the sheet's content. The error then lands in that grid's first cell, on top of whatever is there. Wrap your triggers in a layout, or declare an `Hx.Notification` slot.
+3. **Into the target**, otherwise. With no `Hx.Target`, the target is the initiator itself. A target that cannot hold content, such as a `Button`, gets the error beside it instead, placed as in item 2.
 
 Errors render as a notification box with an "Error" header. An error beside an initiator replaces only that initiator's previous error, and clears only when that same initiator next succeeds. A success from another trigger leaves it in place. A slot error clears on the next success from any trigger that uses the slot.
 
-### What produces an error
+### Error causes
 
 - Two verbs on one element, or a route the app cannot parse.
 - An unresolvable `Hx.Target` or `HX-Retarget`, or an unknown `Hx.Swap` or `HX-Reswap` value.
@@ -169,7 +171,7 @@ Errors render as a notification box with an "Error" header. An error beside an i
 - A swap strategy applied to a target type that cannot host it.
 - A fragment that fails to parse. The parse error becomes a notification that swaps in normally, so it fails visible rather than silent.
 
-### Two limitations to design around
+### Known limitations
 
 **An error rendered into the target uses an `inner` swap.** So if your request appends rows to a list and it fails, the error **replaces the whole list**. Declare an `Hx.Notification` slot on anything that appends or prepends. This is the main practical reason to use one.
 

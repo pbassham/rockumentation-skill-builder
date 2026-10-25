@@ -3,7 +3,7 @@ name: rock-mobile
 description: "Use when building a Rock Mobile app — iOS, Android, Apple TV, or Roku. Covers the Mobile Docs (shell setup, blocks, styling, deep links, push, app store submission), Apple TV docs, and Roku docs. This is the bundle to load whenever the question is about a native Rock-powered mobile or TV app."
 metadata:
   generator: rockumentation-skill-builder
-  generatedAt: 2026-10-04T10:59:44.813Z
+  generatedAt: 2026-10-25T09:15:16.225Z
   sources:
     - url: "https://community.rockrms.com/developer/mobile-docs"
       label: Mobile Docs
@@ -28,8 +28,8 @@ This skill bundles 119 references from 3 sources. Load topics on demand via the 
 - [Dynamic Content](references/dynamic-content.md) — Use when building interactive content blocks that respond to user actions like button taps or form submissions using Callbacks
 - [Deep Linking](references/deep-linking.md) — Use when configuring deep links to route external URLs directly into a Rock mobile application on iOS or Android
 - [Proximity Attendance](references/proximity-attendance.md) — Use when configuring automatic check-in/check-out via Bluetooth beacons or implementing proximity-based attendance tracking in mobile apps
-- [Render Pipeline](references/render-pipeline.md) — Use when understanding how Rock Mobile renders blocks through server Lava processing, client-side rendering, XAML parsing, and visual tree construction stages
-- [API Key](references/api-key.md) — Use when users need to manage, protect, or troubleshoot their mobile app's API key, including setup, security best practices, and fixing broken keys
+- [Render Pipeline](references/render-pipeline.md) — Use when understanding how Rock Mobile blocks are rendered through multiple processing stages from server to device display
+- [API Key](references/api-key.md) — Use when troubleshooting mobile app API key issues, protecting keys from accidental deletion or merging, or restoring broken app-to-Rock connections
 - [Animations](references/animations.md) — Use when building UI animations in Rock Mobile to respond to user actions or view loading events
 - [Content](references/content.md) — Use when building Rock Mobile app layouts that display dynamic or static content using Lava and XAML markup
 - [Content Collection View](references/content-collection-view.md) — Use when helping users search, filter, and sort content across multiple content collection sources in Rock Mobile
@@ -39,15 +39,17 @@ This skill bundles 119 references from 3 sources. Load topics on demand via the 
 - [Using Auth0](references/using-auth0.md) — Use when configuring Auth0 identity authentication for Rock mobile applications on iOS or Android
 - [Using Entra](references/using-entra.md) — Use when configuring Microsoft Entra authentication for Rock Mobile applications
 - [Structured Content View](references/structured-content-view.md) — Use when displaying interactive structured content like sermon notes with rich formatting, tap-to-reveal sections, and note-taking areas in Rock mobile apps
+- [Voice Agent](references/voice-agent.md) — Use when a user wants to enable voice conversation in a mobile app with real-time transcription, hands-free control, and permission-based access for staff and attendees
+- [Lava Application Content](references/lava-application-content.md) — Use when building or troubleshooting Lava Applications in Rock Mobile, including rendering XAML screens, configuring Helix endpoints, and managing application-level settings
 - [Check-in](references/check-in-check-in.md) — Use when setting up or configuring the Rock Mobile check-in block, including kiosk setup, screen templates, and check-in workflow parameters
 - [Chat View](references/chat-view.md) — Use when a user needs help setting up or using real-time chat messaging in Rock Mobile, including channels, direct messages, threads, and group communications
 - [Communication Entry](references/communication-entry.md) — Use when user needs to send bulk email or SMS messages to groups of recipients in Rock Mobile
 - [SMS Conversation](references/sms-conversation.md) — Use when a user needs to display, configure, or style SMS text message conversations in a Rock mobile app interface
 - [Connection Request Detail](references/connection-request-detail.md) — Use when displaying detailed information about a specific connection request including its status, activities, and contact options in a Rock mobile application
-- [Connection Type List (Legacy)](references/connection-type-list-legacy.md) — Use when displaying or configuring a list of connection types with customizable templates and request counts
-- [Connection Opportunity List (Legacy)](references/connection-opportunity-list-legacy.md) — Use when displaying a list of connection opportunities filtered by a single connection type in Rock mobile applications
-- [Connection Request List (Legacy)](references/connection-request-list-legacy.md) — Use when configuring or troubleshooting a Rock mobile connection request list block for displaying pending connection opportunities and managing incomplete requests
-- [Connection Request Detail (Legacy)](references/connection-request-detail-legacy.md) — Use when displaying or customizing details for a specific connection request, including styling, templates, and activity information in Rock mobile
+- [Connection Type List (Legacy)](references/connection-type-list-legacy.md) — Use when displaying a list of available connection types with request counts and customizing templates for connection type presentation
+- [Connection Opportunity List (Legacy)](references/connection-opportunity-list-legacy.md) — Use when displaying a list of connection opportunities filtered by a specific connection type in Rock Mobile applications
+- [Connection Request List (Legacy)](references/connection-request-list-legacy.md) — Use when managing pending connection requests for a specific opportunity in Rock mobile apps, including setup and query parameter configuration
+- [Connection Request Detail (Legacy)](references/connection-request-detail-legacy.md) — Use when displaying detailed information about a specific connection request, including its status, activities, and contact options in Rock mobile applications
 - [Notes](references/notes.md) — Use when displaying, adding, or editing notes for people or other entities in Rock Mobile applications
 - [Search](references/search.md) — Use when implementing a search interface with configurable search components, result templates, and search history display functionality in Rock Mobile
 - [Smart Search](references/smart-search.md) — Use when implementing multi-component search functionality to find people by birthdate, name, email, address or groups by name with configurable results display
@@ -99,23 +101,26 @@ This skill bundles 119 references from 3 sources. Load topics on demand via the 
 - [Text Box](references/text-box.md) — Use when implementing single-line or multi-line text input fields in Rock mobile forms with validation and styling requirements
 - [On Device Platform](references/on-device-platform.md) — Use when customizing Rock Mobile UI elements to display different content or styles based on the device's operating system platform or device type
 - [Outreach Toolbox](references/outreach-toolbox.md) — Use when users ask about setting up personal contact lists, prayer reminders, relationship tracking, or the Outreach Toolbox mobile features for spiritual engagement
-- [Voice Agent](references/features-voice-agent.md) — Use when the user wants to add a hands-free voice conversation feature to their mobile app or needs guidance on implementing voice-based interaction with an AI agent
 - [Lava](references/lava.md) — Use when building Rock Mobile experiences with Lava templating, filters, whitespace optimization, or accessing shell variables like PageParameter and CurrentPerson
-- [Overview](references/overview.md) — Use when building dynamic, interactive mobile screens with XAML using Helix endpoints and Lava without C# code
-- [Writing Fragments](references/writing-fragments.md) — Use when building Rock mobile endpoints that return XAML fragments, troubleshooting fragment rendering issues, or understanding namespace and Lava execution requirements for mobile responses
-- [Requests and Targeting](references/requests-and-targeting.md) — Use when configuring HTTP requests, routing, and response placement in Rock Mobile Helix interactions
-- [Triggers](references/triggers.md) — Use when you need to configure what event or interaction triggers a Helix request on an element
-- [Forms and Values](references/forms-and-values.md) — Use when asking how to build forms in rock-mobile, handle form submission, validate fields, or structure form inputs with HelixForm and Hx attributes
-- [Indicators and Errors](references/indicators-and-errors.md) — Use when user asks about loading indicators, spinners, confirmation dialogs, or text prompts during request execution in rock-mobile apps
-- [Endpoint Responses](references/endpoint-responses.md) — Use when building endpoint responses for XAML swaps, setting response headers like HX-Redirect or HX-Refresh, or handling error notifications in rock-mobile
-- [Inheritance](references/inheritance.md) — Use when understanding how Hx.* attributes cascade down the visual tree and which attributes inherit versus require explicit declaration on each element
-- [Tips and Tricks](references/lava-application-tips-and-tricks.md) — Use when optimizing mobile app performance by reducing network requests and preventing screen layout shifts during page load
-- [Attribute Reference](references/attribute-reference.md) — Use when looking up HTMX attributes (Hx.*) available in Rock Mobile views, their types, inheritance behavior, and applicable targets
+- [Helix (Lava Applications)](references/helix-lava-applications.md) — Use when building dynamic mobile screens with Helix that swap XAML content without leaving the current page using Lava endpoints
+- [Writing Fragments](references/writing-fragments.md) — Use when building XAML fragments for Rock Mobile endpoints to understand fragment structure rules, namespace requirements, and how Lava templating works server-side
+- [Requests and Targeting](references/requests-and-targeting.md) — Use when configuring HTTP requests, routing, and response targeting in Helix mobile interactions with verbs like Hx.Get, Hx.Post, Hx.Put, and Hx.Delete
+- [Swaps and Animations](references/swaps-and-animations.md) — Use when implementing swap strategies to control how response fragments are placed, replaced, or animated in Rock mobile views
+- [Inheritance](references/inheritance.md) — Use when understanding how HTMX attributes cascade through the visual tree and which attributes can be inherited versus must be declared per-element
+- [Triggers](references/triggers.md) — Use when configuring what user interaction triggers a Helix request on a rock-mobile element
+- [Forms and Values](references/forms-and-values.md) — Use when building mobile forms with HelixForm, handling form submission, validation, and understanding how form inputs are posted with Hx.Id names
+- [Indicators and Errors](references/indicators-and-errors.md) — Use when answering questions about loading indicators, error states, confirmation dialogs, and user feedback during HTMX requests in rock-mobile
+- [Endpoint Responses](references/endpoint-responses.md) — Use when building endpoint responses for rock-mobile that need to return XAML fragments, set redirect/refresh headers, or execute client commands
+- [Cover Sheets](references/cover-sheets.md) — Use when presenting detail views as sliding cover sheets over the current screen instead of replacing content in place
+- [Data Lists and Paging](references/data-lists-and-paging.md) — Use when building long scrollable lists or feeds that need pagination, search filtering, and item virtualization without writing custom code
+- [Tips and Tricks](references/helix-lava-applications-tips-and-tricks.md) — Use when optimizing Rock mobile app screen performance and reducing network round trips during initial page load
+- [Attribute Reference](references/attribute-reference.md) — Use when looking up Hx.* attributes available in Rock Mobile, their types, inheritance, what they apply to, and allowed values
 - [Performance](references/performance.md) — Use when optimizing XAML layout performance, choosing between layout types, or reducing view hierarchy overhead in Rock Mobile apps
-- [Tips and Tricks](references/essentials-tips-and-tricks.md) — Use when styling Rock Mobile layouts, managing spacing and margins, or applying device-specific customization for phone and tablet views
-- [Custom Site Settings](references/custom-site-settings.md) — Use when configuring static or dynamic values in a Persisted Dataset for mobile app access without Site entities or attributes
+- [Tips and Tricks](references/essentials-tips-and-tricks.md) — Use when formatting spacing, margins, padding in Rock Mobile layouts or customizing UI for different device types like phones and tablets
+- [Custom Site Settings](references/custom-site-settings.md) — Use when configuring mobile app settings like colors, labels, or feature flags through persisted datasets without using site entities
 - [Migrating to .NET MAUI (V6)](references/migrating-to-net-maui-v6.md) — Use when users need guidance on upgrading Rock Mobile applications from Xamarin Forms V5 to .NET MAUI V6, including layout changes and migration steps
 - [Page Anchors](references/page-anchors.md) — Use when implementing deep linking or navigation that scrolls to specific page elements using anchor fragments or AnchorScrollParameters
+- [Troubleshooting](references/troubleshooting.md) — Use when troubleshooting Rock Mobile app errors, connection issues, blank pages, XAML errors, or Lava rendering problems
 - [Walkthrough](references/walkthrough.md) — Use when building responsive mobile UI layouts with Rock Mobile styling utilities, typography, colors, and component styling for XAML views
 - [Colors](references/style-guide-colors.md) — Use when customizing colors, implementing dark mode responsiveness, or applying color utility classes in Rock Mobile applications
 - [Typography](references/typography.md) — Use when building Rock Mobile interfaces and need to configure fonts, font weights, or text sizes across iOS and Android platforms
@@ -130,7 +135,7 @@ This skill bundles 119 references from 3 sources. Load topics on demand via the 
 - [Custom Blocks](references/custom-blocks.md) — Use when building custom mobile block types in Rock with C# instead of Lava, including configuration, mobile UI markup, and callback handling
 - [App Store Product Page](references/app-store-product-page.md) — Use when optimizing the Rock Mobile app's App Store product page including name, icon, subtitle, and screenshots to improve discoverability and downloads
 - [Push Notifications](references/push-notifications.md) — Use when answering questions about sending push notifications to Rock Mobile app users, configuring notification transports, or authoring notification messages with links and details
-- [Pre-Release Testing](references/pre-release-testing.md) — Use when a user asks about testing pre-release versions of Rock Mobile or how to install beta builds through TestFlight or Firebase App Distribution
+- [Pre-Release Testing](references/pre-release-testing.md) — Use when asking about pre-release testing procedures, TestFlight setup, Firebase App Distribution, or how to access beta versions of Rock Mobile
 
 ### Apple TV Docs
 

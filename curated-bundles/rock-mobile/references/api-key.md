@@ -1,5 +1,5 @@
 ---
-description: "Use when users need to manage, protect, or troubleshoot their mobile app's API key, including setup, security best practices, and fixing broken keys"
+description: "Use when troubleshooting mobile app API key issues, protecting keys from accidental deletion or merging, or restoring broken app-to-Rock connections"
 source: "https://community.rockrms.com/developer/mobile-docs"
 sourceLabel: Mobile Docs
 ---

@@ -1,5 +1,5 @@
 ---
-description: Use when displaying a list of connection opportunities filtered by a single connection type in Rock mobile applications
+description: Use when displaying a list of connection opportunities filtered by a specific connection type in Rock Mobile applications
 source: "https://community.rockrms.com/developer/mobile-docs"
 sourceLabel: Mobile Docs
 ---
