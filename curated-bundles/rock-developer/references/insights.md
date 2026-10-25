@@ -1,5 +1,5 @@
 ---
-description: "Use when building analytics tools that aggregate entity data and return structured, opinionated insights with curated metrics like counts and top results"
+description: "Use when building structured analytics tools that aggregate data with optional filters and return curated insights like totals, breakdowns, and top items"
 source: "https://community.rockrms.com/developer/ai-agents"
 sourceLabel: AI Agents
 ---

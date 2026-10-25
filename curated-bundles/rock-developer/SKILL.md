@@ -3,7 +3,7 @@ name: rock-developer
 description: "Use when contributing to Rock RMS itself or writing native C#/Vue plugins for Rock — coding standards, commit discipline, the release process, the Obsidian (Vue 3) block framework, the design system, AI agent integration, packaging plugins and themes for the Rock Shop, Slingshot bulk imports, the realtime visualizer, quickstart tutorials, branch model, changelog, and the 101/202/303 onboarding tracks. NOT for end-user, admin, Lava, or mobile-app questions — load rock-user / rock-administration / rock-advanced / rock-mobile for those."
 metadata:
   generator: rockumentation-skill-builder
-  generatedAt: 2026-10-04T11:01:11.255Z
+  generatedAt: 2026-10-25T09:16:55.618Z
   sources:
     - url: "https://community.rockrms.com/developer/developer-codex"
       label: Developer Codex
@@ -103,9 +103,9 @@ This skill bundles 86 references from 13 sources. Load topics on demand via the 
 - [AddOrUpdate Tools](references/addorupdate-tools.md) — Use when implementing add or update operations for database entities in Rock, including entity creation, property modification, and persistence patterns
 - [AvailableAttributes Tools](references/availableattributes-tools.md) — Use when discovering which data fields are available for an entity and their expected data types
 - [Summary Tools](references/summary-tools.md) — Use when building summary tools that aggregate data with filtering options and configurable grouping dimensions
-- [Insights](references/insights.md) — Use when building analytics tools that aggregate entity data and return structured, opinionated insights with curated metrics like counts and top results
-- [Agent Tool Helper](references/agent-tool-helper.md) — Use when building native tools in Rock to validate inputs, collect errors, and access entities safely with standardized patterns
-- [Creating Native Skills](references/creating-native-skills.md) — Use when creating native Rock skills in C# by inheriting from AgentSkillComponent and registering tools with attributes
+- [Insights](references/insights.md) — Use when building structured analytics tools that aggregate data with optional filters and return curated insights like totals, breakdowns, and top items
+- [Agent Tool Helper](references/agent-tool-helper.md) — Use when building Native Tools to validate inputs, handle errors consistently, and access Rock entities safely with standardized patterns
+- [Creating Native Skills](references/creating-native-skills.md) — Use when creating native skills in Rock by writing C# classes that group related tools together for AI agents
 
 ### Packaging Plugins & Themes
 
@@ -139,7 +139,7 @@ This skill bundles 86 references from 13 sources. Load topics on demand via the 
 
 ### Changelog
 
-- [Technical Release Notes](references/technical-release-notes.md) — Use when a developer needs to understand breaking changes, removed APIs, or migration requirements for Rock platform updates
+- [Technical Release Notes | Rock Community](references/technical-release-notes-rock-community.md) — Use when developers need technical details about Rock RMS updates, bug fixes, new features, and version-specific changes in community releases
 
 ### 101 — Launchpad
 
@@ -181,4 +181,4 @@ This skill bundles 86 references from 13 sources. Load topics on demand via the 
 - [Rock RealTime Engine (v16)](references/rock-realtime-engine-v16.md) — Use when learning how Rock's RealTime engine enables server-client communication, including topics, channels, and the custom abstraction layer
 - [Using Data Views](references/using-data-views.md) — Use when implementing custom Rock blocks or plugins that need to execute data views programmatically with best practices for caching and performance
 - [Patterns in Rock](references/patterns-in-rock.md) — Use when implementing flexible, schema-agnostic data storage on Rock models that may evolve without database migrations
-- [Unit Testing](references/unit-testing.md) — Use when writing or debugging unit tests for Rock plugins using mocked databases and the RockRMS.Rock.Tests.Shared testing framework
+- [Unit Testing](references/unit-testing.md) — Use when a developer needs guidance on writing automated unit tests for Rock plugins using mocked databases and the RockRMS.Rock.Tests.Shared NuGet package

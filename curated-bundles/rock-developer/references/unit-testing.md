@@ -1,5 +1,5 @@
 ---
-description: Use when writing or debugging unit tests for Rock plugins using mocked databases and the RockRMS.Rock.Tests.Shared testing framework
+description: Use when a developer needs guidance on writing automated unit tests for Rock plugins using mocked databases and the RockRMS.Rock.Tests.Shared NuGet package
 source: "https://community.rockrms.com/developer/303\u002D\u002D\u002Dblast-off"
 sourceLabel: 303 — Blast Off
 ---
