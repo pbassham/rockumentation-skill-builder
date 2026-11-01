@@ -765,14 +765,17 @@ Creates a [URL short link](https://community.rockrms.com/documentation/digital-p
 
 **Additional Details**
 
+Creates a [URL short link](https://community.rockrms.com/documentation/digital-publishing/websites/manage-pages/short-links) for the provided URL.
+
 **Definitions**
 
-- token (string): If you'd like to provide the token to use in the short code you can provide it here. Leave this blank ('') to use a random code.
-- siteId (int): The id of the site to use for the shorting. By default the first site found with the 'Enabled for Shortening' set to true will be used. Pass in 0 if you'd like to force the default site.
-- overwrite (bool): This determines what to do if the token you provided already exists. By default it will not overwrite an existing shortcode. If you provided a token, it exists and overwrite is set to false, a new random token will be returned. When set to true then the existing token will be used.
-- randomLength (int): If using a random code, this determines how long it should be.
-- categoryId (int): The ID of the category to assign this short link to. Useful for organizing and filtering links.
-- isPinned (bool): Whether this link should be pinned to the top of the list. Use true to pin or false to leave it unpinned.
+- `token` (string): If you'd like to provide the token to use in the short code you can provide it here. Leave this blank ('') to use a random code.
+- `siteId` (int): The id of the site to use for the shortening. By default the first site found with the 'Enabled for Shortening' set to true will be used. Pass in 0 if you'd like to force the default site.
+- `overwrite` (bool): This determines what to do if the token you provided already exists. By default it will not overwrite an existing shortcode. If you provided a token, it exists and overwrite is set to false, a new random token will be returned. When set to true then the existing token will be used.
+- `randomLength` (int): If using a random code, this determines how long it should be.
+- `categoryId` (int): The ID of the category to assign this short link to. Useful for organizing and filtering links.
+- `isPinned` (bool): Whether this link should be pinned to the top of the list. Use true to pin or false to leave it unpinned.
+- `expireInDays` (int): The number of days from today until the short link expires. Once expired, the link and its tracking data are permanently deleted. Leave blank for no expiration. A negative number expires the link immediately.
 
 **Example:**
 
@@ -793,7 +796,14 @@ http://www.rocksolidchurchdemo.com/HSGFTSF
 ```
 
 **Note:**  
+
 This filter attempts to return a valid shortlink at all cost. This means that if the configuration passed to it is invalid it will try to correct it with reasonable defaults. For instance if you pass in an invalid siteId, the first active site will be used. If you pass in an empty URL, or if no shortened site is enabled in Rock you will get an empty string.
+
+Filter parameters are positional, so to set `expireInDays` you must pass every parameter before it. This creates a link with a random token on the default site that expires in 30 days:
+
+```
+{{ ConnectionOpportunity | Attribute:'Url' | CreateShortLink:'',0,false,10,'',false,30 }}
+```
 
  
 
