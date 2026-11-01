@@ -26,6 +26,7 @@ This action will create a short link for a designated page's URL. You can set th
 - Attribute: This is the attribute the generated short link's URL will be associated with.
 - Random Token Length: This is the number of characters to use when generating a random unique token.
 - Allow Token Re-Use: If a short link already exists with the same token, selecting Yes will update the short link with the new URL. Selecting No will result in the action failing because that short link already exists.
+- Link Expiration: The number of days before the short link expires. Once expired, the link and its tracking data are permanently deleted. Leave this blank for no expiration.
 ![](https://community.rockrms.com/GetImage.ashx?Guid=3baf21f8-bd11-43ff-be59-bee3d2ead228)
 
  # Job Run
