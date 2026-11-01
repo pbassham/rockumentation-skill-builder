@@ -3,7 +3,7 @@ name: rock-developer
 description: "Use when contributing to Rock RMS itself or writing native C#/Vue plugins for Rock — coding standards, commit discipline, the release process, the Obsidian (Vue 3) block framework, the design system, AI agent integration, packaging plugins and themes for the Rock Shop, Slingshot bulk imports, the realtime visualizer, quickstart tutorials, branch model, changelog, and the 101/202/303 onboarding tracks. NOT for end-user, admin, Lava, or mobile-app questions — load rock-user / rock-administration / rock-advanced / rock-mobile for those."
 metadata:
   generator: rockumentation-skill-builder
-  generatedAt: 2026-10-25T09:16:55.618Z
+  generatedAt: 2026-11-01T09:12:27.937Z
   sources:
     - url: "https://community.rockrms.com/developer/developer-codex"
       label: Developer Codex
@@ -139,7 +139,7 @@ This skill bundles 86 references from 13 sources. Load topics on demand via the 
 
 ### Changelog
 
-- [Technical Release Notes | Rock Community](references/technical-release-notes-rock-community.md) — Use when developers need technical details about Rock RMS updates, bug fixes, new features, and version-specific changes in community releases
+- [Technical Release Notes](references/technical-release-notes.md) — Use when developers need to understand new features, bug fixes, and technical changes in recent Rock RMS releases
 
 ### 101 — Launchpad
 
