@@ -7,7 +7,7 @@ sourceLabel: Mobile Docs
 
 M v1.0
 
-*Inherits from* [*RockMobile.StyledView*](https://mobiledocs.rockrms.com/essentials/controls#styledview)
+*Inherits from* [*RockMobile.StyledView*](https://community.rockrms.com/developer/mobile-docs/essentials/controls#styledview)
 
 Tags are pill-shaped labels that help to mark and categorize content. They usually consist of relevant keywords which make it easier to find and browse the corresponding piece of content. These are not directly correlated with Rock Tags.
 

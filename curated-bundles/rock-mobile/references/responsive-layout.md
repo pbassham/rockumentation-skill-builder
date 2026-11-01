@@ -102,7 +102,7 @@ We encourage you to read and understand the built-in ScrollView first: [https://
 | Property | Type | Description |
 | --- | --- | --- |
 | IsBounceEnabled | bool | On iOS, ScrollViews natively have a "bounce" that lets an individual scroll past the content, and then bounces it back. This property is a boolean offering a way to disable that native behavior. Defaults to True. |
-| NoSafeArea | bool | On iOS, this removes any ContentAreaInset (safe area padding: [https://mobiledocs.rockrms.com/essentials/controls/effects/safe-area-padding-effect](https://mobiledocs.rockrms.com/essentials/controls/effects/safe-area-padding-effect)) from the ScrollView. |
+| NoSafeArea | bool | On iOS, this removes any ContentAreaInset (safe area padding: [https://mobiledocs.rockrms.com/essentials/controls/effects/safe-area-padding-effect](https://community.rockrms.com/developer/mobile-docs/essentials/controls/effects/safe-area-padding-behavior)) from the ScrollView. |
 
 ## Example 
 

@@ -89,16 +89,29 @@ Below are a few of the basic terms that will help you come up to speed as you st
 | --- | --- |
 | Application | Includes all of the Rock Mobile blocks, content, branding, and other configurable areas. Most visual elements are found here. |
 | App Factory | Required publishing service for all Rock Mobile apps ([see more](https://community.rockrms.com/developer/mobile-docs/app-factory)) |
+| Block | A single piece of content or functionality on a page, such as a content list or a login form. Blocks are added and configured in Rock, and the Shell displays them. ([see more](https://community.rockrms.com/developer/mobile-docs/essentials/blocks)) |
+| Command | An action someone triggers from a button or link, such as opening a page, showing a cover sheet, or playing audio. ([see more](https://community.rockrms.com/developer/mobile-docs/essentials/commands)) |
 | Core | The Rock server powering your app ([see more](https://community.rockrms.com/developer/mobile-docs/developers/core-shell-dependencies)) |
-| Deploy | A button in Rock you can click to send out changes for all app users including configuration, pages, blocks, and content. |
-| Device Type | This is the type of device that the application is running on. The only two options are Phone and Tablet. |
-| Downhill CSS | The style framework included with Rock Mobile ([see more](https://community.rockrms.com/developer/mobile-docs/styling)) |
-| Publishing | The process by which App Factory distributes your apps into the Apple App Store and Google Play Console. This only includes new Shell versions, not content changes. |
-| Platform / Operating System (OS) | This is the platform that the application is running on. The options include iOS, iPadOS, and Android. |
-| Rock Core app | An app used for testing the latest production version of the Shell. You may have heard this referred to as the "orange app" and used it for the RX conference. [Apple App Store](https://apps.apple.com/au/app/rock-mobile-core/id1498547817) \| [Google Play](https://play.google.com/store/apps/details?id=org.sparkdevnetwork.rockmobile) |
-| Shell | Handles the tricky stuff like navigation, authentication, API calls, and more. The Shell is updated and maintained by the development team at Triumph Tech, whereas everything in the Application layer is under your control, built upon the Shell. |
+| Cover Sheet | A page that slides up over the current page, used for details or short tasks. Commands and Helix can both open one. |
+| Deploy | A button in Rock you can click to send out changes for all app users including configuration, pages, blocks, and content. Deploying doesn't need a store update. A new Shell version goes through Publishing instead. |
+| Device Type | The type of device the application is running on. The only two options are Phone and Tablet. An iPad reports as Tablet. |
+| Firebase App Distribution | Google's service for installing Android builds that aren't in the Google Play Store. Pre-release builds of the Rock Core app for Android are distributed here. ([see more](https://community.rockrms.com/developer/mobile-docs/app-factory/pre-release-testing)) |
+| Helix (Lava Applications) | Lets a page update parts of itself from Lava endpoints on your Rock server without reloading, so you can build interactive screens entirely in Lava. Rock calls this feature Lava Applications. ([see more](https://community.rockrms.com/developer/mobile-docs/essentials/lava/helix-lava-applications)) |
+| Lava | Rock's templating language. Blocks use it to merge data from Rock into the XAML they display. ([see more](https://community.rockrms.com/developer/mobile-docs/essentials/lava)) |
+| Layout | Divides a page into zones. Every page uses one layout, and a layout can have separate phone and tablet versions. |
+| Mobile Style Framework | The application setting that picks the styling system: Default (.NET MAUI), Blended, or Legacy. Default is the recommended option and the only one that fully supports light and dark mode. Its utility classes were originally named Downhill CSS, a name you'll still see on the Legacy pages. ([see more](https://community.rockrms.com/developer/mobile-docs/styling/style-guide)) |
+| Page | A single screen in the app. Pages are created in Rock under your mobile application, and each page holds blocks arranged in zones. |
+| Platform / Operating System (OS) | The platform the application is running on. The options are iOS and Android. iPads run iOS and are identified by a Device Type of Tablet. |
+| Pre-Release | A pre-alpha, alpha, or beta Shell build you can test before it ships, installed as a test version of the Rock Core app through TestFlight on iOS or Firebase App Distribution on Android, separate from the store version. ([see more](https://community.rockrms.com/developer/mobile-docs/app-factory/pre-release-testing)) |
+| Publishing | The process by which App Factory distributes your apps into the Apple App Store and Google Play Console. This only includes new Shell versions, which go through Apple and Google review. Content changes use Deploy instead. |
+| Push Notification | A message sent from Rock to people's devices, even when the app is closed. It requires setup through App Factory. ([see more](https://community.rockrms.com/developer/mobile-docs/app-factory/push-notifications)) |
+| Rock Core app | Spark's own Rock Mobile app, sometimes called the "orange app." You can connect it to your Rock server to build and test your app before your own Shell is published through App Factory. The App Store and Google Play versions run production releases. Pre-release builds of the same app are offered separately through TestFlight and Firebase App Distribution, for people who opt in. [Apple App Store](https://apps.apple.com/us/app/rock-mobile-core/id1498547817) \| [Google Play](https://play.google.com/store/apps/details?id=org.sparkdevnetwork.rockmobile) |
+| Shell | Handles the tricky stuff like navigation, authentication, API calls, and more. The Shell is updated and maintained by the development team at Triumph Tech, whereas everything in the Application layer is under your control, built upon the Shell. The Shell has its own version number, shown with an M label on articles, separate from the Rock (C) version. |
+| Shell Type | The overall navigation style of the app: Blank, Flyout (a side menu), or Tabbed (a tab bar). Set in your application's settings in Rock. |
 | Splash Screen | This is a static image shown briefly when the app is launched. Behind the scenes, the shell is connecting to the Rock server and getting the latest changes. |
-| TestFlight ([link](https://testflight.apple.com/)) | Apple's service for testing apps that aren't published in the App Store. App Factory will send your iOS app here for review first. |
+| TestFlight ([link](https://testflight.apple.com/)) | Apple's service for testing apps that aren't published in the App Store. App Factory will send your iOS app here for review first. Pre-release builds of the Rock Core app for iOS are distributed here too. |
+| XAML | The markup that describes what a block displays, such as text, images, buttons, and how they're arranged. Many blocks let you write XAML directly, often with Lava mixed in. ([see more](https://community.rockrms.com/developer/mobile-docs/essentials/controls)) |
+| Zone | A named area of a layout that holds blocks. |
 
 ---
 

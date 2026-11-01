@@ -98,7 +98,7 @@ There are numerous, pre-defined helper classes to help easily determine proven a
 
 Note
 
-These classes are only used to determine the size of text in Rock Mobile. To learn more about setting the color of your text, take a look at our [colors](https://mobiledocs.rockrms.com/styling/style-guide/colors) documentation.  
+These classes are only used to determine the size of text in Rock Mobile. To learn more about setting the color of your text, take a look at our [colors](https://community.rockrms.com/developer/mobile-docs/styling/style-guide/colors) documentation.  
 
 ```
 <VerticalStackLayout>

@@ -50,7 +50,7 @@ M v4.0
 
 In iOS, there is a pattern in which the navigation bar is see-through and blurs the content beneath:
 
-![](https://mobiledocs.rockrms.com/~gitbook/image?url=https%3A%2F%2Fi.stack.imgur.com%2F1qBtE.png&width=768&dpr=4&quality=100&sign=a6d6f798&sv=2)
+![](https://community.rockrms.com/GetImage.ashx?Guid=59673c61-ca60-48d2-aee1-5dedbe8be51a)
 
 You can accomplish the same thing easily. There are settings to adjust this in the Styles tab of your mobile application app builder:
 

@@ -80,7 +80,7 @@ This view provides a field that allows the user to enter an address, or display 
 
 Important
 
-The Address field is one of the few fields that should not be displayed in a [FieldContainer](https://mobiledocs.rockrms.com/essentials/controls/content-controls/field-container) that is forced into grouped mode. It is itself a grouped view so if you try to embed it inside another grouped view then you end up with double padding and double borders.  
+The Address field is one of the few fields that should not be displayed in a [FieldContainer](https://community.rockrms.com/developer/mobile-docs/essentials/controls/content-controls/field-container) that is forced into grouped mode. It is itself a grouped view so if you try to embed it inside another grouped view then you end up with double padding and double borders.  
 
 ### Example
 

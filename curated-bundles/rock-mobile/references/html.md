@@ -34,7 +34,7 @@ When enabling FollowHyperlinks, the text will be tappable on iOS, however there 
 
 Did you know that formatted content can also be shown with Markdown?
 
-[Markdown](https://mobiledocs.rockrms.com/essentials/controls/content-controls/markdown)
+[Markdown](https://community.rockrms.com/developer/mobile-docs/essentials/controls/content-controls/markdown)
 
 ## Supported Tags
 

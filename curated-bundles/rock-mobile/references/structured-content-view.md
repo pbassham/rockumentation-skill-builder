@@ -104,7 +104,7 @@ Not all Rock field types are supported by this block. Those that aren't will be 
 
 Important
 
-This block does not currently support Conditional Display Logic and will only respect the `Visible`, `Editable` and `Required` attributes of the field. In cases where conditional logic is required, you should consider using an external browser or a [WebView](https://mobiledocs.rockrms.com/essentials/controls/content-controls/web-view)[.](https://community.rockrms.com/developer/mobile-docs/essentials/controls/content-controls/web-view)  
+This block does not currently support Conditional Display Logic and will only respect the `Visible`, `Editable` and `Required` attributes of the field. In cases where conditional logic is required, you should consider using an external browser or a [WebView](https://community.rockrms.com/developer/mobile-docs/essentials/controls/content-controls/web-view)[.](https://community.rockrms.com/developer/mobile-docs/essentials/controls/content-controls/web-view)  
 
 ### Page Parameters
 

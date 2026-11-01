@@ -27,7 +27,7 @@ After the content, the second block setting to discuss is the "Enabled Lava Comm
 
 ### Entity Context
 
-With just a few settings, you can wire up [entity](https://community.rockrms.com/documentation/bookcontent/9/243#entities) context to the Content block making it even more powerful! Maybe you want to create a profile page for people based on [Search](https://mobiledocs.rockrms.com/essentials/block-reference/core/search) results. Instead of running Lava in the content to pull the needed data, let the block set the person context for you.
+With just a few settings, you can wire up [entity](https://community.rockrms.com/documentation/bookcontent/9/243#entities) context to the Content block making it even more powerful! Maybe you want to create a profile page for people based on [Search](https://community.rockrms.com/developer/mobile-docs/essentials/blocks/core/search) results. Instead of running Lava in the content to pull the needed data, let the block set the person context for you.
 
 Using the **Context Entity Type** setting in the block, you can select any of the available entities.
 
@@ -53,7 +53,7 @@ Now that you've set the block entity type and page context parameter, be sure to
 </VerticalStackLayout>
 ```
 
-Within your Content block, you can check that the context isn't `null` and begin accessing the entity. If context wasn't set correctly, consider a graceful fallback to another page via [Redirect](https://mobiledocs.rockrms.com/essentials/controls/content-controls/redirect).
+Within your Content block, you can check that the context isn't `null` and begin accessing the entity. If context wasn't set correctly, consider a graceful fallback to another page via [Redirect](https://community.rockrms.com/developer/mobile-docs/essentials/controls/content-controls/redirect).
 
 ```
 <VerticalStackLayout>

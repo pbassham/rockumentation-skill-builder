@@ -34,7 +34,7 @@ The following query string parameters are recognized and utilized by this block.
 
 ## Styling
 
-![The SMS Conversations CSS X-Ray.](https://mobiledocs.rockrms.com/~gitbook/image?url=https%3A%2F%2F1618311306-files.gitbook.io%2F%7E%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fspaces%252F-LnfHr7q46y6lOQNgsA4%252Fuploads%252Fk7iya2nTxabJdteQjSOu%252FSMS%2520Conversations%2520XRay.png%3Falt%3Dmedia%26token%3D48b493af-8844-4ee9-ac8a-7e1ef9878277&width=768&dpr=4&quality=100&sign=62f8fbe8&sv=2)
+![](https://community.rockrms.com/GetImage.ashx?Guid=d7cc3f86-972d-4ffc-9012-86b22d59a39a)
 
 ### Message Bubbles
 

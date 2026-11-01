@@ -9,7 +9,7 @@ Let's add some content to our application.
 
 Note
 
-This article is a section in the [Building Your First App](https://appletv.rockrms.com/building-your-first-app) walkthrough, so if you skipped here, some parts may be in reference to earlier sections of that. This article will still cover the ins and outs of creating a page and adding TVML content to it.  
+This article is a section in the [Building Your First App](https://community.rockrms.com/developer/apple-tv-docs/building-your-first-app) walkthrough, so if you skipped here, some parts may be in reference to earlier sections of that. This article will still cover the ins and outs of creating a page and adding TVML content to it.  
 
 ## Adding Content to the Start Screen
 
@@ -241,7 +241,7 @@ To use your demo key, download the Rock community app on to your Apple TV (searc
 
 Note
 
-To reset your demo settings and point back to the community application, take a look at the [Clear Demo](https://appletv.rockrms.com/javascript/commands/demo-commands#clear-demo) command.
+To reset your demo settings and point back to the community application, take a look at the [Clear Demo](https://community.rockrms.com/developer/apple-tv-docs/javascript/commands/demo-commands#clear-demo) command.
 
 ---
 

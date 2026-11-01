@@ -48,7 +48,7 @@ Standard styling rules apply using classes and ids.
 
 ## Global Styles
 
-To add your configured site-wide styles to a page, simply add the [`SiteStyles`](https://appletv.rockrms.com/tv-pages#content) merge field to your styles section.
+To add your configured site-wide styles to a page, simply add the [`SiteStyles`](https://community.rockrms.com/developer/apple-tv-docs/building-your-first-app/tv-pages#content) merge field to your styles section.
 
 ```
 <?xml version="1.0" encoding="UTF-8" ?>

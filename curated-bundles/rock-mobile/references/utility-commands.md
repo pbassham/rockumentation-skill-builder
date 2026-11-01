@@ -225,7 +225,7 @@ The `CommandParameter` can either be a plain string that indicates the event nam
 | Property | Type | Description |
 | --- | --- | --- |
 | Event | string | The name of the event to be triggered. |
-| Parameters | List<[Parameter](https://mobiledocs.rockrms.com/essentials/controls/developer-controls/parameter)\> | Any parameters that will be passed to the Lava engine, these manifest as lava variables. |
+| Parameters | List<[Parameter](https://community.rockrms.com/developer/mobile-docs/essentials/controls/developer-controls/parameter)\> | Any parameters that will be passed to the Lava engine, these manifest as lava variables. |
 
 **Examples**
 
@@ -871,7 +871,7 @@ Starting with Core v16, the role of 'RSR - Mobile Application Users' should be g
     CommandParameter="8fedc6ee-8630-41ed-9fc5-c7157fd1eaa4" />
 ```
 
-![](https://mobiledocs.rockrms.com/~gitbook/image?url=https%3A%2F%2F1618311306-files.gitbook.io%2F%7E%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fspaces%252F-LnfHr7q46y6lOQNgsA4%252Fuploads%252FgWZYHADspHa7wd0qUeOF%252Fimage.png%3Falt%3Dmedia%26token%3Dd7eb4a13-51fb-46f7-98ee-f57b7e818eb3&width=768&dpr=4&quality=100&sign=c03d95a0&sv=2)
+![](https://community.rockrms.com/GetImage.ashx?Guid=05bd5289-a963-4b54-96ff-79157fde4631)
 
 The action panel options shown with this command
 

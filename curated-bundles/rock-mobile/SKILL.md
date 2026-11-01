@@ -3,7 +3,7 @@ name: rock-mobile
 description: "Use when building a Rock Mobile app — iOS, Android, Apple TV, or Roku. Covers the Mobile Docs (shell setup, blocks, styling, deep links, push, app store submission), Apple TV docs, and Roku docs. This is the bundle to load whenever the question is about a native Rock-powered mobile or TV app."
 metadata:
   generator: rockumentation-skill-builder
-  generatedAt: 2026-10-25T09:15:16.225Z
+  generatedAt: 2026-11-01T09:11:03.736Z
   sources:
     - url: "https://community.rockrms.com/developer/mobile-docs"
       label: Mobile Docs
@@ -134,6 +134,7 @@ This skill bundles 119 references from 3 sources. Load topics on demand via the 
 - [Custom CSS](references/custom-css.md) — Use when styling Rock Mobile apps with CSS, including inline styles, global styles, utility classes for platforms/devices, and targeting pages or blocks
 - [Custom Blocks](references/custom-blocks.md) — Use when building custom mobile block types in Rock with C# instead of Lava, including configuration, mobile UI markup, and callback handling
 - [App Store Product Page](references/app-store-product-page.md) — Use when optimizing the Rock Mobile app's App Store product page including name, icon, subtitle, and screenshots to improve discoverability and downloads
+- [Publishing Requirements](references/publishing-requirements.md) — Use when users ask about Apple App Store or Google Play publishing requirements, policies, account deletion implementation, or mobile app approval guidelines
 - [Push Notifications](references/push-notifications.md) — Use when answering questions about sending push notifications to Rock Mobile app users, configuring notification transports, or authoring notification messages with links and details
 - [Pre-Release Testing](references/pre-release-testing.md) — Use when asking about pre-release testing procedures, TestFlight setup, Firebase App Distribution, or how to access beta versions of Rock Mobile
 

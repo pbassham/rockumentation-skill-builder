@@ -41,7 +41,7 @@ Results in a 2km radius circle around Bethlehem:
 
 ![](https://community.rockrms.com/GetImage.ashx?Id=67043)
 
-You can provide multiple points ([syntax](https://mobiledocs.rockrms.com/essentials/controls/content-controls/geo-boundary-view#point-syntax)) to create multiple geo-fences.
+You can provide multiple points ([syntax](https://community.rockrms.com/developer/mobile-docs/essentials/controls/content-controls/geo-boundary-view#point-syntax)) to create multiple geo-fences.
 
 ### Properties
 

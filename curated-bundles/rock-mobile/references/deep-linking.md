@@ -34,7 +34,7 @@ This will require a Rock restart to take effect.
 
 ### Configuration Necessities
 
-There are a few pieces of information you're going to need handy in order to configure deep linking. If you are unsure or unable to get any of the following information, please reach out to your [App Factory](https://mobiledocs.rockrms.com/app-factory/overview) contact.
+There are a few pieces of information you're going to need handy in order to configure deep linking. If you are unsure or unable to get any of the following information, please reach out to your [App Factory](https://community.rockrms.com/developer/mobile-docs/app-factory) contact.
 
 | Name | Platform | Description |
 | --- | --- | --- |

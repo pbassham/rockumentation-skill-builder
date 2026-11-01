@@ -218,7 +218,7 @@ The same is true of QR Code complexity. A simple code can be scanned without tro
 | --- | --- | --- |
 | BackgroundColor | Color | The background color behind the QR Code. Transparent by default. |
 | Color | Color | The color of the foreground blocks. Defaults to Black. |
-| Level | [ECCLevel](https://mobiledocs.rockrms.com/essentials/controls/content-controls/qr-code#ecclevel) | Error correction level. Defaults to M. |
+| Level | [ECCLevel](https://community.rockrms.com/developer/mobile-docs/essentials/controls/content-controls/qr-code#ecclevel) | Error correction level. Defaults to M. |
 | Content | string | The content to encode into the QR Code. |
 
 #### ECCLevel

@@ -55,7 +55,7 @@ If Lava meant for the device is showing up as literal text, rendering empty, or 
 
 ### API Key Missing After a Person Merge
 
-If the app stops loading content after someone merged person records, the app's API key may have been deleted or moved to another person. The API Key field on your mobile application's detail page is often blank, and saving a new value fails. See [API Key](https://community.rockrms.com/essentials/advanced-topics/api-key) to find out what happened and restore it.
+If the app stops loading content after someone merged person records, the app's API key may have been deleted or moved to another person. The API Key field on your mobile application's detail page is often blank, and saving a new value fails. See [API Key](https://community.rockrms.com/developer/mobile-docs/essentials/advanced-topics/api-key) to find out what happened and restore it.
 
 ### Signed In, but CurrentPerson Is Empty
 
@@ -83,6 +83,16 @@ Changing `web.config` restarts Rock, and anyone signed in on the web will need t
 Note
 
 Rock Mobile does not currently support a custom authentication cookie name. The app cannot read the configured name from the server, so the cookie must be named `.ROCK`.
+
+### Made for Older Android
+
+**If people see "This app isn't available for your device because it was made for an older version of Android" in Google Play, your app's shell has fallen behind.**
+
+Every Rock Mobile shell is built to target a specific Android API level. Google requires apps to keep up with new Android releases. When a published app's target API level gets too old, Google Play stops offering it to people on newer versions of Android. They can't find or install the app, and they see this message instead. People who already have the app installed can usually keep using it, so you may not hear about the problem until someone gets a new phone.
+
+Nothing on your Rock server causes this, and nothing on your Rock server can fix it. The only fix is to publish a newer shell to the Play Store. Shell updates aren't published automatically. If your app is on App Factory, submit a [shell update request](https://www.triumph.tech/services/app-factory/mobile-shell-update-request). Once Google approves the new version, the app shows up again for people on newer devices.
+
+To keep this from happening, plan on requesting a shell update at least once a year. See [Shell Update Requirements](https://community.rockrms.com/developer/mobile-docs/app-factory/shell-update-requirements) for how often Apple and Google require updates, and how to pick a shell version that matches your Rock server.
 
 ---
 

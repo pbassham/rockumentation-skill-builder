@@ -45,7 +45,7 @@ There were some cases stumbled across during testing in which the community tool
 
 ## Gradient Brush Transparency
 
-Setting a GradientStop color to `Transparent` worked as expected in Xamarin Forms, but you'll notice that MAUI has a default black color that shows when Transparent is used. To work around this, change the transparent color to the color you're trying to show with 0% opacity. You can use the prefix `#00` for hex codes ([see all](https://mobiledocs.rockrms.com/styling/colors#alpha-transparency-values)).
+Setting a GradientStop color to `Transparent` worked as expected in Xamarin Forms, but you'll notice that MAUI has a default black color that shows when Transparent is used. To work around this, change the transparent color to the color you're trying to show with 0% opacity. You can use the prefix `#00` for hex codes ([see all](https://community.rockrms.com/developer/mobile-docs/styling/style-guide/colors#alpha-transparency-values)).
 
 ## Changes in Rock Mobile
 
@@ -53,7 +53,7 @@ To address the .NET MAUI changes, there have been updates made to the mobile she
 
 ## The Zone control
 
-The [Zone](https://mobiledocs.rockrms.com/essentials/controls/developer-controls/zone), which is used in every single layout, has been updated with specialized behavior. This control was previously inherited from `StackLayout`, but for reasons stated above this control was migrated to a `Grid`, with some unique functionality. This means (if for some reason) you had a `Zone` with the `Orientation` set to `Horizontal`, that would break.Each block that goes in the `Zone` gets a unique row. This row is typically marked with a height of `Auto`, to mimic the old `Zone` behavior. There are some cases in which the height of the row is updated to `*`, which are as follows:
+The [Zone](https://community.rockrms.com/developer/mobile-docs/essentials/controls/developer-controls/zone), which is used in every single layout, has been updated with specialized behavior. This control was previously inherited from `StackLayout`, but for reasons stated above this control was migrated to a `Grid`, with some unique functionality. This means (if for some reason) you had a `Zone` with the `Orientation` set to `Horizontal`, that would break.Each block that goes in the `Zone` gets a unique row. This row is typically marked with a height of `Auto`, to mimic the old `Zone` behavior. There are some cases in which the height of the row is updated to `*`, which are as follows:
 
 1. Use of CollectionView/ListView/ScrollView
 2. The block is marked to expand internally
@@ -62,7 +62,7 @@ The [Zone](https://mobiledocs.rockrms.com/essentials/controls/developer-controls
 
 ## Sayonara, Frame, StyledView
 
-The Xamarin Forms [Frame](https://learn.microsoft.com/en-us/dotnet/maui/user-interface/controls/frame) and Rock Mobile [StyledView](https://mobiledocs.rockrms.com/essentials/controls/content-controls/styled-view) will still exist but are deprecated and won't be supported heavily. The reason is due to the release of the [Border](https://learn.microsoft.com/en-us/dotnet/maui/user-interface/controls/border) control. The Border is a much better alternative than Frame, in terms of performance and features, and allows for pretty much anything that the `StyledView` could do.The `Frame` control has not been consistent for our team when testing .NET MAUI. To assist with that, you can use the new `StyledBorder` control, that works as a good intermediary when transitioning from Frame -\> Border.
+The Xamarin Forms [Frame](https://learn.microsoft.com/en-us/dotnet/maui/user-interface/controls/frame) and Rock Mobile [StyledView](https://community.rockrms.com/developer/mobile-docs/essentials/controls/content-controls/styled-view) will still exist but are deprecated and won't be supported heavily. The reason is due to the release of the [Border](https://learn.microsoft.com/en-us/dotnet/maui/user-interface/controls/border) control. The Border is a much better alternative than Frame, in terms of performance and features, and allows for pretty much anything that the `StyledView` could do.The `Frame` control has not been consistent for our team when testing .NET MAUI. To assist with that, you can use the new `StyledBorder` control, that works as a good intermediary when transitioning from Frame -\> Border.
 
 ## Safe Area Padding
 

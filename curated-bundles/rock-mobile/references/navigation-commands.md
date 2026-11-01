@@ -79,7 +79,9 @@ This command allows you to open a web address using the built-in browser inside 
 
 If you are opening a URL to your own Rock server and wish to ensure the user is logged in, you can pass an empty `rckipid` parameter and an impersonation token will be automatically generated.
 
-Note that tokens generated with an empty parameter will use the settings defined in Rock's [global attributes](https://community.rockrms.com/Rock/BookContent/9#configuringpersontokens), which may be more open than your specific implementation needs. Consider your impersonation strategy and understand the risk that individuals can share their impersonated URL without realizing it. Alternatively, you can use the Lava filter [PersonImpersonationToken](https://community.rockrms.com/lava/filters/person-filters#personimpersonationtoken).
+Note that tokens generated with an empty parameter will use the settings defined in Rock's [global attributes](https://community.rockrms.com/Rock/BookContent/9#configuringpersontokens), which may be more open than your specific implementation needs. Consider your impersonation strategy and understand the risk that individuals can share their impersonated URL without realizing it. Alternatively, you can use the Lava filter [PersonImpersonationToken](https://community.rockrms.com/lava/filters/person-filters#personimpersonationtoken).  
+
+The built-in browser does not store Rock authentication tokens long-term, so passing an empty rckipid parameter is how individuals are signed in automatically. However, Rock will not create or accept a personal token for anyone whose Account Protection Profile is listed under "Disable Usage of Personal Tokens for the Following Protection Profiles" in Security Settings (by default, the Extreme profile). Those individuals will need to sign in manually each time the browser opens, even if they check "Stay signed in." Everyone else is signed in through the token as expected.
 
 The `CommandParameter` can either be a string, which contains the URL and query string parameters, or it can be a reference to an `OpenBrowserParameters` object which contains the following properties.
 
@@ -113,6 +115,8 @@ Similar to the OpenBrowser command, this one opens a URL in a browser window. Th
 If you are opening a URL to your own Rock server and wish to ensure the user is logged in, you can pass an empty `rckipid` parameter and an impersonation token will be automatically generated.
 
 Note that tokens generated with an empty parameter will use the settings defined in Rock's [global attributes](https://community.rockrms.com/Rock/BookContent/9#configuringpersontokens), which may be more open than your specific implementation needs. Consider your impersonation strategy and understand the risk that individuals can share their impersonated URL without realizing it. Alternatively, you can use the Lava filter [PersonImpersonationToken](https://community.rockrms.com/lava/filters/person-filters#personimpersonationtoken).
+
+Because this command uses the device's native browser, individuals who sign in and check "Stay signed in" will remain signed in. However, Rock will not create or accept a personal token for anyone whose Account Protection Profile is listed under "Disable Usage of Personal Tokens for the Following Protection Profiles" in Security Settings (by default, the Extreme profile). For those individuals, appending rckipid to the query string will override their existing browser sign-in, so they will not stay signed in. If this affects your staff or other high-protection individuals, consider leaving rckipid off of the URL.
 
 The `CommandParameter` can either be a string, which contains the URL and query string parameters, or it can be a reference to an `OpenExternalBrowserParameters` object which contains the following properties.
 

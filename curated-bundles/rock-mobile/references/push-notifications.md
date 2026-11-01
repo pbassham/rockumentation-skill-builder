@@ -185,4 +185,4 @@ Running a shell that's newer than your Rock server isn't something we officially
 
 Every year Google updates Android with a new version and underlying API level. The Rock Mobile shell targets an API level and is updated periodically as those become available. Google's policy is that existing apps must target the latest major Android version's API level within two years, or that app won't be available to new Android versions.
 
-To put it simply, your Rock Mobile app on Android needs a shell update published to the Play Store at least once every 1-2 years, but an annual cadence is recommended.
+To put it simply, your Rock Mobile app on Android needs a shell update published to the Play Store at least once every 1-2 years, but an annual cadence is recommended. When you're ready, submit a [shell update request](https://www.triumph.tech/services/app-factory/mobile-shell-update-request).

@@ -216,6 +216,14 @@ The pages in this section will provide information about the publishing process,
 
 On average, 50% of iOS apps are reviewed by Apple in 24 hours and over 90% are reviewed in 48 hours. Google boasts similar stats, meaning if all goes well, your apps will be ready to release quickly. If issues are found and the apps are rejected, App Factory will communicate with their team (and yours) to clarify or resolve the problem.
 
+## Partner Portal
+
+**You can see your App Factory subscription in the Triumph partner portal.** Sign in at [triumph.tech/partner-portal](https://www.triumph.tech/partner-portal) to view and manage your subscriptions.
+
+If your church's previous admin set up App Factory and you can't sign in, use the [Triumph contact form](https://www.triumph.tech/contact) to have access moved to someone on your current team. That's worth doing during any staff change, since app store notices go to whoever is on file.
+
+Shell updates aren't published automatically. When you're ready for one, submit a [shell update request](https://www.triumph.tech/services/app-factory/mobile-shell-update-request).
+
 ---
 
 ## Android Keystore {#android-keystore}
