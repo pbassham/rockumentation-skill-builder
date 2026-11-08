@@ -3,7 +3,7 @@ name: rock-hosting
 description: "Use when planning a Rock RMS implementation, choosing between self-hosted and Azure deployments, or scoping infrastructure. Bundles every 'Getting Started' manual from the Rock documentation index."
 metadata:
   generator: rockumentation-skill-builder
-  generatedAt: 2026-11-01T09:12:10.743Z
+  generatedAt: 2026-11-08T09:11:36.830Z
   sources:
     - url: "https://community.rockrms.com/documentation/bookcontent/2/357"
       label: Planning for Rock
