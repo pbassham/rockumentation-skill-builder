@@ -5,7 +5,7 @@ sourceLabel: Changelog
 ---
 > **Path:** Technical Release Notes
 
-[Build your personal RX26 schedule, sign up for Rock Star Consults and see the venue, all inside the Rock Community App.](https://rx.rockrms.com/rx-app)
+[The Content Subscription is live! Catch every RX session that you weren't able to make and share with your team!](https://rx.rockrms.com/subscription)
 
 > [!info] Info
 > Please [login](https://community.rockrms.com/login?returnurl=%2Fpage%2F1247) to access all of the features of the Community Site.
