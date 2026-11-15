@@ -1,5 +1,5 @@
 ---
-description: "Use when you need to update or create entity records in the database, including modifying properties, attributes, or connection status of entities like persons"
+description: Use when you need to update or create entity properties and attributes in Rock RMS databases using Lava commands
 source: "https://community.rockrms.com/Lava"
 sourceLabel: Lava
 ---

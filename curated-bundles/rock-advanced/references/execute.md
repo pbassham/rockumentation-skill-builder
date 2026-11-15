@@ -1,5 +1,5 @@
 ---
-description: "Use when you need to execute custom C# code within Lava templates to generate dynamic output or perform complex scripting tasks"
+description: "Use when executing C# code blocks within Lava templates, though this command is deprecated and not recommended for production use"
 source: "https://community.rockrms.com/Lava"
 sourceLabel: Lava
 ---

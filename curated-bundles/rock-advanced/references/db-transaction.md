@@ -1,5 +1,5 @@
 ---
-description: Use when user needs to bundle multiple database modifications together with automatic rollback on failure to maintain data consistency
+description: Use when bundling multiple database modifications together to ensure all-or-nothing execution with automatic rollback on failure
 source: "https://community.rockrms.com/Lava"
 sourceLabel: Lava
 ---
