@@ -5,7 +5,7 @@ sourceLabel: Mobile Docs
 ---
 > **Path:** 
 
-M v7.0
+Mobile7.0
 
 ## Overview
 

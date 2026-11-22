@@ -5,7 +5,7 @@ sourceLabel: Mobile Docs
 ---
 > **Path:** 
 
-M v1.0
+Mobile1.0
 
 *Inherits from [Xamarin.Forms.Layout](https://docs.microsoft.com/en-us/dotnet/api/xamarin.forms.layout-1)*
 
@@ -89,7 +89,7 @@ Each [ResponsiveColumn](https://community.rockrms.com/developer/mobile-docs/esse
 
 ## Scroll View {#scroll-view}
 
-M v13.5C v4.0
+Mobile4.0  Core13.5
 
 Inherits from [Xamarin.Forms.ScrollView](https://docs.microsoft.com/en-us/xamarin/xamarin-forms/user-interface/layouts/scrollview)
 

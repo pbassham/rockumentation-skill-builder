@@ -1,5 +1,5 @@
 ---
-description: Use when displaying a list of available connection types with request counts and customizing templates for connection type presentation
+description: "Use when configuring or customizing the display of connection types lists, including templates, merge fields, and request count displays"
 source: "https://community.rockrms.com/developer/mobile-docs"
 sourceLabel: Mobile Docs
 ---
@@ -7,7 +7,7 @@ sourceLabel: Mobile Docs
 
 Displays the list of connection types.
 
-M v3.0C v13.3
+Mobile3.0  Core13.3
 
 This block is used to display a list of the connection types. If you are unfamiliar with Connections in Rock, please refer to the [connections manual](https://community.rockrms.com/Rock/BookContent/39#connections).
 

@@ -5,15 +5,17 @@ sourceLabel: Mobile Docs
 ---
 > **Path:** 
 
-# Overview
+Mobile6.0
 
-![<br>](https://img.shields.io/badge/M-v8.0-ee7725?style=flat)
+# Overview
 
 *Inherits from [SKConfettiView](https://mono.github.io/SkiaSharp.Extended/api/ui-forms/skconfettiview.html)*
 
-Confetti View is a creative animation view designed to bring moments of celebration to life in your mobile app. Built using SkiaSharp, it delivers smooth and dynamic confetti effects—perfect for delighting users when they complete a task, unlock an achievement, or reach a milestone.
+Confetti View is a creative animation view designed to bring moments of celebration to life in your mobile app. Built using SkiaSharp, it delivers smooth and dynamic confetti effects, perfect for delighting people when they complete a task, unlock an achievement, or reach a milestone.
 
 With full customization, you can control the shape, color, speed, and style of the confetti to match your brand’s look and feel. Whether it’s a quick sparkle or a full-on celebration, Confetti View makes every moment feel special.
+
+To start and stop the confetti from a button or other action, use the [StartConfetti](https://community.rockrms.com/developer/mobile-docs/commands/startconfetti) and [StopConfetti](https://community.rockrms.com/developer/mobile-docs/commands/stopconfetti) commands.
 
 # Properties
 
@@ -125,16 +127,16 @@ If you wish to do so, you can customize a lot more
 You can also have multiple system within the view
 
 ```
-Grid Rock:Zone.Expands="true">
+<Grid Rock:Zone.Expands="true">
 
     <Rock:ConfettiView x:Name="confetti">
-    
+
         <!-- First System -->
         <Rock:ConfettiSystem Colors="Red, White, Blue"
             Emitter="Infinite"
             Shapes="rectangle, circle, star"
             Position="Center" />
-            
+
         <!-- Second System -->
         <Rock:ConfettiSystem Colors="Red, White, Blue"
             Emitter="Burst"
@@ -145,24 +147,27 @@ Grid Rock:Zone.Expands="true">
             EndAngle="350"
             MinimumInitialVelocity="100"
             MaximumInitialVelocity="600">
-            
+
             <Rock:ConfettiSystem.EmitterPosition>
-                <Rock:EmitterPositionPoint X="300" Y="400" />
+                <Rock:EmitterPositionPoint X="300"
+                    Y="400" />
             </Rock:ConfettiSystem.EmitterPosition>
-            
+
             <Rock:ConfettiSystem.Physics>
-                <Rock:ConfettiSystemPhysic Size="12" Mass="1.2" />
-                <Rock:ConfettiSystemPhysic Size="16" Mass="1.2" />
+                <Rock:ConfettiSystemPhysic Size="12"
+                    Mass="1.2" />
+                <Rock:ConfettiSystemPhysic Size="16"
+                    Mass="1.2" />
             </Rock:ConfettiSystem.Physics>
 
             <Rock:ConfettiSystem.CustomEmitter>
-              <Rock:ConfettiSystemEmitter ParticleRate="300"
-                MaxParticles="300"
-                Duration="0" />
+                <Rock:ConfettiSystemEmitter ParticleRate="300"
+                    MaxParticles="300"
+                    Duration="0" />
             </Rock:ConfettiSystem.CustomEmitter>
         </Rock:ConfettiSystem>
-       
-   </Rock:ConfettiView>
- 
+
+    </Rock:ConfettiView>
+
 </Grid>
 ```

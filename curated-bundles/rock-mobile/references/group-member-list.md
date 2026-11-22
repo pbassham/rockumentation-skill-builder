@@ -7,7 +7,7 @@ sourceLabel: Mobile Docs
 
 Allows the user to view a list of members in a group.
 
-M v5.0 C v15.1 [Integrated Scroll](https://community.rockrms.com/page/3516?slug=essentials%2fblocks#integrated-scroll)
+Mobile5.0  Core15.1 [Integrated Scroll](https://community.rockrms.com/page/3516?slug=essentials%2fblocks#integrated-scroll)
 
 ## Getting Content
 
@@ -48,7 +48,7 @@ The Deploy button is required for content changes.
 
 | Command | Parameter | Description |
 | --- | --- | --- |
-| CreateEntitySetAndNavigate   M v5.0 | [CommandReference](https://community.rockrms.com/developer/mobile-docs/essentials/controls/developer-controls/command-reference) | Create an entity set and performs a navigation command that passes an EntitySetGuid as a query string parameter. |
+| CreateEntitySetAndNavigate   Mobile5.0 | [CommandReference](https://community.rockrms.com/developer/mobile-docs/commands/command-reference) | Create an entity set and performs a navigation command that passes an EntitySetGuid as a query string parameter. |
 
 ### Creating an Entity Set
 

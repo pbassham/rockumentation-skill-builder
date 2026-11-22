@@ -7,7 +7,7 @@ sourceLabel: Mobile Docs
 
 Displays a set of challenges for the individual to complete today.
 
-M v3.0 C v12.5
+Mobile3.0  Core12.5
 
 This one is going to be a *challenge* to describe, but we'll get you up to speed on how to use it. This block allows you to build a visual interface to provide challenges to your people. These challenges span multiple days and comprise one or more individual challenge items on each day. An example might make more sense of what we are talking about.
 

@@ -7,7 +7,7 @@ sourceLabel: Mobile Docs
 
 Allows you to send out Email/SMS communications to a group of recipients.
 
-M v5.0 C v15.0
+Mobile5.0  Core15.0
 
 This block is relatively simple to use, but it requires a decent understanding of [Communications in Rock](https://community.rockrms.com/rocku/communication).
 
@@ -108,7 +108,7 @@ When filtering by campus, you may want to display lists that the user is subscri
 
 ## Communication View {#communication-view}
 
-M v2.0
+Mobile2.0
 
 This block is simple to use, but it's important to understand its function. When authoring a new push communication, you may have seen the question for **Open Action**, which includes the options `Link to Mobile Page` and `Show Details`. This block handles the Show Details option.
 
@@ -123,57 +123,3 @@ Note that not every formatting option is supported in the mobile app, so don't g
 | Name | Type | Description |
 | --- | --- | --- |
 | CommunicationRecipientGuid | Guid | The Guid for the communication recipient. |
-
----
-
-## SMS Conversation List {#sms-conversation-list}
-
-*Manage your inbox of SMS Conversations.*
-
-M v5.0 C v15.0
-
-## Configuration
-
-### Allowed SMS Numbers
-
-This setting allows you to designate which phone numbers are permitted as From numbers. If no numbers are selected, all numbers will be available.
-
-### Show Only Personal SMS Number
-
-When this setting is turned on, only SMS numbers associated with the current person will display. Administrators, however, will be able to view all SMS numbers.
-
-### Hide Personal SMS Number
-
-Enable this setting to only show SMS numbers that aren't linked to a specific person - essentially, numbers without an "Assigned To Person" value.
-
-### Show Conversations From Months Ago
-
-Limits the conversations shown to those of X months ago or newer.
-
-### Max Conversations
-
-The max number of conversations to show in the panel.
-
-### Database Timeout
-
-The number of seconds to wait before reporting a database timeout.
-
-### Conversation Page
-
-The page that the person will be pushed to when selecting a conversation. It would be wise that this page include a [SMS Conversation](https://community.rockrms.com/developer/mobile-docs/essentials/blocks/communication/sms-conversation) block. This page will be pushed to with the `PhoneNumberGuid` and `PersonGuid` parameters.
-
-### Person Search Stopped Typing Behavior Threshold
-
-The amount of time to wait before executing the person search command, from the millisecond that the person stops typing.
-
-### Page Parameters
-
-The following query string parameters are recognized and utilized by this block.
-
-| Name | Type | Description |
-| --- | --- | --- |
-| AutoFocusPersonSearch | bool | A boolean indicating whether or not the Person Search field should be automatically focused upon display. Defaults to true. |
-
-### Styling
-
-![The SMS Conversation List CSS X-Ray](https://community.rockrms.com/GetImage.ashx?Id=66892)

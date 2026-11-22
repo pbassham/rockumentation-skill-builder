@@ -7,7 +7,7 @@ sourceLabel: Mobile Docs
 
 *Display a highly performant list of views powered by JSON data and an item template.*
 
-M v6.0
+Mobile6.0
 
 Inherits from [Sharpnado.CollectionView](https://github.com/roubachof/Sharpnado.CollectionView/tree/main)
 
@@ -125,7 +125,7 @@ Make sure to use Rock:ViewCell as the base of your template. This control has 
 
 ## Login Status {#login-status}
 
-M v1.0
+Mobile1.0
 
 *Inherits from [Xamarin.Forms.ContentView](https://docs.microsoft.com/en-us/dotnet/api/xamarin.forms.contentview)*
 
@@ -164,11 +164,11 @@ The Login Status control displays an icon and message encouraging individuals to
 
 ### Update Photo
 
-M v5.0
+Mobile5.0
 
-The popup window was replaced with the `[UpdatePersonProfilePhoto](https://community.rockrms.com/developer/mobile-docs/essentials/commands/utility-commands#updatepersonprofilephoto)` command. Although the command itself supports updating the photo for any individual, the LoginStatus control only changes the photo for the `CurrentPerson`.
+The popup window was replaced with the `[UpdatePersonProfilePhoto](https://community.rockrms.com/developer/mobile-docs/commands/updatepersonprofilephoto)` command. Although the command itself supports updating the photo for any individual, the LoginStatus control only changes the photo for the `CurrentPerson`.
 
-M v2.0
+Mobile2.0
 
 Users will have the option to take a new photo or select an existing one from their photo library. These options appear in a popup window that you can style using the CSS classes listed below.
 
@@ -178,7 +178,7 @@ Users will have the option to take a new photo or select an existing one from th
 
 ## Login Status Photo {#login-status-photo}
 
-M v1.0
+Mobile1.0
 
 *Inherits from [Xamarin.Forms.ContentView](https://docs.microsoft.com/en-us/dotnet/api/xamarin.forms.contentview)*
 
@@ -214,7 +214,7 @@ A number of properties allow you to specify how the profile photo will be displa
 
 *A component that seamlessly displays engaging animations to enhance your mobile app's user experience.*
 
-M v6.0
+Mobile6.0
 
 ### Quick Links
 
@@ -255,7 +255,7 @@ Lottie files are JSON-based animations. These files are lightweight, scalable, a
 
 ## Markdown {#markdown}
 
-M v1.0
+Mobile1.0
 
 *Inherits from [Xamarin.Forms.ContentView](https://docs.microsoft.com/en-us/dotnet/api/xamarin.forms.contentview)*
 

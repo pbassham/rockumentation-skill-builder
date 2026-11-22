@@ -117,8 +117,8 @@ The Device variable gives you access to the type of device used by the user:
 | Manufacturer | The manufacturer of the device (e.g. Apple) |
 | Model | The model of the device (e.g. iPhone 7) |
 | Name | The name of the device. This is often not a real device name as that is considered confidential information by Apple. |
-| ShellVersion M v3.0 | The application version number of the Shell (e.g. 1.2.1.7) |
-| ApplicationVersion M v3.0 | The app store application version number (e.g. 2.0.3) |
+| ShellVersion Mobile3.0 | The application version number of the Shell (e.g. 1.2.1.7) |
+| ApplicationVersion Mobile3.0 | The app store application version number (e.g. 2.0.3) |
 | DevicePlatform | The platform the shell is running on: iOS, Android, Unknown |
 | Orientation | The current orientation of the device: Unknown, Portrait, Landscape |
 | Width | The width of the screen (in relation to current orientation) in pixels |
@@ -252,7 +252,7 @@ The context is available on the server much like it is for web blocks. This cont
 
 ### Context on the Client
 
-M v2.0
+Mobile2.0
 
 What's available to the client is much less detailed than the server. For now, the only context available is the Campus context and only the `Guid` property will be available. The only context objects available are those defined on the shell client, such as from the Campus Context Picker. Any context defined by the page itself is not available.
 

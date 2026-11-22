@@ -7,11 +7,15 @@ sourceLabel: Mobile Docs
 
 Enables a full-featured real-time chat experience with support for threads, reactions, media, group messaging and more.
 
-M v7.0Cv17.1 [Integrated Scroll](https://community.rockrms.com/page/3516?slug=essentials%2fblocks#integrated-scroll)
+Mobile7.0  Core17.1 [Integrated Scroll](https://community.rockrms.com/page/3516?slug=essentials%2fblocks#integrated-scroll)
 
 Note
 
 To get started with Chat in Rock Mobile, contact the App Factory team to discuss the required pre-configuration for your mobile app.
+
+Note
+
+Chat pushes set the app icon badge separately from Rock's count. See [App Icon Badge](https://community.rockrms.com/developer/mobile-docs/essentials/features/app-icon-badge).
 
 ### Overview
 

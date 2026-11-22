@@ -7,7 +7,7 @@ sourceLabel: Mobile Docs
 
 Using Auth0 for your Rock mobile application login.
 
-M v5.0 C v15.1
+Mobile5.0  Core15.1
 
 ### What is Auth0?
 

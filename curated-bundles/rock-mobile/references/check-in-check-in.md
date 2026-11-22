@@ -7,7 +7,7 @@ sourceLabel: Mobile Docs
 
 *The Rock Mobile check-in experience.*
 
-M v17.7 C v6.0 [Integrated Scroll](https://community.rockrms.com/page/3516?slug=essentials%2fblocks#integrated-scroll)
+Mobile17.7  Core6.0 [Integrated Scroll](https://community.rockrms.com/page/3516?slug=essentials%2fblocks#integrated-scroll)
 
 ## Overview
 

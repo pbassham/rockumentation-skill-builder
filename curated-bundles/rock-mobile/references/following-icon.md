@@ -5,7 +5,7 @@ sourceLabel: Mobile Docs
 ---
 > **Path:** 
 
-M v1.0
+Mobile1.0
 
 *Inherits from* [*Xamarin.Forms.Label*](https://docs.microsoft.com/en-us/dotnet/api/xamarin.forms.label)
 
@@ -19,7 +19,7 @@ This of course assumes that the user is currently logged in. If they are not log
 | --- | --- | --- |
 | EntityId | int | The Id number of the entity to be followed. |
 | EntityTypeId | int | The Id number of the entity's type. |
-| PurposeKey   M v2.0C v12.4 | string | The key to identify a custom purpose to the following. *Defaults to* *null**.* |
+| PurposeKey   Mobile2.0  Core12.4 | string | The key to identify a custom purpose to the following. *Defaults to* *null**.* |
 | IsFollowed | bool | The current followed state of the entity. *Defaults to* *false**.* |
 | FontSize | double | The size of the font to use. |
 | FollowingIconClass | string | The icon class to display when the entity is being followed. *Defaults to* *star**.* |

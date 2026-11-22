@@ -120,7 +120,7 @@ There’s no styling X-Ray available.
 
 *Set your preferences for group scheduling.*
 
-### M v4.0C v13.3
+### Mobile4.0  Core13.3
 
 This allows an individual to set their scheduling preferences, so an administrator (and auto-scheduling) knows their preferred dates, times, and locations. If you are unfamiliar with group scheduling in Rock, please refer to the [Rock Your Groups - Group Scheduling](https://community.rockrms.com/Rock/BookContent/7#groupscheduling) manual.
 
@@ -132,13 +132,13 @@ With "Children's" and "Greeters" being the groups that the individual is enrolle
 
 ## Preferences
 
-This is the screen that an individual can update their preferences on. It will automatically update when the user changes the value, with a friendly [ShowToast](https://community.rockrms.com/developer/mobile-docs/essentials/commands/utility-commands#showtoast) to notify them that it was successful.
+This is the screen that an individual can update their preferences on. It will automatically update when the user changes the value, with a friendly [ShowToast](https://community.rockrms.com/developer/mobile-docs/commands/showtoast) to notify them that it was successful.
 
 ## Add Assignment
 
 The 'Add Assignment' button will prompt them with a modal to allow an individual to request exact group scheduling opportunities, as exampled below:
 
-When this form is submitted, it is reflected in the Preferences page with a friendly [ShowToast](https://community.rockrms.com/developer/mobile-docs/essentials/commands/utility-commands#showtoast) stating it was successful.
+When this form is submitted, it is reflected in the Preferences page with a friendly [ShowToast](https://community.rockrms.com/developer/mobile-docs/commands/showtoast) stating it was successful.
 
 ### Styling
 
@@ -148,7 +148,7 @@ When this form is submitted, it is reflected in the Preferences page with a frie
 
 ## Schedule Sign Up {#schedule-sign-up}
 
-M v4.0 C v13.3 [Integrated Scroll](https://community.rockrms.com/page/3516?slug=essentials%2fblocks#integrated-scroll)
+Mobile4.0  Core13.3 [Integrated Scroll](https://community.rockrms.com/page/3516?slug=essentials%2fblocks#integrated-scroll)
 
 This allows an individual to sign up for additional scheduling opportunities, instead of having to be scheduled for a particular location and time through an administrator. This block is heavily dependent on group configuration for scheduling so if you are unfamiliar with group scheduling in Rock, please refer to [Rock Your Groups - Group Scheduling](https://community.rockrms.com/Rock/BookContent/7#groupscheduling).
 

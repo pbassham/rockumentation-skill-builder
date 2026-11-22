@@ -7,7 +7,7 @@ sourceLabel: Mobile Docs
 
 Send a System Communication as a fallback to Chat members who don't receive device notifications.
 
-M v7.0C v18.0
+Mobile7.0  Core18.0
 
 Warning
 
@@ -161,4 +161,156 @@ Note the `code` CSS class handles the styling. For code snippets that are more t
 <Label StyleClass="code">
         {% capture source %}<Button Text="Action Name" 
         StyleClass="btn, btn-primary-outline"  />{% endcapture %}{{ source | XamlWrap }}</Label>
+```
+
+---
+
+## Controls {#controls}
+
+Views are user-interface objects such as labels, buttons, and sliders that are commonly known as controls or widgets in other graphical programming environments.
+
+**.NET MAUI Base Views**
+
+The .NET MAUI framework provides a rich collection of base views (controls), documented on the [Microsoft site](https://learn.microsoft.com/dotnet/maui/user-interface/controls/). See [.NET MAUI](https://community.rockrms.com/developer/mobile-docs/essentials/net-maui) for how they fit with Rock’s controls and when to use Microsoft’s docs.
+
+---
+
+## Behaviors {#behaviors}
+
+# Behaviors
+
+---
+
+## Event To Command Behavior {#event-to-command-behavior}
+
+Attach commands to events.
+
+Mobile7.0
+
+*Inherits from* [*EventToCommandBehavior*](https://learn.microsoft.com/en-us/dotnet/communitytoolkit/maui/behaviors/event-to-command-behavior)
+
+The **EventToCommandBehavior** lets you link a command to an event in your UI. For example, the Text Editor control has a **TextChanged** event. With this behavior, you can trigger a command whenever that event occurs—like showing a toast notification every time the text is modified.
+
+**Examples**
+
+```
+<Rock:FieldContainer>
+    <Rock:TextEditor>
+        <Rock:TextEditor.Behaviors>
+            <Rock:EventToCommandBehavior EventName="TextChanged"
+                Command="{Binding ShowToast}"
+                CommandParameter="The text has been changed." />
+        </Rock:TextEditor.Behaviors>
+    </Rock:TextEditor >
+</Rock:FieldContainer>
+```
+
+---
+
+## Touch Behavior {#touch-behavior}
+
+Polish your views to react to different types of gestures (in place of a non-animated TapGesture)
+
+Mobile7.0
+
+*Inherits from* [*TouchBehavior*](https://learn.microsoft.com/en-us/dotnet/communitytoolkit/maui/behaviors/touch-behavior?tabs=toucheffect-xaml%2Ctouchbehavior-xaml)
+
+The TouchBehavior allows you to add touch interaction to any VisualElement. It lets you customize visual properties like `BackgroundColor`, `Opacity`, `Rotation`, `Scale`, and more when the element is touched.
+
+**Examples**
+
+```
+<HorizontalStackLayout HorizontalOptions="Center" VerticalOptions="Center">
+    <HorizontalStackLayout.Behaviors>
+        <Rock:TouchBehavior
+            DefaultAnimationDuration="250"
+            DefaultAnimationEasing="{x:Static Easing.CubicInOut}"
+            PressedOpacity="0.6"
+            PressedScale="0.8" />
+    </HorizontalStackLayout.Behaviors>
+
+    <ContentView
+        HeightRequest="100"
+        WidthRequest="10"
+        BackgroundColor="Gold" />
+        
+    <Label Text="The entire layout receives touches" 
+        VerticalOptions="Center" 
+        LineBreakMode="TailTruncation"/>
+    <ContentView
+        HeightRequest="100"
+        WidthRequest="10"
+        BackgroundColor="Gold" />
+</HorizontalStackLayout>
+```
+
+---
+
+## Content Controls {#content-controls}
+
+# Content Controls
+
+---
+
+## Activity Indicator {#activity-indicator}
+
+Mobile1.0
+
+*Inherits from* [*Xamarin.Forms.ContentView*](https://docs.microsoft.com/en-us/dotnet/api/xamarin.forms.contentview)
+
+Sometimes things take a moment to load. You don't want to just display a big white screen for the user to stare at, you want them to know we're working hard for them. That said, usually you are not going to be instantiating this view directly. But just in case you want to, here you go.
+
+The ActivityIndicator will begin "working" when it becomes visible on screen. Initially, it will not show anything. Once a built-in timer elapses (350ms) then the actual indicator becomes visible. Your user will not care if it takes your page a few hundred milliseconds to load so there is no need to show them a spinning wheel right away.
+
+## Properties
+
+| Property | Type | Description |
+| --- | --- | --- |
+| IsVisible | bool | If true then the activity indicator will be visible and show that work is being done. |
+
+### Example
+
+```
+<Rock:ActivityIndicator />
+```
+
+![](https://community.rockrms.com/GetImage.ashx?Id=66996)
+
+---
+
+## Application Info {#application-info}
+
+Mobile2.1  Core12.4
+
+*Inherits from* [*Xamarin.Forms.ContentView*](https://docs.microsoft.com/en-us/dotnet/api/xamarin.forms.contentview)
+
+Somewhere in your application you normally have some sort of *About* page that gives information about your app, such as version numbers. This view provides those version numbers in a quick way without you having to worry about styling. It simply lays out each item as a single Label inside a vertical StackLayout.
+
+The values displayed are:
+
+- Package Version - This displays the version number of the site package. This is the file that is built when you click the
+- Shell Version - The shell is what provides all the standard code and functionality across all Rock Mobile applications. This helps you know what features are supported on the user's device.
+- App Store Version - This will match the version number of your application bundle as reported by the Google Play Store and Apple App Store.
+
+If you wish to completely customize how this data is presented, you can access the same information via data binding to `Application.PackageVersion`, `Application.ShellVersion`, and `Application.ApplicationVersion`. Such as:
+
+```
+<Label>
+    <Label.FormattedText>
+        <FormattedString>
+            <Span Text="App Version: " FontAttributes="Bold" />
+            <Span Text="{Binding Application.ApplicationVersion}" />
+        </FormattedString>
+    </Label.FormattedText>
+</Label>
+```
+
+## Properties
+
+*This view contains no properties of it's own.*
+
+## Example
+
+```
+<Rock:ApplicationInfo />
 ```

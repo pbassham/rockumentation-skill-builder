@@ -5,7 +5,7 @@ sourceLabel: Mobile Docs
 ---
 > **Path:** 
 
-M v7.0C v17.1
+Mobile7.0  Core17.1
 
 Proximity Attendance checks people in and out automatically when they arrive at or leave a location, using small Bluetooth devices called beacons. The person opts in once in the app. After that, their phone records attendance in the background, even when the app is closed.
 
@@ -122,13 +122,13 @@ Every screen can be customized with `StartBeaconMonitoringCommandParameters`. Ea
 | Property | Type | Default |
 | --- | --- | --- |
 | AllowLocationPermissionTitle | string | Allow Location Access to Start Proximity Check In |
-| AllowLocationPermissionSubtitle | string | Explains that location is used only to detect check-in beacons |
+| AllowLocationPermissionSubtitle | string | Your location lets the app check you in automatically when you arrive. |
 | AllowLocationPermissionView | View | Built-in instruction image |
 | AllowBluetoothPermissionTitle | string | Allow Bluetooth to Start Proximity Check In |
-| AllowBluetoothPermissionSubtitle | string | Please follow these instructions when prompted. |
+| AllowBluetoothPermissionSubtitle | string | Choose Allow so the app can find check-in beacons nearby. |
 | AllowBluetoothPermissionView | View | Built-in instruction image |
 | OpenSettingsTitle | string | Update Your Location Settings |
-| OpenSettingsSubtitle | string | Please select these options in your app settings. |
+| OpenSettingsSubtitle | string | iOS: Choose Always and turn on Precise Location. Android: Choose Allow all the time and turn on Use precise location. |
 | OpenSettingsView | View | Built-in instruction image |
 | SuccessScreenTitle | string | Success |
 | SuccessScreenSubtitle | string | Location-based check-in has been successfully configured. |

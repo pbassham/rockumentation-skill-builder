@@ -7,7 +7,11 @@ sourceLabel: Mobile Docs
 
 Manage an SMS message conversation with a modern UI.
 
-M v5.0 C v15.0
+Mobile5.0  Core15.0 [Integrated Scroll](https://community.rockrms.com/page/3516?slug=essentials%2fblocks#integrated-scroll)
+
+Note
+
+Opening a conversation marks it read and lowers the app icon badge. See [App Icon Badge](https://community.rockrms.com/developer/mobile-docs/essentials/features/app-icon-badge).
 
 ## Configuration
 
@@ -69,7 +73,7 @@ This section refers to the "Connection" mobile block group.
 
 ## Add Connection Request {#add-connection-request}
 
-C20.0M20.0
+Mobile20.0  Core20.0 [Integrated Scroll](https://community.rockrms.com/page/3516?slug=essentials%2fblocks#integrated-scroll)
 
 Creates a new connection request through a step-by-step wizard.
 
@@ -112,7 +116,7 @@ Creates a new connection request through a step-by-step wizard.
 
 ## Connection Type List {#connection-type-list}
 
-C20.0M20.0
+Mobile20.0  Core20.0 [Integrated Scroll](https://community.rockrms.com/page/3516?slug=essentials%2fblocks#integrated-scroll)
 
 Displays the connection types the person can view, with request counts for each.
 
@@ -149,7 +153,7 @@ Displays the connection types the person can view, with request counts for each.
 
 ## Connection Opportunity List {#connection-opportunity-list}
 
-C20.0M20.0
+Mobile20.0  Core20.0 [Integrated Scroll](https://community.rockrms.com/page/3516?slug=essentials%2fblocks#integrated-scroll)
 
 Displays the opportunities of a connection type with request counts and type-level metrics.
 
@@ -189,7 +193,7 @@ Displays the opportunities of a connection type with request counts and type-lev
 
 ## Connection Request List {#connection-request-list}
 
-C20.0M20.0
+Mobile20.0  Core20.0 [Integrated Scroll](https://community.rockrms.com/page/3516?slug=essentials%2fblocks#integrated-scroll)
 
 Displays the connection requests of a single opportunity with search, filters, sorting, and infinite scroll.
 

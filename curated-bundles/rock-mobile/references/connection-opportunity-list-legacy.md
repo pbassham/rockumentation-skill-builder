@@ -1,5 +1,5 @@
 ---
-description: Use when displaying a list of connection opportunities filtered by a specific connection type in Rock Mobile applications
+description: "Use when displaying a list of connection opportunities for a specific connection type in Rock Mobile, including configuration with query parameters and connection type guids."
 source: "https://community.rockrms.com/developer/mobile-docs"
 sourceLabel: Mobile Docs
 ---
@@ -7,7 +7,7 @@ sourceLabel: Mobile Docs
 
 Displays the list of connection opportunities for a single connection type.
 
-M v3.0C v13.3
+Mobile3.0  Core13.3
 
 This block is used to display a list of connection opportunities for a single connection type. If you are unfamiliar with Connections in Rock, please refer to the [connections manual](https://community.rockrms.com/Rock/BookContent/39#connections).
 

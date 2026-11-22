@@ -1,5 +1,5 @@
 ---
-description: "Use when implementing swap strategies to control how response fragments are placed, replaced, or animated in Rock mobile views"
+description: "Use when you need to understand how HTMX responses are placed in Rock mobile apps, including swap strategies, animation modifiers, and targeting requirements"
 source: "https://community.rockrms.com/developer/mobile-docs"
 sourceLabel: Mobile Docs
 ---

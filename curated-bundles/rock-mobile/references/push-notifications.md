@@ -9,6 +9,10 @@ sourceLabel: Mobile Docs
 
 Push notifications are a great way to communicate with people using your app. With Rock Mobile, you can send messages to specific individuals, communication lists, or to everyone that has the app installed, even when they're not signed in.
 
+Note
+
+Rock also uses silent pushes to keep the app icon badge current. See [App Icon Badge](https://community.rockrms.com/developer/mobile-docs/essentials/features/app-icon-badge).
+
 ## Authoring Notifications
 
 If you've used the Communication Wizard in Rock to send emails or SMS messages before, you'll be right at home. You can read more about how to use this in the [Communicating With Rock manual](https://community.rockrms.com/Rock/BookContent/8#communicationwizard).
@@ -55,7 +59,7 @@ With the aforementioned communication changes set, the Rock instance is one last
 
 ## Setting Up The App
 
-In order for someone to receive a notification from your app, they must have notifications enabled. To do that, the app must request access to send notifications, allowing them to define their preferences. There's a command called [EnablePushNotifications](https://community.rockrms.com/developer/mobile-docs/essentials/commands/utility-commands#enablepushnotifications) that you can use to initiate this request. There is also an application setting called **Enable Notifications Automatically** under Advanced Settings. When enabled, this will request notification access at launch.
+In order for someone to receive a notification from your app, they must have notifications enabled. To do that, the app must request access to send notifications, allowing them to define their preferences. There's a command called [EnablePushNotifications](https://community.rockrms.com/developer/mobile-docs/commands/enablepushnotifications) that you can use to initiate this request. There is also an application setting called **Enable Notifications Automatically** under Advanced Settings. When enabled, this will request notification access at launch.
 
 You may want to determine on a page if Push Notifications are enabled and ready for use so that you can prompt the user to enable them. For example, if you have a page that lets the user sign up to receive push notifications about an upcoming event, you might want to make sure notifications are enabled - or at least tell the user they have disabled them. We provide two values in your AppValues model to detect these states.
 
@@ -177,12 +181,14 @@ We recommend keeping your app's shell version at or below the version of Rock on
 
 Running a shell that's newer than your Rock server isn't something we officially support. It will often work fine, but some features may depend on a newer version of Rock, and issues that only occur in this setup may not be prioritized.
 
+## iOS
+
+**Apple raises the required Xcode version every year.** Xcode is Apple’s tool for building iPhone apps, and each version builds against a matching iOS SDK, the set of iOS features an app can use. Each spring, the App Store stops accepting apps built with older Xcode versions. An app already in the store keeps working, but no update can be submitted until it moves to a shell built with a newer Xcode. [Shell Platform Support](https://community.rockrms.com/developer/mobile-docs/developers/shell-platform-support) lists each shell’s Xcode version.
+
+**The SDK isn’t the minimum iOS.** A shell built with the newest SDK still runs on older iPhones, down to its minimum iOS version.
+
 ## Android
 
-[https://support.google.com/googleplay/android-developer/answer/11926878](https://support.google.com/googleplay/android-developer/answer/11926878)
+**Google raises the required target API level every year.** Each Android release comes with a new API level, and every Rock Mobile shell targets one. Google Play requires apps to target an API level within one year of the latest Android release. An app that falls behind becomes unavailable to new users on newer Android versions. See Google’s [target API level requirements](https://support.google.com/googleplay/android-developer/answer/11926878) for the current deadlines.
 
-![](https://community.rockrms.com/GetImage.ashx?Id=67071)
-
-Every year Google updates Android with a new version and underlying API level. The Rock Mobile shell targets an API level and is updated periodically as those become available. Google's policy is that existing apps must target the latest major Android version's API level within two years, or that app won't be available to new Android versions.
-
-To put it simply, your Rock Mobile app on Android needs a shell update published to the Play Store at least once every 1-2 years, but an annual cadence is recommended. When you're ready, submit a [shell update request](https://www.triumph.tech/services/app-factory/mobile-shell-update-request).
+Because Android releases come out yearly, an app usually has about two years before it’s cut off, but we recommend a shell update every year. When you’re ready, submit a [shell update request](https://www.triumph.tech/services/app-factory/mobile-shell-update-request).

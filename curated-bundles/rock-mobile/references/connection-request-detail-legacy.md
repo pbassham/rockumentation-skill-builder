@@ -1,13 +1,17 @@
 ---
-description: "Use when displaying detailed information about a specific connection request, including its status, activities, and contact options in Rock mobile applications"
+description: "Use when displaying or customizing the details, layout, and styling of a specific connection request in Rock Mobile including activities and contact information"
 source: "https://community.rockrms.com/developer/mobile-docs"
 sourceLabel: Mobile Docs
 ---
 > **Path:** 
 
-M v3.0C v13.3
+Mobile3.0  Core13.3
 
 This block is used to display details for a particular connection request. If you are unfamiliar with Connections in Rock, please refer to the [connections manual](https://community.rockrms.com/Rock/BookContent/39#connections).
+
+Note
+
+@mentions in comments and activities add to the mentioned person's app icon badge. See [App Icon Badge](https://community.rockrms.com/developer/mobile-docs/essentials/features/app-icon-badge).
 
 ### Style Classes
 
@@ -30,7 +34,7 @@ This block is used to display details for a particular connection request. If yo
 | Key | Type |
 | --- | --- |
 | ConnectionRequestGuid | Guid |
-| ConnectionRequestId Cv16.1 | Id |
+| ConnectionRequestId Core16.1 | Id |
 
 ### Header Template
 
@@ -77,7 +81,7 @@ We have decided to make this an even easier piece of the puzzle to set, by inclu
 
 **Person Profile Page**
 
-M v5.0
+Mobile5.0
 
 When the profile button is pressed, this is the page that will be pushed. Out of the box, the profile button provides the `PersonGuid` through a query string parameter upon navigating to this page.
 

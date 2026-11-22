@@ -1,5 +1,5 @@
 ---
-description: Use when optimizing Rock mobile app screen performance and reducing network round trips during initial page load
+description: Use when optimizing mobile app performance by reducing network requests and preventing screen layout shifts during page load
 source: "https://community.rockrms.com/developer/mobile-docs"
 sourceLabel: Mobile Docs
 ---

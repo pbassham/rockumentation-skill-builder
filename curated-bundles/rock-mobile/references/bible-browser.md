@@ -5,7 +5,7 @@ sourceLabel: Mobile Docs
 ---
 > **Path:** 
 
-M2.0  C12.4
+Mobile2.0  Core12.4
 
 *Inherits from [ContentView](https://learn.microsoft.com/en-us/dotnet/api/microsoft.maui.controls.contentview)*
 
@@ -21,13 +21,13 @@ The primary purpose of this control is to handle much of the logic in regards to
 | --- | --- | --- |
 | Content | View | The content that will be displayed inside the browser. This is the default property so it can be omitted when creating child elements. *Defaults to* *null*. |
 | Reference | string | A single Bible reference, should not contain any verse information. Example: Genesis 12. This would result in the browser starting on Genesis 12 and then allowing the user to browse to different books and chapters from there. |
-| Translation M7.0 | string | The translation of the Bible to display. ESV, NLT or MSG are supported. *Defaults to* *ESV*. |
+| Translation Mobile7.0 | string | The translation of the Bible to display. ESV, NLT or MSG are supported. *Defaults to* *ESV*. Only ESV includes audio. |
 
 ### Default Content
 
 This control provides no default content, so you must provide some content of your own for it to be of any use.
 
-There are some special bindings available for your custom content. In addition to the normal bindings (such as [PushPage](https://community.rockrms.com/developer/mobile-docs/essentials/commands/navigation-commands)) that you normally have available, there are a few additional ones you can use.
+There are some special bindings available for your custom content. In addition to the normal bindings (such as [PushPage](https://community.rockrms.com/developer/mobile-docs/commands/pushpage)) that you normally have available, there are a few additional ones you can use.
 
 | Property | Type | Description |
 | --- | --- | --- |
@@ -104,7 +104,7 @@ There are some special bindings available for your custom content. In addition t
 
 ## Bible Reader {#bible-reader}
 
-M v2.0C v12.4
+Mobile2.0  Core12.4
 
 *Inherits from* [*Xamarin.Forms.ContentView*](https://docs.microsoft.com/en-us/dotnet/api/xamarin.forms.contentview)
 
@@ -134,7 +134,7 @@ When including Psalms in the reading Reference be sure to use Psalms, notPsalm.
 | ShowHeadings | boolean | Shows any headings along with the verse text. For example Genesis 1:1 has the heading The Creation of the World. *Defaults to* *true**.* |
 | ShowVerseNumbers | boolean | Show verse numbers inline along with the verse text. *Defaults to* *true**.* |
 | ShowCopyright | boolean | Show the copyright text below the verse text. Please do not turn this off unless you are displaying the copyright text elsewhere. For example, if you are displaying multiple BibleReader controls in the page you could put the copyright notice at the very bottom rather than after each individual control. *Defaults to* *true**.* |
-| Translation M v7.0 | string | The translation of the Bible to display. ESV, NLT or MSG are supported. *Defaults to* *ESV*. |
+| Translation Mobile7.0 | string | The translation of the Bible to display. ESV, NLT or MSG are supported. *Defaults to* *ESV*. Only ESV includes audio. |
 | WriteInteraction | boolean | Determines whether the individual's interaction should be recorded. |
 
 ### Styling
@@ -151,7 +151,7 @@ For details on styling this control see the [Bible Styling](https://community.ro
 
 ## Campus Context Picker {#campus-context-picker}
 
-M v1.0
+Mobile1.0
 
 *Inherits from* [*Xamarin.Forms.ContentView*](https://docs.microsoft.com/en-us/dotnet/api/xamarin.forms.contentview)
 
@@ -175,7 +175,7 @@ If you are familiar with the web control of the same name, this offers pretty mu
 
 ## Camera Code Reader {#camera-code-reader}
 
-M v2.0C v12.4
+Mobile2.0  Core12.4
 
 *Inherits from* [*Xamarin.Forms.ContentView*](https://docs.microsoft.com/en-us/dotnet/api/xamarin.forms.contentview)
 
@@ -187,9 +187,9 @@ For our use, you would include a QR code on the sheet that contained a workflow 
 
 | Property | Type | Description |
 | --- | --- | --- |
-| Page M v5.0 | string | The page identifier that the reader will navigate to using the NavigationMode property. Whatever code data is retrieved is passed in as a query string parameter with a Data key. |
+| Page Mobile5.0 | string | The page identifier that the reader will navigate to using the NavigationMode property. Whatever code data is retrieved is passed in as a query string parameter with a Data key. |
 | WorkflowPage (Legacy) | Guid | The same as the version 5 property without additional query string parameters. |
-| NavigationMode | [NavigateMode](https://community.rockrms.com/developer/mobile-docs/essentials/commands/navigation-commands) | The type of navigation to perform when the code is scanned. *Defaults to* *Push**.* |
+| NavigationMode | [NavigateMode](https://community.rockrms.com/developer/mobile-docs/commands) | The type of navigation to perform when the code is scanned. *Defaults to* *Push**.* |
 
 Note
 

@@ -7,7 +7,7 @@ sourceLabel: Mobile Docs
 
 Provide Microsoft Entra (formerly Azure AD) as an authentication provider within your Rock Mobile application.
 
-M v6.0 C v16.3
+Mobile6.0  Core16.3
 
 ### What is Microsoft Entra
 
@@ -161,7 +161,7 @@ This block consisted of mostly fields, please refer to this [style guide](https:
 
 Allows the user to register a new account on a mobile application.
 
-M v3.0 C v13.0
+Mobile3.0  Core13.0
 
 This block allows an individual to register for a new account. There are a number of options that control what information you collect and which bits are required.
 

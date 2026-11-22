@@ -1,5 +1,5 @@
 ---
-description: "Use when configuring HTTP requests, routing, and response targeting in Helix mobile interactions with verbs like Hx.Get, Hx.Post, Hx.Put, and Hx.Delete"
+description: "Use when understanding how to define HTTP requests in Rock Mobile Helix interactions, including verbs, targets, routes, and request syntax"
 source: "https://community.rockrms.com/developer/mobile-docs"
 sourceLabel: Mobile Docs
 ---

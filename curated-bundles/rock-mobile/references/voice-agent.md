@@ -1,11 +1,11 @@
 ---
-description: "Use when a user wants to enable voice conversation in a mobile app with real-time transcription, hands-free control, and permission-based access for staff and attendees"
+description: Use when user asks about enabling voice-based conversations in mobile apps or wants hands-free access to Rock data through spoken queries
 source: "https://community.rockrms.com/developer/mobile-docs"
 sourceLabel: Mobile Docs
 ---
 > **Path:** 
 
-C19.0M19.0
+Mobile19.0  Core19.0 [Integrated Scroll](https://community.rockrms.com/page/3516?slug=essentials%2fblocks#integrated-scroll)
 
 Provides a real-time, conversational voice assistant inside your mobile app. The block opens a live audio session with an AI provider, streams the microphone up, plays the assistant's spoken response back, and renders a running transcript on screen (if enabled). Use it to give people a hands-free way to ask questions about themselves, their family, their giving, upcoming events, or anything else you expose through an MCP agent.
 

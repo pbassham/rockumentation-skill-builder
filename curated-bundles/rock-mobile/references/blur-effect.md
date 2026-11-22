@@ -5,7 +5,7 @@ sourceLabel: Mobile Docs
 ---
 > **Path:** 
 
-M v4.0
+Mobile4.0
 
 You may have noticed the setting to adjust the [Navigation Bar Transparency and Blur (iOS)](https://community.rockrms.com/developer/mobile-docs/styling/style-guide/shell-components#navigation-bar-transparency-and-blur-ios-), but why stop there? You can apply the same effects to almost any iOS visual element (cards, StackLayout, etc).
 

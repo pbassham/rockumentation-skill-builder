@@ -1,5 +1,5 @@
 ---
-description: Use when presenting detail views as sliding cover sheets over the current screen instead of replacing content in place
+description: Use when presenting detail views as sliding cover sheets over the current screen instead of replacing content
 source: "https://community.rockrms.com/developer/mobile-docs"
 sourceLabel: Mobile Docs
 ---

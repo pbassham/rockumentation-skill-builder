@@ -1,5 +1,5 @@
 ---
-description: "Use when building long scrollable lists or feeds that need pagination, search filtering, and item virtualization without writing custom code"
+description: "Use when implementing virtualized lists, feeds, or long rosters that load data on scroll with native paging in Rock mobile apps"
 source: "https://community.rockrms.com/developer/mobile-docs"
 sourceLabel: Mobile Docs
 ---

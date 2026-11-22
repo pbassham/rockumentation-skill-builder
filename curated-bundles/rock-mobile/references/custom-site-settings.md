@@ -1,5 +1,5 @@
 ---
-description: "Use when configuring mobile app settings like colors, labels, or feature flags through persisted datasets without using site entities"
+description: "Use when a user needs to configure custom settings, feature flags, or styling values for mobile applications using persisted datasets"
 source: "https://community.rockrms.com/developer/mobile-docs"
 sourceLabel: Mobile Docs
 ---

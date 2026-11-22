@@ -146,7 +146,7 @@ Obviously, this is a bad example since the Path to a property could neither incl
 
 ## Boolean Value Converter {#boolean-value-converter}
 
-M v1.0
+Mobile1.0
 
 This Value Converter allows you to bind something to a Boolean but then convert that Boolean value to any object you want for truth/false. It might be easier to explain with an example.
 
@@ -172,7 +172,7 @@ This example would change the `IconClass` property to either `play` or `pause` d
 
 ## From Json {#from-json}
 
-M v1.0
+Mobile1.0
 
 Parses a JSON string into the appropriate type. Useful to pass data from the server to the client and then being able to use that data in bindings. This will only parse simple JSON types. Meaning, you cannot encode a Group object into JSON and then expect that it will become a Group object on the client. It will be parsed as a generic dictionary object instead. However, you will still be able to reference its child elements by their names when using bindings.
 
@@ -220,7 +220,7 @@ While the same could be done by rendering the XAML on the server, this allows fo
 
 ## Inverse Boolean Converter {#inverse-boolean-converter}
 
-M v2.0
+Mobile2.0
 
 This simple Value Converter allows you to invert the state of a boolean that you are binding to. A command use case is when you want to provide a checkbox for the user to do something but the underlying property to be set is inverted from how you want the text to read.
 

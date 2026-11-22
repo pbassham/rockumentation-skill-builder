@@ -5,7 +5,7 @@ sourceLabel: Mobile Docs
 ---
 > **Path:** 
 
-M v2.0 [Integrated Scroll](https://community.rockrms.com/page/3516?slug=essentials%2fblocks#integrated-scroll)
+Mobile2.0 [Integrated Scroll](https://community.rockrms.com/page/3516?slug=essentials%2fblocks#integrated-scroll)
 
 This is a powerful block (commonly referred to as "account onboarding") with many configuration options, so we'll explain all of the screens below and the settings available for each. The purpose of this block is to walk users through a step-by-step process of creating an account (or signing in) and confirming demographic information, campus, and notification preferences.
 
@@ -111,8 +111,12 @@ This screen can be set to `Hidden`, `Optional`, or `Required` in the block setti
 
 Rock Mobile offers a full-featured real-time chat experience with support for threads, reactions, media, group messaging and more.
 
-Mv7.0Cv17.1
+Mobile7.0  Core17.1
 
 Note
 
 To get started with Chat in Rock, contact the AppFactory team to discuss the required pre-configuration for your mobile app.
+
+Note
+
+Chat pushes set the app icon badge separately from Rock's count. See [App Icon Badge](https://community.rockrms.com/developer/mobile-docs/essentials/features/app-icon-badge).

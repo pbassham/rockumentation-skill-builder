@@ -5,7 +5,7 @@ sourceLabel: Mobile Docs
 ---
 > **Path:** 
 
-M v2.0
+Mobile2.0
 
 Inherits from [Xamarin.Forms.ContentView](https://docs.microsoft.com/en-us/dotnet/api/xamarin.forms.contentview)
 
@@ -74,7 +74,7 @@ The above will generate a Scan Code control that runs in manual mode, meaning th
 
 ## Validator {#validator}
 
-M v1.0
+Mobile1.0
 
 Inherits from [NotificationBox](https://community.rockrms.com/developer/mobile-docs/essentials/controls/content-controls/notification-box)
 
@@ -126,7 +126,7 @@ Currently, the only command that supports validation is the Callback command.
 
 ## Volume Control {#volume-control}
 
-M v2.0
+Mobile2.0
 
 *Inherits from [Xamarin.Forms.View](https://docs.microsoft.com/en-us/dotnet/api/xamarin.forms.view)*
 
@@ -144,9 +144,9 @@ There are no properties currently available to customize.
 
 ## Zone {#zone}
 
-M v6.0 Inherits from [Microsoft.Maui.Controls.Grid](https://learn.microsoft.com/en-us/dotnet/maui/user-interface/layouts/grid?view=net-maui-8.0)
+Mobile6.0 Inherits from [Microsoft.Maui.Controls.Grid](https://learn.microsoft.com/en-us/dotnet/maui/user-interface/layouts/grid?view=net-maui-8.0)
 
-M v1.0 Inherits from [Xamarin.Forms.StackLayout](https://docs.microsoft.com/en-us/dotnet/api/xamarin.forms.stacklayout)
+Mobile1.0 Inherits from [Xamarin.Forms.StackLayout](https://docs.microsoft.com/en-us/dotnet/api/xamarin.forms.stacklayout)
 
 This control should only be used in your mobile templates. It defines the zones and their names that are made available to blocks when you configure a page.
 

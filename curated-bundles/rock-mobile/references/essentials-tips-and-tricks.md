@@ -1,5 +1,5 @@
 ---
-description: "Use when formatting spacing, margins, padding in Rock Mobile layouts or customizing UI for different device types like phones and tablets"
+description: "Use when customizing layout spacing, device-specific styling, string formatting in bindings, or handling spacing between controls in Rock Mobile layouts"
 source: "https://community.rockrms.com/developer/mobile-docs"
 sourceLabel: Mobile Docs
 ---

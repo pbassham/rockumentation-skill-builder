@@ -7,11 +7,15 @@ sourceLabel: Mobile Docs
 
 View and comprehensively manage any note you have created.
 
-Mv6.1 Cv16.7 [Integrated Scroll](https://community.rockrms.com/page/3516?slug=essentials%2fblocks#integrated-scroll)
+Mobile6.1  Core16.7 [Integrated Scroll](https://community.rockrms.com/page/3516?slug=essentials%2fblocks#integrated-scroll)
 
 Warning
 
 **Fluid** is the required Lava Engine Liquid Framework
+
+Note
+
+@mentions in notes add to the mentioned person's app icon badge. See [App Icon Badge](https://community.rockrms.com/developer/mobile-docs/essentials/features/app-icon-badge).
 
 ## Block Configuration
 
@@ -113,6 +117,12 @@ The Note item you have access to in the [Note Item Template](https://community.r
 
 Displays a list of in-app notification messages for the currently logged-in person. This is not a history of push notifications — these are persistent, actionable inbox messages stored in Rock and scoped to the person. Messages expire after 90 days and are ordered newest-first. Unauthenticated visitors see no messages.
 
+[Integrated Scroll](https://community.rockrms.com/page/3516?slug=essentials%2fblocks#integrated-scroll)
+
+Note
+
+The unread messages in this list are the number on your app's icon. See [App Icon Badge](https://community.rockrms.com/developer/mobile-docs/essentials/features/app-icon-badge).
+
 ## Tap Behavior & Routing
 
 When a person taps a message, Rock determines the destination server-side based on the notification type. There are three possible outcomes:
@@ -136,7 +146,7 @@ In-app navigation works automatically when the notification was created from wit
 | Type | Description |
 | --- | --- |
 | Note Mentions | Generated when someone @mentions the person in a note anywhere in Rock. Tapping navigates to the page where the note lives. If that page exists in the current mobile app, navigation stays in-app. If the page is web-only, it opens in the browser. Message is kept after reading. |
-| Connection Request Mentions | Generated when someone @mentions the person in a connection request note. Follows the same routing behavior as Note Mention. Because connection request pages are typically web-only, this will most often open in the browser when tapped from mobile. Message is kept after reading. |
+| Connection Request Mentions | Generated when someone @mentions the person in a connection request note. Follows the same routing behavior as Note Mention. If the app has a page with a route matching the web connection request page, such as one with the Connection Request Detail block, it opens in the app. Otherwise it opens in the browser. Message is kept after reading. |
 | SMS Conversations | Generated when an unread SMS arrives on a system phone number the person monitors. Tapping opens the SMS Conversation page configured in the mobile site's settings. If that page has not been set up, the person sees an error message instead of navigating. The notification is deleted after it is tapped. |
 
 ---
@@ -149,7 +159,7 @@ In-app navigation works automatically when the notification was created from wit
 
 ## Group Members {#group-members}
 
-### M v5.0C v15.2
+### Mobile5.0  Core15.2
 
 Allows you to view the other members of a group person belongs to (e.g. Family groups).
 

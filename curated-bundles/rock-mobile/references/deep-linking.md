@@ -7,7 +7,7 @@ sourceLabel: Mobile Docs
 
 Link from external websites directly into content within your application.
 
-M v14.0C v4.0
+Mobile14.0  Core4.0
 
 Warning
 

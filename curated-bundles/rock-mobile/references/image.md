@@ -5,7 +5,7 @@ sourceLabel: Mobile Docs
 ---
 > **Path:** 
 
-M v1.0
+Mobile1.0
 
 *Inherits from Xamarin.Forms.ContentView*
 
@@ -278,7 +278,7 @@ While `HeightRequest` can be used to size images, using `Ratio` is preferred.
 
 ## Interaction {#interaction}
 
-Mv1.0
+Mobile1.0
 
 *Inherits from [ContentView](https://learn.microsoft.com/en-us/dotnet/api/microsoft.maui.controls.contentview?)*
 

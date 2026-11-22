@@ -5,7 +5,7 @@ sourceLabel: Mobile Docs
 ---
 > **Path:** 
 
-M v1.0
+Mobile1.0
 
 Warning
 
@@ -72,7 +72,7 @@ Here is a more interesting example. In this case, we are replacing not just a pr
 
 ## On Device Type {#on-device-type}
 
-M v1.0
+Mobile1.0
 
 Warning
 
@@ -116,7 +116,7 @@ Here is a more interesting example. In this case we are replacing not just a pro
 
 ## Palette Color {#palette-color}
 
-M v1.0
+Mobile1.0
 
 Rock Mobile gives you the ability to have a whole suite of named colors that can be used in CSS. Things like the primary app color. But what if you want to access those colors in XAML as well? This extension gives you the ability to do just that.
 
@@ -156,7 +156,7 @@ This would set the label's text color to be the application's primary color, as 
 
 ## Seconds To Time String Converter {#seconds-to-time-string-converter}
 
-M v2.0
+Mobile2.0
 
 The purpose of this converter is to allow you to take a value in seconds and have it displayed as a time string, such as `HH:MM:SS`. There are a few properties that let you customize the format.
 

@@ -7,7 +7,7 @@ sourceLabel: Mobile Docs
 
 *The documentation for the Media Player before Rock Mobile version 6 (.NET MAUI).*
 
-M v2.0C v12.4
+Mobile2.0  Core12.4
 
 *Inherits from [Xamarin.Forms.ContentView](https://docs.microsoft.com/en-us/dotnet/api/xamarin.forms.contentview)*
 
@@ -29,17 +29,17 @@ HLS (.m3u8) streams from the service Resi are not supported on Android due to an
 | AutoPlay | bool | If true then the video will start playing as soon as it has loaded into the player. Defaults to false. |
 | InitialAspectRatio | string | The initial aspect ratio to use until the video has loaded and we know the actual aspect ratio. Can be specified as either a width:height ratio (example 16:9) or as a decimal number (example 1.77777). Defaults to 16:9. |
 | ThumbnailPosition | double? | The position into the video to use to generate a thumbnail automatically if no ThumbnailSource is specified. Value is specified in seconds. Defaults to 2. |
-| Title | string | The text to display in the title position of the screen controls. This overrides any data found in the media metadata. M v2.0 |
-| Subtitle | string | The text to display in the subtitle position of the screen controls. This overrides any data found in the media metadata. M v2.0 |
-| OverlayContent | [View](https://docs.microsoft.com/en-us/dotnet/api/xamarin.forms.view) | The view tree to display as an overlay on top of the media. Defaults to a standard view that displays album artwork for audio files only. M v2.0 |
-| ControlsContent | [View](https://docs.microsoft.com/en-us/dotnet/api/xamarin.forms.view) | The view tree to be used as the on-screen controls. Defaults to the standard screen controls you normally see. M v2.0 |
-| PlaybackCompletedCommand | [Command](https://docs.microsoft.com/en-us/dotnet/api/xamarin.forms.command) | The command to be executed when the media plays to the end. M v5.0 |
-| PlaybackCompletedCommandParameter | object | The parameter to pass to the PlaybackCompletedCommand. M v5.0 |
-| WatchMap | [WatchMapParameters](https://community.rockrms.com/developer/mobile-docs/essentials/controls/content-controls/media-player/legacy#watch-map-properties) | Enables the Watch Map feature in the media player that allows saving playback position to the server and resuming a previous session. Defaults to null.   M v2.0C v12.4 |
+| Title | string | The text to display in the title position of the screen controls. This overrides any data found in the media metadata. Mobile2.0 |
+| Subtitle | string | The text to display in the subtitle position of the screen controls. This overrides any data found in the media metadata. Mobile2.0 |
+| OverlayContent | [View](https://docs.microsoft.com/en-us/dotnet/api/xamarin.forms.view) | The view tree to display as an overlay on top of the media. Defaults to a standard view that displays album artwork for audio files only. Mobile2.0 |
+| ControlsContent | [View](https://docs.microsoft.com/en-us/dotnet/api/xamarin.forms.view) | The view tree to be used as the on-screen controls. Defaults to the standard screen controls you normally see. Mobile2.0 |
+| PlaybackCompletedCommand | [Command](https://docs.microsoft.com/en-us/dotnet/api/xamarin.forms.command) | The command to be executed when the media plays to the end. Mobile5.0 |
+| PlaybackCompletedCommandParameter | object | The parameter to pass to the PlaybackCompletedCommand. Mobile5.0 |
+| WatchMap | [WatchMapParameters](https://community.rockrms.com/developer/mobile-docs/essentials/controls/content-controls/media-player/legacy#watch-map-properties) | Enables the Watch Map feature in the media player that allows saving playback position to the server and resuming a previous session. Defaults to null.   Mobile2.0  Core12.4 |
 
 ### Watch Map Properties
 
-M v2.0C v12.4
+Mobile2.0  Core12.4
 
 | Property | Type | Description |
 | --- | --- | --- |
@@ -118,7 +118,7 @@ For more information, check out Apple's official documentation:
 
 ## Notification Box {#notification-box}
 
-M v1.0
+Mobile1.0
 
 *Inherits from [Xamarin.Forms.Frame](https://docs.microsoft.com/en-us/dotnet/api/xamarin.forms.frame)*
 
@@ -160,7 +160,7 @@ The NotificationBox allows you to display a color-coded notification on the page
 
 ## Paragraph Text {#paragraph-text}
 
-M v1.0
+Mobile1.0
 
 *Inherits from [Xamarin.Forms.StackLayout](https://docs.microsoft.com/en-us/xamarin/xamarin-forms/user-interface/layouts/stack-layout)*
 
@@ -204,7 +204,7 @@ Don't worry if your paragraphs have more than one line-break between them. All e
 
 ## QR Code {#qr-code}
 
-M v1.0
+Mobile1.0
 
 Ever wish you could display a QR Code in your application based on something generated on the server? Okay maybe this isn't a common thing just yet, but we think QR Codes will become a great way to pass information without having to make direct contact.
 
@@ -246,7 +246,7 @@ In this example, we are assuming the user is logged in and that we are processin
 
 *Constrain a view to a certain ratio.*
 
-M v4.0
+Mobile4.0
 
 *Inherits from [Xamarin.Forms.ContentView](https://docs.microsoft.com/en-us/dotnet/api/xamarin.forms.contentview)*
 
@@ -270,7 +270,7 @@ This is a simple view that allows you to constrain the size to a certain ratio.
 
 ## Redirect {#redirect}
 
-M v1.0
+Mobile1.0
 
 *Inherits from [Xamarin.Forms.View](https://docs.microsoft.com/en-us/dotnet/api/xamarin.forms.view)*
 
@@ -296,7 +296,7 @@ If the `Redirect` view is encountered before the page is fully rendered then the
 
 ## Responsive Column {#responsive-column}
 
-M v1.0
+Mobile1.0
 
 *Inherits from* [*Xamarin.Forms.StackLayout*](https://docs.microsoft.com/en-us/dotnet/api/xamarin.forms.stacklayout)
 

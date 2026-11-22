@@ -1,11 +1,11 @@
 ---
-description: "Use when building or troubleshooting Lava Applications in Rock Mobile, including rendering XAML screens, configuring Helix endpoints, and managing application-level settings"
+description: Use when building a Lava Application Content block to render XAML screens and handle Helix interactions in Rock mobile applications
 source: "https://community.rockrms.com/developer/mobile-docs"
 sourceLabel: Mobile Docs
 ---
 > **Path:** 
 
-C20.0M20.0
+Mobile20.0  Core20.0
 
 Displays content from a Lava Application and hosts its Helix interactions.
 

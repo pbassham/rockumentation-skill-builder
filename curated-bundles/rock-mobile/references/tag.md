@@ -5,7 +5,7 @@ sourceLabel: Mobile Docs
 ---
 > **Path:** 
 
-M v1.0
+Mobile1.0
 
 *Inherits from* [*RockMobile.StyledView*](https://community.rockrms.com/developer/mobile-docs/essentials/controls#styledview)
 
@@ -60,7 +60,7 @@ To style the text of a tag you'd want to have a style similar to:
 
 ## Toggle Button {#toggle-button}
 
-M v1.0
+Mobile1.0
 
 *Inherits from* [*Xamarin.Forms.ContentView*](https://docs.microsoft.com/en-us/dotnet/api/xamarin.forms.contentview)
 
@@ -97,7 +97,7 @@ The construction of a toggle button is made up of multiple controls. A [Frame](h
 
 ## Web View {#web-view}
 
-M v1.0
+Mobile1.0
 
 Inherits from [WebView](https://learn.microsoft.com/en-us/dotnet/maui/user-interface/controls/webview)
 
@@ -141,49 +141,9 @@ On Android, pinch to zoom is disabled by default. Check out [this article](https
 
 ---
 
-## Execute Command {#execute-command}
-
-*Allows a command to be executed upon initialization (and repeated).*
-
-M v7.0
-
-Inherits from [Microsoft.Maui.Controls.ContentView](https://learn.microsoft.com/en-us/dotnet/maui/user-interface/controls/contentview?view=net-maui-8.0)
-
-The `ExecuteCommand` control is a simple and flexible way to execute commands with customizable timing and repetition. It’s ideal for use cases like delayed actions or periodic updates.
-
-## Properties
-
-| Property | Type | Description |
-| --- | --- | --- |
-| Delay | int | The delay interval (in milliseconds) before the command executes. |
-| Enabled | bool | Can be use to turn on/off the command. |
-| Repeat | bool | Indicates if the command should repeat. Repeat indefinitely if RepeatCount is not specified. |
-| RepeatCount | int | The number of times the command repeats. Use -1 for unlimited. |
-| StartWithExecution | bool | If true, the command executes immediately before starting the delay timer. |
-| Command | ICommand | The command to execute. |
-| CommandParameter | object | A parameter passed to the command when executed |
-
-## Example
-
-In this example we used in an app to welcome people with a periodic toast message like, "Welcome to Rock Solid Church!!".
-
-```
-<Rock:ExecuteCommand
-    Command="{Binding ShowToast}"
-    CommandParameter="Welcome to Rock Solid Church!!"
-    Delay="3000"
-    Repeat="true" />
-```
-- Command: Bound to the `ShowToast` command, which handles the logic for displaying the message.
-- CommandParameter: Passes the string `"Welcome to Rock Solid Church!!"` as a parameter to the command.
-- Delay: Specifies a 3-second delay (3000 ms) before executing the command.
-- Repeat: Ensures the command executes repeatedly (Repeat indefinitely if the `RepeatCount` is not specified).
-
----
-
 ## Bible Book and Chapter Picker {#bible-book-and-chapter-picker}
 
-M v2.0C v12.4
+Mobile2.0  Core12.4
 
 Inherits from [Xamarin.Forms.Label](https://docs.microsoft.com/en-us/dotnet/api/xamarin.forms.label)
 
@@ -232,44 +192,9 @@ The UI for the Bible Book And Chapter Picker may change in future versions which
 
 ---
 
-## Command Reference {#command-reference}
-
-Provide a command as a parameter for something else.
-
-The `CommandReference` object is defined like a normal command reference:
-
-### Properties
-
-| Property | Type | Description |
-| --- | --- | --- |
-| Command | ICommand | The command to be executed. |
-| CommandParameter | object | The parameter to be passed to the command. In M v3.0 this became the default content property, so you can specify the parameter as a direct child node. |
-
-Examples ^^^
-
-```
-<Button Text="Tap"
-        Command="{Binding AggregateCommand}">
-    <Button.CommandParameter>
-        <Rock:AggregateCommandParameters>
-            <Rock:CommandReference Command="{Binding SetContext}">
-                <Rock:CommandReference.CommandParameter>
-                    <Rock:SetContextParameters Name="Campus"
-                                               Value="0a3a20eb-c4a8-44fe-9daf-d22b88fae377" />
-                </Rock:CommandReference.CommandParameter>
-            </Rock:CommandReference>
-            <Rock:CommandReference Command="{Binding ReplacePage}"
-                                   CommandParameter="b06173ed-aa2f-43d8-bd38-eb5becca1cbe" />
-        </Rock:AggregateCommandParameters>
-    </Button.CommandParameter>
-</Button>
-```
-
----
-
 ## Field Stack {#field-stack}
 
-M v1.0
+Mobile1.0
 
 Inherits from [Xamarin.Forms.Layout](https://docs.microsoft.com/en-us/dotnet/api/xamarin.forms.layout-1)
 
@@ -289,7 +214,7 @@ When displaying a FormField this view is responsible for drawing the border arou
 
 ## Media Cast Button {#media-cast-button}
 
-M v2.0
+Mobile2.0
 
 Inherits from Xamarin.Forms.View
 
@@ -307,7 +232,7 @@ This control currently has no properties that can be customized.
 
 ## Media Progress Bar {#media-progress-bar}
 
-M v2.0
+Mobile2.0
 
 Inherits from [Xamarin.Forms.View](https://docs.microsoft.com/en-us/dotnet/api/xamarin.forms.view)
 
@@ -335,7 +260,7 @@ Functionally, this control behaves just like a [Slider](https://docs.microsoft.c
 
 ## Parameter {#parameter}
 
-M v1.0
+Mobile1.0
 
 The parameter control is not actually a visual control. However, you will see it used by various other controls, such as the [Picker](https://community.rockrms.com/developer/mobile-docs/essentials/controls/form-fields/picker). Additionally, nearly all commands use the Parameter control to let you pass information to the command handler.
 

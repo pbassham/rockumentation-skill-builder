@@ -17,9 +17,9 @@ Presents a field that displays the selected date (or placeholder text) and allow
 | IsRequired | bool | If True then any validation performed will require that a date be selected. |
 | Placeholder | string | The text to display in the field if no date is selected. |
 | SelectedDate | DateTime? | The currently selected date or null if no date is selected. |
-| DatePickerStyle M v6.0 | DatePickerStyle | (iOS only) - Use this to change the OS-level style of the Date Picker. |
+| DatePickerStyle Mobile6.0 | DatePickerStyle | (iOS only) - Use this to change the OS-level style of the Date Picker. |
 
-### DatePickerStyle M v6.0
+### DatePickerStyle Mobile6.0
 
 This property/enum only makes a difference on iOS.
 

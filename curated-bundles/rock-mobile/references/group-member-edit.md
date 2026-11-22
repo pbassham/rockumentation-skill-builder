@@ -33,7 +33,7 @@ If enabled, you will be able to modify a group member's role within this block.
 
 If enabled, you will be able to modify a group member's status.
 
-### Allow Communication Preference Change M v5.0
+### Allow Communication Preference Change Mobile5.0
 
 If enabled, you will be able to modify the group member's communication preference.
 

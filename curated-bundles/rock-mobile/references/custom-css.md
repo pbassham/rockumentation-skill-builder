@@ -266,18 +266,44 @@ Working with multiple time zones requires some judgement calls. Sometimes we nee
 
 ---
 
-## Core & Shell Dependencies {#core-shell-dependencies}
+## Versioning {#versioning}
 
-Special care must be taken when adding new features. This is because coordination is needed with both the Rock Mobile Shell version and the Rock Core version.
+Every feature in Rock Mobile depends on up to three versions: the Mobile shell your app runs, the Rock server it connects to, and the operating system on the phone. The tags at the top of each page tell you which of these a feature needs, so you can tell at a glance whether it will work for your church.
 
-## Tags
+## Three Versions
 
-Items that require a specific mobile shell version will be tagged with an "M" like so:
+| Version | What it is | Who controls it |
+| --- | --- | --- |
+| **Mobile** | The app people install, built from the Rock Mobile shell | Your church, when you publish through App Factory |
+| **Core** | Your Rock server, which sends the app its pages, blocks and data | Your church, when you update Rock |
+| **iOS / Android** | The operating system on each phone | Each person, on their own device |
 
-**URL reference** − https://img.shields.io/badge/M-v1.0-ee7725?style=flat M v2.0
+A feature works only when all three are new enough. A block that needs Mobile19.1  Core19.1 won’t show up for a church on Mobile 19.1 that still runs Rock 18.
 
-Items that require a specific version of the core Rock server are tagged with a "C" like so:
+## Shell Versions
 
-**URL reference** − https://img.shields.io/badge/C-v12.0-ee7725?style=flat C v12.0
+**Since 19.1, the shell’s version number matches Rock’s.** Shell versions 1.0 through 7.0 were numbered on their own. After 7.0 the shell switched to Core’s numbering, so a Mobile 20.0 shell pairs with Rock 20.0.
 
-If an item requires a specific version of both the Mobile shell and Core server version, it will include both tags. You'll see these at the block, component, and settings level.
+- **Match your shell to your server.** We recommend publishing a shell at or below your Rock version. A newer shell often works but isn’t officially supported. See [Shell Update Requirements](https://community.rockrms.com/developer/mobile-docs/app-factory/shell-update-requirements).
+- **Release lines follow Rock.** Each shell release line, such as 20.0 or 20.1, gets fixes the same way the matching Rock line does.
+- **Try a version before publishing it.** Pre-release builds of the Rock Core app are opt-in test versions you can install through TestFlight or Firebase App Distribution. See [Pre-Release Testing](https://community.rockrms.com/developer/mobile-docs/app-factory/pre-release-testing).
+
+## Minimum OS
+
+Starting with Mobile 19.4, Rock Mobile supports iOS 15 and Android 7 or later. Anything without a platform tag works on both platforms at those versions. Older shells have different minimums, listed in [OS Version Requirements](https://community.rockrms.com/developer/mobile-docs/developers/shell-platform-support).
+
+## Reading Tags
+
+Each page lists the versions it needs in tags on its first line. You’ll see them on blocks, controls, commands and settings.
+
+| Tag | Meaning |
+| --- | --- |
+| Mobile6.0 | Needs shell 6.0 or later. |
+| Core17.0 | Needs Rock 17.0 or later on the server. |
+| Mobile19.1  Core19.1 | Needs both. Mobile always comes first, since nearly everything needs a shell version. |
+| iOS16.1 | iOS 16.1 or later only. Not available on Android. |
+| Android | Android only, on any supported version. |
+| iOS17  Android12 | Works on both, but each needs a newer OS than the app’s minimum. |
+| No tags | Works on any supported shell, server and OS. |
+
+Tags show only the minimum versions. Differences in how a feature behaves on iOS and Android are explained on its own page.

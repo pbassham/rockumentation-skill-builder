@@ -1,5 +1,5 @@
 ---
-description: "Use when building XAML fragments for Rock Mobile endpoints to understand fragment structure rules, namespace requirements, and how Lava templating works server-side"
+description: "Use when building XAML fragments for Rock Mobile endpoints, understanding fragment syntax rules, namespace requirements, and how Lava template rendering works on the server"
 source: "https://community.rockrms.com/developer/mobile-docs"
 sourceLabel: Mobile Docs
 ---

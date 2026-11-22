@@ -1,5 +1,5 @@
 ---
-description: "Use when building endpoint responses for rock-mobile that need to return XAML fragments, set redirect/refresh headers, or execute client commands"
+description: "Use when building endpoint responses that return XAML fragments and need to configure response headers like HX-Redirect, HX-Refresh, or X-Helix-Command for mobile apps"
 source: "https://community.rockrms.com/developer/mobile-docs"
 sourceLabel: Mobile Docs
 ---

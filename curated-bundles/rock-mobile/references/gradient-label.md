@@ -5,7 +5,7 @@ sourceLabel: Mobile Docs
 ---
 > **Path:** 
 
-M v8.0
+Mobile8.0
 
 *Inherits from* [*Label*](https://learn.microsoft.com/en-us/dotnet/maui/user-interface/controls/label?view=net-maui-9.0)
 

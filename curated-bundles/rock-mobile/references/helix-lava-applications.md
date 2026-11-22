@@ -1,11 +1,11 @@
 ---
-description: Use when building dynamic mobile screens with Helix that swap XAML content without leaving the current page using Lava endpoints
+description: Use when building dynamic mobile screens with XAML templates using Helix and Lava Applications in Rock
 source: "https://community.rockrms.com/developer/mobile-docs"
 sourceLabel: Mobile Docs
 ---
 > **Path:** 
 
-C20.0M20.0
+Mobile20.0  Core20.0
 
 **Helix** lets you build dynamic, interactive screens in the mobile app without writing a single line of C#. It is built on Rock's **Lava Applications**: an endpoint's Code Template emits XAML instead of HTML, the app swaps that XAML into the live page, and the person never leaves the screen they were on. Helix needs Rock 20.0 or later on the server and version 20.0 or later of the app.
 

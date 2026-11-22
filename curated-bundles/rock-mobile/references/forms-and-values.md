@@ -1,5 +1,5 @@
 ---
-description: "Use when building mobile forms with HelixForm, handling form submission, validation, and understanding how form inputs are posted with Hx.Id names"
+description: "Use when building mobile forms with HelixForm, handling form submission, validation, and input naming conventions in Rock Mobile applications"
 source: "https://community.rockrms.com/developer/mobile-docs"
 sourceLabel: Mobile Docs
 ---

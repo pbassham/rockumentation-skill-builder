@@ -5,7 +5,7 @@ sourceLabel: Mobile Docs
 ---
 > **Path:** 
 
-M v7.0 C v17.1 [Integrated Scroll](https://community.rockrms.com/page/3516?slug=essentials%2fblocks#integrated-scroll)
+Mobile7.0  Core17.1 [Integrated Scroll](https://community.rockrms.com/page/3516?slug=essentials%2fblocks#integrated-scroll)
 
 The Rock Mobile Giving experience is only compatible with the [MyWell](https://www.mywell.org/) gateway.
 
@@ -131,7 +131,7 @@ Configures filtering options for the accounts list based on campus context.
 
 This block has internal scroll mechanics and built-in padding. It should be placed in a layout with no scrollable container and no external padding applied.
 
- M19.2  Use the .give-button class to target the giving button colors after entering an amount.
+ Mobile19.2  Use the .give-button class to target the giving button colors after entering an amount.
 
 ```
 .give-button { background-color: pink; color: blue; }
@@ -145,7 +145,7 @@ This block requires the CSS Style Framework to be set to **Default (.NET MAUI)**
 
 ## Scheduled Transaction List {#scheduled-transaction-list}
 
-### M v7.0C v16.10
+### Mobile7.0  Core16.10
 
 Displays a list of scheduled transactions.
 
@@ -183,7 +183,7 @@ Since this is a XAML template, there’s no styling X-Ray available.
 
 ## Transaction Detail {#transaction-detail}
 
-### M v7.0C v16.10
+### Mobile7.0  Core16.10
 
 *Display the detail of the transaction.*
 
@@ -207,7 +207,7 @@ This block checks for the following page parameter.
 
 *Displays a list of transactions.*
 
-### M v7.0C v16.10
+### Mobile7.0  Core16.10 [Integrated Scroll](https://community.rockrms.com/page/3516?slug=essentials%2fblocks#integrated-scroll)
 
 ## Block Configuration
 
@@ -233,7 +233,7 @@ When no result is shown how should the 'Give Now' button behave.
 
 *Displays a list of batches.*
 
-### M v7.0C v17.4
+### Mobile7.0  Core17.4 [Integrated Scroll](https://community.rockrms.com/page/3516?slug=essentials%2fblocks#integrated-scroll)
 
 ## Block Configuration
 
@@ -287,7 +287,7 @@ Defines the number of batches to load per pagination step.
 
 This block provides functionality for managing financial batches. It allows you to view and edit the details of existing batches. In addition, it integrates with Azure Document Intelligence, enabling you to scan checks, automatically extract MICR (Magnetic Ink Character Recognition) data, and allocate funds to the appropriate financial accounts. This reduces manual data entry, improves accuracy, and streamlines the batch processing workflow.
 
-## M v7.0C v18
+## Mobile7.0  Core18 [Integrated Scroll](https://community.rockrms.com/page/3516?slug=essentials%2fblocks#integrated-scroll)
 
 ## Block Configuration
 
@@ -453,7 +453,7 @@ This should be set to a category of group attributes that you would like to show
 
 ### Group Detail Page
 
-This setting should be set to a page that you wish to [replace the current one with](https://community.rockrms.com/developer/mobile-docs/essentials/commands/navigation-commands#replacepage) when the "cancel" button is pressed. It takes the `GroupGuid` and passes it as a page parameter.
+This setting should be set to a page that you wish to [replace the current one with](https://community.rockrms.com/developer/mobile-docs/commands/replacepage) when the "cancel" button is pressed. It takes the `GroupGuid` and passes it as a page parameter.
 
 ### Styling
 
@@ -463,7 +463,7 @@ There’s no styling X-Ray available.
 
 ## Group Finder {#group-finder}
 
-M3.0 C13.0
+Mobile3.0  Core13.0
 
 This block provides the ability to search for groups based on campus, day of week, time of day, location, and custom attributes.
 
@@ -493,7 +493,7 @@ The Deploy button is not required for content changes.
 
 | Property | Type | Description |
 | --- | --- | --- |
-| Campus Context Enabled | bool | When enabled and Campus context is set by the [Campus Context Picker](https://community.rockrms.com/developer/mobile-docs/essentials/controls/content-controls/campus-context-picker) or [Set Context command](https://community.rockrms.com/developer/mobile-docs/essentials/commands/utility-commands#setcontext), the campus value will be selected automatically. |
+| Campus Context Enabled | bool | When enabled and Campus context is set by the [Campus Context Picker](https://community.rockrms.com/developer/mobile-docs/essentials/controls/content-controls/campus-context-picker) or [Set Context command](https://community.rockrms.com/developer/mobile-docs/commands/setcontext), the campus value will be selected automatically. |
 | Show Location Filter | bool | When enabled, provides a selection between the person's Home address or a new address. An OS permission will appear to request location access.      Note that groups without a location will **not** be returned in the results when the location filter is enabled. |
 
 ## Styles

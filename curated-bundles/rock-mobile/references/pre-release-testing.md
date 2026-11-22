@@ -1,5 +1,5 @@
 ---
-description: "Use when asking about pre-release testing procedures, TestFlight setup, Firebase App Distribution, or how to access beta versions of Rock Mobile"
+description: Use when users ask about accessing pre-release or beta versions of Rock Mobile for iOS or Android testing
 source: "https://community.rockrms.com/developer/mobile-docs"
 sourceLabel: Mobile Docs
 ---
@@ -18,6 +18,7 @@ When a new Rock version is released, we'll plan to make the **next major and nex
 
 A few things to keep in mind:
 
+- **Testing your own app:** A pre-release build opens the Rock Core app by default. To see your own app in it, use the [App Switcher](https://community.rockrms.com/developer/mobile-docs/essentials/app-switcher) to connect it to your server. If you have a sandbox running the matching pre-release version of Rock, point the build there.
 - **Server dependencies:** Some features in a pre-release build may depend on a matching pre-release version of Rock server. You may not get the full experience of a new feature until both sides are in sync.
 - **Change log:** We're not currently releasing update notes for these pre-release versions. Typically, you'll be testing these versions in response to a specific bug fix or new feature you're already aware of.
 - **Delays are expected:** There's often a gap between when a Rock version is tagged (or Rock core cuts a pre-release), and when the matching Rock Mobile build is available to testers. This can be caused by several factors, including Apple's TestFlight review process.

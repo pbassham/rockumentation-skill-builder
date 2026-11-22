@@ -5,7 +5,7 @@ sourceLabel: Mobile Docs
 ---
 > **Path:** 
 
-M v1.0
+Mobile1.0
 
 *Inherits from* [*ContentView*](https://learn.microsoft.com/en-us/dotnet/maui/user-interface/controls/contentview)
 
@@ -69,7 +69,7 @@ You can target special CSS properties to style certain aspects of the picker.
 
 *Inherits from* [*Border*](https://learn.microsoft.com/en-us/dotnet/maui/user-interface/controls/border)
 
-M v6.0
+Mobile6.0
 
 ### Overview
 

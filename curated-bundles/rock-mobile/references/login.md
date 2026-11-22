@@ -7,6 +7,8 @@ sourceLabel: Mobile Docs
 
 The block used to log an individual in to your mobile application.
 
+[Integrated Scroll](https://community.rockrms.com/page/3516?slug=essentials%2fblocks#integrated-scroll)
+
 The purpose of this block is pretty obvious, but in case you are unsure, it is to log a registered individual into your application using a Rock credential.
 
 If you need to set up registration, check out the [Register](https://community.rockrms.com/developer/mobile-docs/essentials/blocks/cms/register) or [Onboard Person](https://community.rockrms.com/developer/mobile-docs/essentials/blocks/security/onboard-person) blocks.
@@ -27,8 +29,8 @@ When you create an instance of the `Login` block, it would be a good idea to als
 | Forgot Password URL | The URL that is opened in an external browser when the Forgot Password button is pressed. Leave this option blank if you want to hide the forgot password button. *This URL is typically* *\[\[ YourRootDomain \]\]/ForgotUserName* |
 | Confirmation Page | Set to a web page on your public site that has been configured to handle account confirmation. If this option is left unset, it will not send the communication configured to confirm an account. *External Homepage \> Support Pages \> Account Confirmation* |
 | Confirm Account Template | Set to the communication template you wish to use when an individual needs to confirm their account. If the Confirmation Page is not set, this communication will not be delivered. |
-| Return Page Mv3.0 | The page to return to after an individual has successfully logged in. If this is not set, it will default to the Home page. |
-| Cancel Page M v3.0 | The page to return to after tapping the Cancel button. If this is not set, it will default to the Home page. |
+| Return Page Mobile3.0 | The page to return to after an individual has successfully logged in. If this is not set, it will default to the Home page. |
+| Cancel Page Mobile3.0 | The page to return to after tapping the Cancel button. If this is not set, it will default to the Home page. |
 
 ### Page Parameters
 
@@ -40,7 +42,7 @@ The following page parameters are recognized by the `Login` block.
 
 ### External Authentication
 
-| Use Embedded Web View For External Authentication C v17.1 | This will change (in Microsoft Entra only) the logic to use an external browser instead of an internal one. For Fido2/Passkey support, this must be set to false. |
+| Use Embedded Web View For External Authentication Core17.1 | This will change (in Microsoft Entra only) the logic to use an external browser instead of an internal one. For Fido2/Passkey support, this must be set to false. |
 | --- | --- |
 
 Listed below is the corresponding documentation for every external authentication provider that can be integrated with Rock Mobile.

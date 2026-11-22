@@ -5,7 +5,7 @@ sourceLabel: Mobile Docs
 ---
 > **Path:** 
 
-Mv6.0 Cv15.0   [📔  Avatar](https://community.rockrms.com/styling/components/avatars)
+Mobile6.0  Core15.0   [📔  Avatar](https://community.rockrms.com/styling/components/avatars)
 
 Display a person's avatar using the configured settings. Rock's avatar feature provides the ability to create unique avatar images for each person record within the system.
 
@@ -25,7 +25,7 @@ Starting with Rock v20.1, `GetAvatar.ashx` only shows a person's photo on a URL 
 
 | Property | Type | Description |  |
 | --- | --- | --- | --- |
-| Source | string | The photo URL the server built for the person, such as their `PhotoUrl`. When it points at `GetAvatar.ashx`, the avatar styling properties below are added to it. M19.6 |  |
+| Source | string | The photo URL the server built for the person, such as their `PhotoUrl`. When it points at `GetAvatar.ashx`, the avatar styling properties below are added to it. Mobile19.6 |  |
 | PersonGuid | Guid | The person to display the avatar for. Used to refresh the avatar when that person's photo changes. |  |
 | Rounded | bool | Whether or not the avatar should be rounded. |  |
 | ShowStroke | bool | Whether or not a default stroke shape should be applied to the avatar. |  |
@@ -39,13 +39,13 @@ Starting with Rock v20.1, `GetAvatar.ashx` only shows a person's photo on a URL 
 
 ## Automatic Updates
 
-M20.0
+Mobile20.0
 
-An Avatar refreshes itself when a person's photo is updated through the [UpdatePersonProfilePhoto](https://community.rockrms.com/developer/mobile-docs/essentials/commands/utility-commands#updatepersonprofilephoto) command, with no extra markup. Which form you use determines whether that happens:
+An Avatar refreshes itself when a person's photo is updated through the [UpdatePersonProfilePhoto](https://community.rockrms.com/developer/mobile-docs/commands/updatepersonprofilephoto) command, with no extra markup. Which form you use determines whether that happens:
 
 | Form | Refreshes Automatically? |
 | --- | --- |
-| `<Rock:Avatar Source="..." PersonGuid="..." />` | Yes, when that person's photo changes M19.6 |
+| `<Rock:Avatar Source="..." PersonGuid="..." />` | Yes, when that person's photo changes Mobile19.6 |
 | `<Rock:Avatar PersonGuid="..." />` | Yes, when that person's photo changes. On Rock v20.1 and later this shows initials unless it is the current person. |
 | `<Rock:Avatar />` | Yes, for the current person |
 | `<Rock:Avatar Source="..." />` | No. Displays whatever URL you supplied, and only changes when that value does |
@@ -92,9 +92,13 @@ If no properties are set, the component will display the current person's avatar
 
 *Listen to specific Bible verses on the fly.*
 
-M v2.0C v12.1
+Mobile2.0  Core12.1
 
 This control is a component designed for playing audio content of Bible verses. This is handled via the Spark Data API to retrieve the information about the Bible and the verses to be displayed.
+
+Note
+
+Audio is available for the ESV translation only. Bible Audio always plays the ESV recording, even if a Bible Reader or Bible Browser on the same page shows NLT or MSG.
 
 Note
 
@@ -104,7 +108,7 @@ When including Psalms in the reading Reference be sure to use Psalms, notPsalm.
 | --- | --- | --- |
 | Reference | String | One or more Bible references separated by a semicolon. Example: Genesis 1:1-9; Matthew 2,3. This would result in the contents of Genesis chapter 1 verses 1-9 being displayed, followed by Matthew chapters 2 and 3. |
 | WriteInteraction | Boolean | A property that allows you to enable or disable the writing of interactions. |
-| WriteInteractionParameters | [InteractionParameters](https://community.rockrms.com/developer/mobile-docs/essentials/commands/utility-commands#write-interaction) | An object containing parameters that control how the audio is interacted with. This could include behaviors like the audio play speed, volume, etc. |
+| WriteInteractionParameters | [InteractionParameters](https://community.rockrms.com/developer/mobile-docs/commands/writeinteraction) | An object containing parameters that control how the audio is interacted with. This could include behaviors like the audio play speed, volume, etc. |
 
 You can supply custom content to your Bible Audio control, and maintain a reactive UI through bindings and commands.
 

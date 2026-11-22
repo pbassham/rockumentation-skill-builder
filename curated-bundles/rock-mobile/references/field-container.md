@@ -5,7 +5,7 @@ sourceLabel: Mobile Docs
 ---
 > **Path:** 
 
-M v1.0
+Mobile1.0
 
 ## Field Container
 
@@ -68,7 +68,7 @@ The above is very similar to our first example. But because we are specifically 
 
 ## Flip View {#flip-view}
 
-M v2.0C v12.4
+Mobile2.0  Core12.4
 
 *Inherits from* [*Xamarin.Forms.ContentView*](https://docs.microsoft.com/en-us/dotnet/api/xamarin.forms.contentview)*.*
 

@@ -179,26 +179,28 @@ public class MyCustomBlock : RockMobileBlockType
 
 ---
 
-## OS Version Requirements {#os-version-requirements}
+## Shell Platform Support {#shell-platform-support}
 
-*The minimum OS version requirements for each Rock Mobile shell version.*
+The framework, minimum iOS and Android versions, and Xcode version behind each Rock Mobile shell version.
 
-| Shell | Release Date | Android SDK | Android Version | iOS Version |
+| Shell | Framework | iOS | Xcode | Android |
 | --- | --- | --- | --- | --- |
-| v7.0 | 07/16/2025 | 25 | 7.1 | 14.0 |
-| v6.0 | 10/20/2024 | 25 | 7.1 | 12.0 |
-| v5.0 | 10/31/2023 | 25 | 7.1 | 12.0 |
-| v4.1 | 05/09/2023 | 25 | 7.1 | 12.0 |
-| v4.0 | 02/03/2023 | 25 | 7.1 | 12.0 |
-| v3.0 | 06/17/2022 | 23 | 6.0 | 12.0 |
-| v2.2 | 01/19/2022 | 23 | 6.0 | 12.0 |
-| v2.1 | 12/15/2021 | 23 | 6.0 | 12.0 |
-| v2.0 | 09/15/2021 | 23 | 6.0 | 12.0 |
-| v1.0 | 08/24/2020 | 23 | 6.0 | 8.0 |
+| 19.4, 19.5 | .NET MAUI 10.0.71 | 15.0 | 26.6 | 7.0 (API 24) |
+| 19.1, 19.2, 19.3 | .NET MAUI 9.0.120 | 14.0 | 26.5 | 7.0 (API 24) |
+| 7.0 | .NET MAUI 9.0.10 | 14.0 | 16.4 | 7.0 (API 24) |
+| 6.0 | .NET MAUI 8.0.70 | 11.0 | 15.1 | 6.0 (API 23) |
+| 4.0, 4.1, 5.0 | Xamarin.Forms 5.0.0.2515 | 12.0 | Not recorded | 6.0 (API 23) |
+| 2.1, 2.2, 3.0 | Xamarin.Forms 5.0.0.2244 | 12.0 | Not recorded | 6.0 (API 23) |
+| 2.0 | Xamarin.Forms 5.0.0.1931 | 12.0 | Not recorded | 6.0 (API 23) |
+| 1.0 | Xamarin.Forms 4.6.0.1180 | 8.0 | Not recorded | 6.0 (API 23) |
+
+Values come from each version's tagged release build. Xcode is the version used to build the iOS app, which sets the iOS SDK it targets. Patch updates later in a release line may use a newer Xcode or framework patch.
+
+**We avoid changing these in non-major releases.** Raising a minimum OS or moving to a new framework version is saved for major releases whenever possible, though an App Store or Google Play requirement can occasionally force a change sooner.
 
 Note
 
-View the official release notes here: [https://www.rockrms.com/mobilereleasenotes](https://www.rockrms.com/mobilereleasenotes)
+For release dates and what changed in each version, see the [mobile release notes](https://www.rockrms.com/mobilereleasenotes).
 
 ---
 

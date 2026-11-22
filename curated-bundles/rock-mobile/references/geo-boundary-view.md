@@ -7,7 +7,7 @@ sourceLabel: Mobile Docs
 
 Display content based on whether or not a person is within a geofence.
 
-M v5.0
+Mobile5.0
 
 *Inherits from* [*Xamarin.Forms.ContentView*](https://docs.microsoft.com/en-us/dotnet/api/xamarin.forms.contentview)
 

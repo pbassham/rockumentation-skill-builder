@@ -46,7 +46,7 @@ On iOS, the Navigation Bar normally has a small 1-pixel shadow/border line betwe
 
 ### Navigation Bar Transparency and Blur (iOS)
 
-M v4.0
+Mobile4.0
 
 In iOS, there is a pattern in which the navigation bar is see-through and blurs the content beneath:
 
@@ -90,7 +90,7 @@ Note: `-rock-selected-tab-color` and `-rock-unselected-tab-color` are only avail
 
 ## Additional Styling
 
-M v4.0
+Mobile4.0
 
 Here are some more miscellaneous properties to allow customization of the shell.
 

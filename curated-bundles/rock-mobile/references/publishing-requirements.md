@@ -1,5 +1,5 @@
 ---
-description: "Use when users ask about Apple App Store or Google Play publishing requirements, policies, account deletion implementation, or mobile app approval guidelines"
+description: "Use when user asks about Apple App Store or Google Play publishing requirements, policies, account deletion, audio playback, or mobile app approval guidelines"
 source: "https://community.rockrms.com/developer/mobile-docs"
 sourceLabel: Mobile Docs
 ---
@@ -35,7 +35,7 @@ Apple
 
 The shell has a built-in setting enabled for background audio playback. This cannot be turned off and must be in use to publish a Rock Mobile app on Apple's App Store. If you don't have audio playback in your app, you will need to temporarily add something in order to get the app approved.
 
-In general, the audio content itself doesn't really matter, so you can add something relevant to your app and initiate playback with the [PlayAudio](https://community.rockrms.com/developer/mobile-docs/essentials/commands/media-commands#playaudio) command. Optionally, you can leave this in your app and conditionally show this to the account that Apple uses to review the app via Lava, though we'd recommend against this being on the Home page to avoid additional performance overhead.
+In general, the audio content itself doesn't really matter, so you can add something relevant to your app and initiate playback with the [PlayAudio](https://community.rockrms.com/developer/mobile-docs/commands/playaudio) command. Optionally, you can leave this in your app and conditionally show this to the account that Apple uses to review the app via Lava, though we'd recommend against this being on the Home page to avoid additional performance overhead.
 
 ## Server Access
 

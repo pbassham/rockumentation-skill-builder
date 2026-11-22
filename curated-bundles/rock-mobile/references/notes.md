@@ -7,7 +7,11 @@ sourceLabel: Mobile Docs
 
 Displays entity notes to the user and supports adding new notes or editing of existing notes.
 
-M v2.0 [Integrated Scroll](https://community.rockrms.com/page/3516?slug=essentials%2fblocks#integrated-scroll)
+Mobile2.0 [Integrated Scroll](https://community.rockrms.com/page/3516?slug=essentials%2fblocks#integrated-scroll)
+
+Note
+
+@mentions in notes add to the mentioned person's app icon badge. See [App Icon Badge](https://community.rockrms.com/developer/mobile-docs/essentials/features/app-icon-badge).
 
 ## Overview
 
@@ -40,19 +44,19 @@ Next, we need to configure our block to actually look for those personal notes. 
 
 So now, the block knows the entity type that we are fetching notes for, and also the specific note type we are fetching.
 
-### Enable Group Notification M v5.0C v15.1
+### Enable Group Notification Mobile5.0  Core15.1
 
-If enabled, the block will utilize the `GroupContext` of the page (use the [SetContext](https://community.rockrms.com/developer/mobile-docs/essentials/commands/utility-commands#setcontext) command) as the group to notify when a note is added. Used in tandem with the [Group Notification Communication Template](https://community.rockrms.com/developer/mobile-docs/essentials/blocks/core/notes#group-notification-communication-template-nbsp-m-nbsp-v5-0c-nbsp-v15-1).
+If enabled, the block will utilize the `GroupContext` of the page (use the [SetContext](https://community.rockrms.com/developer/mobile-docs/commands/setcontext) command) as the group to notify when a note is added. Used in tandem with the [Group Notification Communication Template](https://community.rockrms.com/developer/mobile-docs/essentials/blocks/core/notes#group-notification-communication-template-nbsp-mobile5-0-nbsp-core15-1).
 
-### Group Notification Communication Template M v5.0C v15.1
+### Group Notification Communication Template Mobile5.0  Core15.1
 
-The communication template to use when a note is added and [Enable Group Notification](https://community.rockrms.com/developer/mobile-docs/essentials/blocks/core/notes#enable-group-notification-nbsp-m-nbsp-v5-0c-nbsp-v15-1) is true. `Note` will be passed in as a merge field to the communication template that you select.
+The communication template to use when a note is added and [Enable Group Notification](https://community.rockrms.com/developer/mobile-docs/essentials/blocks/core/notes#enable-group-notification-nbsp-mobile5-0-nbsp-core15-1) is true. `Note` will be passed in as a merge field to the communication template that you select.
 
-### Show Is Alert Toggle M v5.0C v15.1
+### Show Is Alert Toggle Mobile5.0  Core15.1
 
 If enabled, a toggle will display that allows an individual to mark a `Note` as alert.
 
-### Show Is Private Toggle M v5.0C v15.1
+### Show Is Private Toggle Mobile5.0  Core15.1
 
 If enabled, a toggle will display that allows an individual to mark a `Note` as private.
 
@@ -99,7 +103,7 @@ Keep in mind that you must be signed in to add a new note, otherwise the plus is
 
 ![](https://community.rockrms.com/GetImage.ashx?Id=66914)
 
-## Using a Template M v4.0C v14.1
+## Using a Template Mobile4.0  Core14.1
 
 The notes block is typically meant to be used as a full-screen block, with a layout that does not contain a ScrollView. This is due to the usage of a [CollectionView](https://learn.microsoft.com/en-us/xamarin/xamarin-forms/user-interface/collectionview/), which is a highly performant Xamarin Forms control that allows us to implement things like loading more notes as you continue scrolling down.
 

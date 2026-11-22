@@ -7,7 +7,7 @@ sourceLabel: Mobile Docs
 
 Allows you to offer search with multiple search components that an individual can switch between.
 
-### M v6.0C v16.5
+### Mobile6.0  Core16.5 [Integrated Scroll](https://community.rockrms.com/page/3516?slug=essentials%2fblocks#integrated-scroll)
 
 Note
 
@@ -91,7 +91,7 @@ Group search only. The page to link to when a Group search result item is presse
 
 Minimally and easily jot down a note that is not tied to any specific entity.
 
-### M v6.1C v16.7
+### Mobile6.1  Core16.7
 
 This block allows you to quickly create a note from anywhere in your application. This note will not be tied to anything specific -- and has a default Note Type of Quick Note. You can use the My Notes block to later view and comprehensively manage the note.
 

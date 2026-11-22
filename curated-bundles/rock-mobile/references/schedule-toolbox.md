@@ -7,7 +7,7 @@ sourceLabel: Mobile Docs
 
 Accept, decline or cancel scheduled attendances.
 
-### M v4.0C v13.1
+### Mobile4.0  Core13.1
 
 This block manages scheduling opportunities for an individual, allowing them to 'Accept' or 'Decline' an attendance request, or cancel a previously accepted or declined request. If you are unfamiliar with group scheduling in Rock, please refer to [Rock Your Groups - Group Scheduling](https://community.rockrms.com/Rock/BookContent/7#groupscheduling).
 
@@ -67,7 +67,7 @@ Since this is a XAML template, there’s no styling X-Ray available.
 
 Mark dates to be excluded from when group scheduling.
 
-### M v4.0C v13.3
+### Mobile4.0  Core13.3
 
 This block allows an individual to schedule dates that they (or their household members) are unavailable, so an administrator knows not to schedule them on these days. If you are unfamiliar with group scheduling in Rock, please refer to [Rock Your Groups - Group Scheduling](https://community.rockrms.com/Rock/BookContent/7#groupscheduling).
 
@@ -93,7 +93,7 @@ This section refers to the 'Prayer' mobile block group.
 
 Displays an existing prayer request and allows the user to enter the answer to prayer.
 
-M v3.0
+Mobile3.0
 
 ## Getting Started
 
@@ -137,7 +137,7 @@ There’s no styling X-Ray available.
 
 ## My Prayer Requests {#my-prayer-requests}
 
-### M v2.0C v12.4
+### Mobile2.0  Core12.4
 
 Shows a list of prayer requests that the user has previously entered.
 

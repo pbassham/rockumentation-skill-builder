@@ -1,5 +1,5 @@
 ---
-description: Use when understanding how Rock Mobile blocks are rendered through multiple processing stages from server to device display
+description: Use when understanding how Rock Mobile renders screens from server-defined pages through multiple processing stages including Lava templating and XAML parsing
 source: "https://community.rockrms.com/developer/mobile-docs"
 sourceLabel: Mobile Docs
 ---

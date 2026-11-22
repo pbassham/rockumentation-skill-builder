@@ -13,7 +13,7 @@ This block displays structured content from Rock in the app. You can use this to
 
 | Name | Description |
 | --- | --- |
-| Document Not Found Content C v15.1 | The XAML content to render when there is no document found. Leave blank to render nothing. |
+| Document Not Found Content Core15.1 | The XAML content to render when there is no document found. Leave blank to render nothing. |
 
 ## Content Channel
 

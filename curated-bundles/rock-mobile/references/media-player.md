@@ -5,7 +5,7 @@ sourceLabel: Mobile Docs
 ---
 > **Path:** 
 
-Mv6.0 Cv12.4
+Mobile6.0  Core12.4
 
 *Inherits from [Maui.CommunityToolkit.MediaElement](https://learn.microsoft.com/en-us/dotnet/communitytoolkit/maui/views/mediaelement?tabs=android)*
 
@@ -75,7 +75,7 @@ The Media Player received major updates in v6. While all existing properties fro
 
 #### Watch Map Properties
 
-Mv2.0 Cv12.4
+Mobile2.0  Core12.4
 
 The easiest way to get data needed for a Watch Map is to use the [AppendWatches filter](https://community.rockrms.com/lava/filters/other-filters#appendwatches).
 

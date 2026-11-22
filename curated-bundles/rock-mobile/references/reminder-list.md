@@ -5,6 +5,8 @@ sourceLabel: Mobile Docs
 ---
 > **Path:** 
 
+[Integrated Scroll](https://community.rockrms.com/page/3516?slug=essentials%2fblocks#integrated-scroll)
+
 ## Settings
 
 | Name | Description |
@@ -55,13 +57,13 @@ This object is designed to provide filter information of the due date of a remin
 
 ## Delete Reminder
 
-C v16.1
+Core16.1
 
 Reminders can be deleted by swiping left on the reminder item.
 
 ## Link to Profile Page
 
-C v16.1
+Core16.1
 
 To link Person Alias reminders to a Person Profile page, ensure that a `Profile Page` is set in your application settings.
 
@@ -79,7 +81,7 @@ That page will be navigated to with `PersonGuid` passed along as the parameter.
 
 *Allows a reminder to be edited or created.*
 
-### M v5.0C v15.1
+### Mobile5.0  Core15.1
 
   
 

@@ -5,9 +5,13 @@ sourceLabel: Mobile Docs
 ---
 > **Path:** 
 
-C20.0M20.0
+Mobile20.0  Core20.0 [Integrated Scroll](https://community.rockrms.com/page/3516?slug=essentials%2fblocks#integrated-scroll)
 
 Displays a single connection request and lets connectors work it from their phone.
+
+Note
+
+@mentions in comments and activities add to the mentioned person's app icon badge. See [App Icon Badge](https://community.rockrms.com/developer/mobile-docs/essentials/features/app-icon-badge).
 
 ## What it does
 
@@ -60,7 +64,7 @@ Displays a single connection request and lets connectors work it from their phon
 
 ## My Connection Requests {#my-connection-requests}
 
-C20.0M20.0
+Mobile20.0  Core20.0 [Integrated Scroll](https://community.rockrms.com/page/3516?slug=essentials%2fblocks#integrated-scroll)
 
 Displays every connection request assigned to the current person, across all opportunities, in one worklist.
 
@@ -106,7 +110,7 @@ This section refers to the legacy "Connection" mobile block group. These blocks 
 
 Allows a Person to create a new Connection.
 
-M v5.0C v16.1
+Mobile5.0  Core16.1
 
 ## Block Configuration
 

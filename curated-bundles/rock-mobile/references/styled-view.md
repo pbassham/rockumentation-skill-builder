@@ -5,7 +5,7 @@ sourceLabel: Mobile Docs
 ---
 > **Path:** 
 
-M v1.0
+Mobile1.0
 
 *Inherits from* [*Border*](https://learn.microsoft.com/en-us/dotnet/maui/user-interface/controls/border)
 

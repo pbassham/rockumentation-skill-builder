@@ -132,6 +132,52 @@ Tips for the handoff:
 
 ---
 
+## App Icon Badge {#app-icon-badge}
+
+Mobile6.0  Core15.0
+
+On iOS, the number on your app's icon shows how many things in Rock are waiting for someone. Rock keeps it up to date on its own, even when the app is closed.
+
+## What counts
+
+The badge is the person's count of unread notification messages in Rock.
+
+| Source | Adds to the badge when | Clears when |
+| --- | --- | --- |
+| Note mentions | Someone @mentions the person in a note, on the web or in the app | The message is opened or marked read, or after 90 days |
+| Connection request mentions | Someone @mentions the person in a connection request comment or activity | The message is opened or marked read, or after 90 days |
+| SMS conversations | An unread text arrives on a system phone number the person monitors | The person reads the conversation |
+
+**Mentions count everywhere.** A mention made on the web counts in the app too. Mentions only work on note types that allow them. If a system phone number has a mobile app set, its SMS messages count only in that app.
+
+## When it updates
+
+**From Rock.** Each time one of these messages is added or removed, Rock sends a silent push with the new count to the person's devices. The person doesn't see a notification; only the number on the icon changes. This needs [push notifications](https://community.rockrms.com/developer/mobile-docs/app-factory/push-notifications) set up.
+
+**From the app.** The app checks the count again each time it opens or comes back to the foreground, right after someone reads an SMS conversation, and when they leave chat. Expired messages are removed by the RockCleanup job, and the badge catches up the next time the app opens.
+
+## Chat
+
+[Chat](https://community.rockrms.com/developer/mobile-docs/essentials/chat) isn't part of Rock's count. A chat push sets the badge to the person's unread chat count. The app puts Rock's count back the next time it opens or when the person leaves chat. So unread chats drop off the badge until the next chat push arrives.
+
+## Clearing in the app
+
+Add the [Notification Messages](https://community.rockrms.com/developer/mobile-docs/essentials/blocks/core/notification-messages) block to a page so people can see what's behind the number. Tapping a message marks it read and opens it: a page in the app when one matches, or the web page in the browser when one doesn't. Swiping marks a message read without opening it.
+
+Without this block, mentions can only be cleared from the bell in Rock on the web, or by waiting 90 days.
+
+## Android
+
+Android doesn't show Rock's count. Some launchers show a dot while the app has notifications in the tray. That's Android's own behavior.
+
+## Requirements
+
+- Rock 15.0 or later.
+- The person is signed in and has allowed notifications.
+- Push notifications are set up, so Rock can send the silent push that updates the badge while the app is closed.
+
+---
+
 ## Field Types {#field-types}
 
 Many fundamental Rock Field Types have been implemented, meaning you can use attributes that make use of these field types. Currently, the only Rock Mobile block that supports attributes is [Workflow Entry](https://community.rockrms.com/developer/mobile-docs/essentials/blocks/cms/workflow-entry) though others may be added in the future.
@@ -149,13 +195,13 @@ Not all of the features for each type are available. As an example, the type Mul
 - Defined Value
 - Email
 - Integer
-- Image M v4.0
+- Image Mobile4.0
 - Memo
 - Multi-Select
 	- Displayed as a vertical list of checkboxes, regardless of the **Columns** or **Repeat Direction**
 		- When **Enhance For Long Lists** is checked, options will be opened within a cover sheet
 - Phone Number
-- Person M v6.0
+- Person Mobile6.0
 - Single-Select
 - Text
 - URL Link

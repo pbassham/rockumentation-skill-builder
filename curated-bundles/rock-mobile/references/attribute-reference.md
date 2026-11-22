@@ -1,5 +1,5 @@
 ---
-description: "Use when looking up Hx.* attributes available in Rock Mobile, their types, inheritance, what they apply to, and allowed values"
+description: "Use when you need to look up all available Hx.* attributes for Rock mobile views and their reserved values"
 source: "https://community.rockrms.com/developer/mobile-docs"
 sourceLabel: Mobile Docs
 ---

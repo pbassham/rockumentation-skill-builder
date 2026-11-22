@@ -5,7 +5,7 @@ sourceLabel: Mobile Docs
 ---
 > **Path:** 
 
-M v1.0
+Mobile1.0
 
 Adding a countdown timer to your page is simple. There are several options for providing a date and time to the control.
 

@@ -5,7 +5,7 @@ sourceLabel: Mobile Docs
 ---
 > **Path:** 
 
-Mv6.0
+Mobile6.0
 
 Newer phones commonly have areas that are not considered safe for content. For example, a phone with a camera notch has an unsafe area around the notch because your content might not actually display. The same is true of devices with rounded screen corners.
 
@@ -43,7 +43,7 @@ You may have noticed the mention of "padding" above. Because we are modifying th
 
 ### Safe Area Padding Effect
 
-Mv2.0
+Mobile2.0
 
 To further align with the MAUI paradigm, the `SafeAreaPaddingEffect` has been migrated to a `SafeAreaPaddingBehavior`.
 

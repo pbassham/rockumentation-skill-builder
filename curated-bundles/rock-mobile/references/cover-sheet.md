@@ -7,7 +7,7 @@ sourceLabel: Mobile Docs
 
 *The ins and outs of displaying and styling cover sheets*
 
-M v4.0
+Mobile4.0
 
 Cover sheets are a commonly patterned way to present information to a user that doesn't rely on changing the navigation stack.
 
@@ -19,7 +19,7 @@ Cover sheets cannot be opened within cover sheets. Some blocks utilize cover she
 
 ## Android
 
-Currently, there is not a ton of Android functionality. It works similarly to a [PushPage](https://community.rockrms.com/developer/mobile-docs/essentials/commands/navigation-commands#pushpage) but has an animation that slides from bottom to top instead of from right to left.
+Currently, there is not a ton of Android functionality. It works similarly to a [PushPage](https://community.rockrms.com/developer/mobile-docs/commands/pushpage) but has an animation that slides from bottom to top instead of from right to left.
 
 Warning
 
@@ -38,13 +38,13 @@ Listed below are the options provided via the `ShowCoverSheetCommandParameters` 
 | SheetTitle | string | The title of the sheet, displays in the middle of the navigation bar. |
 | DismissButtonText | string | The text to use in the dismiss button, seen in the toolbar (navigation bar) of the sheet. Defaults to *Cancel*. |
 | WaitForReady | bool | When true, delays the sheet opening until the contents are loaded and ready to be shown.   Defaults to *True*. |
-| ShowNavigationBar   M v5.0 | bool | Whether or not this instance should show a navigation bar. IsNavigationPage must be enabled. (defaults to false) |
-| PrimaryActionButton   M v5.0 | Button | The button to use as the primary action in the top right corner of cover sheets. |
-| SecondaryActionButton   M v5.0 | Button | The button to use as the secondary action in the top left corner of cover sheets. |
+| ShowNavigationBar   Mobile5.0 | bool | Whether or not this instance should show a navigation bar. IsNavigationPage must be enabled. (defaults to false) |
+| PrimaryActionButton   Mobile5.0 | Button | The button to use as the primary action in the top right corner of cover sheets. |
+| SecondaryActionButton   Mobile5.0 | Button | The button to use as the secondary action in the top left corner of cover sheets. |
 
 ### Styling
 
-M v5.0
+Mobile5.0
 
 ![](https://community.rockrms.com/GetImage.ashx?Id=67034)
 
@@ -120,7 +120,7 @@ Here is an extensive example with most of the `ShowCoverSheetParameters` propert
 
 ## Closing a Cover Sheet
 
-To close any open cover sheet, use the [CloseCoverSheet](https://community.rockrms.com/developer/mobile-docs/essentials/commands/utility-commands#closecoversheet) command.
+To close any open cover sheet, use the [CloseCoverSheet](https://community.rockrms.com/developer/mobile-docs/commands/closecoversheet) command.
 
 ```
 <Button Text="Tap" Command="{Binding CloseCoverSheet}" />
@@ -132,7 +132,7 @@ To close any open cover sheet, use the [CloseCoverSheet](https://community.rockr
 
 *Displays a separator line much like an HTML <hr\> tag.*
 
-M v1.0
+Mobile1.0
 
 *Inherits from* [*BoxView*](https://learn.microsoft.com/en-us/dotnet/maui/user-interface/controls/boxview)
 
@@ -161,7 +161,7 @@ Use the margin helper CSS classes like .my-12 to easily adjust the vertical sp
 
 ## Expander {#expander}
 
-M v2.0C v12.4
+Mobile2.0  Core12.4
 
 *Inherits from* [*Microsoft.Maui.Controls.ContentView*](https://learn.microsoft.com/en-us/dotnet/api/microsoft.maui.controls.contentview)
 

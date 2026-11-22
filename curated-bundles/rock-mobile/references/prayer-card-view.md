@@ -5,7 +5,7 @@ sourceLabel: Mobile Docs
 ---
 > **Path:** 
 
-### M v3.0
+### Mobile3.0
 
 Provides an additional experience to pray using a card based view.
 
@@ -141,11 +141,11 @@ Since this is a XAML template, there’s no styling X-Ray available.
 
 Displays a form to submit a new prayer request or edit an existing one.
 
-### M v3.0
+### Mobile3.0
 
 ![](https://community.rockrms.com/GetImage.ashx?Id=67281)
 
-### M v7.0C v16.8
+### Mobile7.0  Core16.8
 
 In this update, the block now supports the inclusion of prayer request attributes. Those of the supported [Field Types](https://community.rockrms.com/developer/mobile-docs/essentials/field-types) will be included in the form.
 
@@ -155,7 +155,7 @@ In this update, the block now supports the inclusion of prayer request attribute
 | --- | --- | --- |
 | RequestGuid | Guid | The Guid of the request you wish to display details of. |
 | GroupGuid | Guid | An optional page parameter containing the Guid of the specific group. |
-| RequestorPersonGuid C v15.0 | Guid | If passed in, this will update the block to use the Person with the Guid corresponding to this value instead of the currently logged-in person. |
+| RequestorPersonGuid Core15.0 | Guid | If passed in, this will update the block to use the Person with the Guid corresponding to this value instead of the currently logged-in person. |
 
 ## Settings
 
@@ -187,7 +187,7 @@ There’s no styling X-Ray available.
 
 ## Prayer Session {#prayer-session}
 
-Mv3.0 📔  [Prayer Manual](https://community.rockrms.com/Rock/BookContent/11)
+Mobile3.0 📔  [Prayer Manual](https://community.rockrms.com/Rock/BookContent/11)
 
 Display a collection of approved prayer requests one at a time for focused experience.
 
@@ -232,7 +232,7 @@ To display multiple prayers at once, check out the [Prayer Card View](https://c
 
 Displays some options to the user to configure their prayer session.
 
-### M v3.0
+### Mobile3.0
 
 This block is used to begin a prayer session using the [Prayer Session](https://community.rockrms.com/developer/mobile-docs/essentials/blocks/prayer/prayer-session) block. If you are unfamiliar with Rock's prayer functionality, please refer to the [Rock: Prayer Overview](https://www.rockrms.com/Content/RockExternal/Misc/Coronavirus/PrayerOverview.pdf).
 
@@ -260,7 +260,7 @@ There’s no styling X-Ray available.
 
 ## Reminder Dashboard {#reminder-dashboard}
 
-M v5.0 C v15.1 [Integrated Scroll](https://community.rockrms.com/page/3516?slug=essentials%2fblocks#integrated-scroll)
+Mobile5.0  Core15.1 [Integrated Scroll](https://community.rockrms.com/page/3516?slug=essentials%2fblocks#integrated-scroll)
 
 Displays general reminder information and filtering options for the Current Person.
 

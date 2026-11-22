@@ -1,11 +1,11 @@
 ---
-description: "Use when managing pending connection requests for a specific opportunity in Rock mobile apps, including setup and query parameter configuration"
+description: Use when displaying or managing pending connection requests for a specific opportunity in Rock Mobile
 source: "https://community.rockrms.com/developer/mobile-docs"
 sourceLabel: Mobile Docs
 ---
 > **Path:** 
 
-Mv3.0Cv13.3
+Mobile3.0  Core13.3
 
 This block is used to display a list of Connection Requests for a single connection opportunity. If you are unfamiliar with Connections in Rock, please refer to the [connections manual](https://community.rockrms.com/Rock/BookContent/39#connections).
 

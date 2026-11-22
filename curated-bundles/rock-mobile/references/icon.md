@@ -5,7 +5,7 @@ sourceLabel: Mobile Docs
 ---
 > **Path:** 
 
-M v1.0
+Mobile1.0
 
 Inherits from [Xamarin.Forms.Label](https://docs.microsoft.com/en-us/dotnet/api/xamarin.forms.label)
 
@@ -71,7 +71,7 @@ Displays a Button with an Icon as the content.
 
 Inherits from [Button](https://learn.microsoft.com/en-us/dotnet/maui/user-interface/controls/button?view=net-maui-9.0)
 
-M v6.0
+Mobile6.0
 
 ### Overview
 

@@ -1,5 +1,5 @@
 ---
-description: Use when configuring what user interaction triggers a Helix request on a rock-mobile element
+description: "Use when user asks how to change when a Helix request fires, like on load, text change, focus loss, or custom event triggers"
 source: "https://community.rockrms.com/developer/mobile-docs"
 sourceLabel: Mobile Docs
 ---

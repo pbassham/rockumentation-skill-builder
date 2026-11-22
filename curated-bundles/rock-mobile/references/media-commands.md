@@ -1,86 +1,75 @@
 ---
 description: "Use when building mobile app features that play audio or video files in full-screen with customizable parameters like titles, thumbnails, and player controls"
-source: "https://community.rockrms.com/developer/mobile-docs"
-sourceLabel: Mobile Docs
+source: "https://community.rockrms.com/developer/apple-tv-docs"
+sourceLabel: Apple TV Docs
 ---
 > **Path:** 
 
-Block commands pertaining to media content.
-
-## PlayAudio
-
-M v1.0
-
-Like the [PlayVideo](https://community.rockrms.com/developer/mobile-docs/essentials/commands/media-commands#playvideo) command, this initiates a full-screen playback of an audio file. Given that it's audio, there won't be much to see.
-
-The `CommandParameter` consists of a string that contains the URL of the audio file to be played.
+The commands below are related to the playback of media within the app.
 
 Note
 
-Starting in M v2.0 you can also pass in a PlayAudioParameters object which contains the following properties.  
+  You cannot play YouTube content in an Apple TV application. ([Why?](https://medium.com/bpxl-craft/apple-tv-a-world-without-webkit-5c428a64a6dd))  
 
-| Property | Type | Description |
+## Notes
+
+Both of the media commands below share some common functionality as it relates to working with `MediaElements`. Here are some things you should know.
+
+1. To set the resume location from an existing interaction provide the map from the interaction using the `rockWatchMap` property.
+2. To append to the watch map of an existing interaction provide both the `rockInteractionGuid` as well as the `rockWatchMap` property.
+3. If you provide a `rockWatchMap` without a `rockInteractionGuid` property the watch map will be used for determining the resume location, but a new interaction will be written with a fresh watch map (so the watch map will start where they last left off).
+
+## Play Video
+
+Plays the video file using the provided configuration.
+
+```
+<buttonLockup rockCommand="playVideo" 
+     rockVideoUrl="https://rockrms.blob.core.windows.net/videos/rock-sample-video.mp4">
+    <badge src="resource://button-preview" />
+    <title>Play</title>
+</buttonLockup>
+```
+
+Additional configuration options include the following:
+
+| Parameter | Type | Description |
 | --- | --- | --- |
-| ThumbnailSource | string | The URL that contains the image to displayed as the thumbnail of the media player. This overrides any embedded artwork found in the metadata. |
-|  |  | *(See* *PlayVideoParameters* *for more properties)* |
+| rockVideoUrl | string | The URL to the video file to play. Should be MP4 or HLS file. |
+| rockVideoMediaElementGuid | string | The GUID of the Rock media file. This is only needed if the audio/video is a Rock Media Element. This will be used to track watches. |
+| rockVideoRelatedEntityTypeId | int | The Entity Type ID that the media file is related to. |
+| rockVideoRelatedEntityId | int | The Entity ID that the media file is related to. |
+| rockVideoEnableResume | boolean | Determines if the enabled resume feature is enabled. This allows the individual to start the playing of the media file where they last left off. Defaults to true. |
+| rockVideoTitle | string | The title of the media file. This will show as meta data when the file is in the player. |
+| rockVideoSubtitle | string | The subtitle of the media file. This shows as meta data when the file is in the player. |
+| rockVideoArtworkImageURL | string | The URL where the media file's artwork can be loaded. This will show as meta data when the file is in the player. |
+| rockVideoDescription | string | The description of the media file. This will show as meta data when the file is in the player. |
+| rockInteractionGuid | string | The GUID of the interaction that should be used to append to. |
+| rockWatchMap | string | The existing watch map that, when provided, will be used to append to. |
 
-**Examples**
+## Play Audio
+
+Plays the audio file using the provided configuration.
 
 ```
-<Button Text="Tap"
-        Command="{Binding PlayAudio}"
-        CommandParameter="http://www.noiseaddicts.com/samples_1w72b820/2541.mp3" />
-```
-```
-<Button Text="Tap"
-        Command="{Binding PlayAudio}">
-    <Button.CommandParameter>
-        <Rock:PlayAudioParameters
-            Source="http://www.noiseaddicts.com/samples_1w72b820/2541.mp3"
-            ThumbnailSource="https://upload.wikimedia.org/wikipedia/commons/c/c5/Big_buck_bunny_poster_big.jpg" />
-    </Button.CommandParameter>
-</Button>
+<buttonLockup rockCommand="playAudio" 
+    rockAudioUrl="https://rockrms.blob.core.windows.net/videos/rock-sample-audio.mp3">
+    <badge src="resource://button-preview" />
+    <title>Play</title>
+</buttonLockup>
 ```
 
-## PlayVideo
+Additional configuration options include the following:
 
-M v1.0
-
-This command initiates the playing of a video in full-screen. Usually, it is better to use the [MediaPlayer](https://community.rockrms.com/developer/mobile-docs/essentials/controls/content-controls/media-player) view instead, but there are times you just want to play a video when the user taps a button.
-
-The `CommandParameter` consists of a string that contains the URL of the video to be played.
-
-Note
-
-Starting in M v2.0 you can also pass a PlayVideoParameters object that lets you customize the look of the media player. It contains the following properties.   
-
-| Property | Type | Description |
+| rockAudioUrl | string | The URL to the video file to play. Should be MP3 file. |
 | --- | --- | --- |
-| Source | string | The URL of the media to be played. |
-| BackgroundColor | [Color](https://docs.microsoft.com/en-us/dotnet/api/xamarin.forms.color) | A color to be used behind the media. |
-| Title | string | Overrides any metadata in the media and sets the title text to be displayed. |
-| Subtitle | string | Overrides any metadata in the media and sets the subtitle text to be displayed. |
-| ControlsContent | [View](https://docs.microsoft.com/en-us/dotnet/api/xamarin.forms.view) | Contains the view tree that should be used to provide UI controls, this replaces the default controls. |
-| OverlayContent | [View](https://docs.microsoft.com/en-us/dotnet/api/xamarin.forms.view) | Contains the view tree that will be displayed over top of the media. The default content only shows for audio files and displays the artwork. |
-
-Important
-
-Note that watch map integration is not currently supported with the PlayVideo command. If this is needed, you'll have to use the Media Player component instead.  
-
-**Examples**
-
-```
-<Button Text="Tap"
-        Command="{Binding PlayVideo}"
-        CommandParameter="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" />
-```
-```
-<Button Text="Tap"
-        Command="{Binding PlayVideo}">
-    <Button.CommandParameter>
-        <Rock:PlayVideoParameters
-            Source="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
-            Title="Big Buck Bunny" />
-    </Button.CommandParameter>
-</Button>
-```
+| rockVideoMediaElementGuid | int | The GUID of the Rock media file. This is only needed if the audio/video is a Rock Media Element. This will be used to track watches. |
+| rockAudioRelatedEntityTypeId | int | The Entity Type ID that the media file is related to. |
+| rockAudioRelatedEntityId | int | The Entity ID that the media file is related to. |
+| rockAudioEnableResume | boolean | Determines if the enabled resume feature is enabled. This allows the individual to start the playing of the media file where they last left off. |
+| rockAudioTitle | string | The title of the media file. This will show as meta data when the file is in the player. |
+| rockAudioSubtitle | string | The subtitle of the media file. This shows as meta data when the file is in the player. |
+| rockAudioArtworkImageURL | string | The URL where the media file's artwork can be loaded. This will show as meta data when the file is in the player. |
+| rockAudioDescription | string | The description of the media file. This will show as meta data when the file is in the player. |
+| rockInteractionGuid | string | The GUID of the interaction that should be used to append to. |
+| rockWatchMap | string | The existing watch map that, when provided, will be used to append to. |

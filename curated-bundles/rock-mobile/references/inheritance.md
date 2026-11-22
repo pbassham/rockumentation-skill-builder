@@ -1,5 +1,5 @@
 ---
-description: Use when understanding how HTMX attributes cascade through the visual tree and which attributes can be inherited versus must be declared per-element
+description: "Use when asking how Hx attributes cascade down the visual tree, what properties inherit versus stay per-element, or how to avoid repeating declarations in containers"
 source: "https://community.rockrms.com/developer/mobile-docs"
 sourceLabel: Mobile Docs
 ---

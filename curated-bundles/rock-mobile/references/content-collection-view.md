@@ -7,7 +7,7 @@ sourceLabel: Mobile Docs
 
 *Universally search across multiple different content sources, with filter and sort options.*
 
-Mv6.0 C v16.5 [Integrated Scroll](https://community.rockrms.com/page/3516?slug=essentials%2fblocks#integrated-scroll)
+Mobile6.0  Core16.5 [Integrated Scroll](https://community.rockrms.com/page/3516?slug=essentials%2fblocks#integrated-scroll)
 
 Warning
 

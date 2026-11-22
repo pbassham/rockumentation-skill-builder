@@ -1,5 +1,5 @@
 ---
-description: "Use when answering questions about loading indicators, error states, confirmation dialogs, and user feedback during HTMX requests in rock-mobile"
+description: "Use when handling loading indicators, spinners, error messages, confirmation dialogs, or user prompts during HTMX requests in MAUI mobile apps"
 source: "https://community.rockrms.com/developer/mobile-docs"
 sourceLabel: Mobile Docs
 ---

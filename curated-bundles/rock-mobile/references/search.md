@@ -7,7 +7,7 @@ sourceLabel: Mobile Docs
 
 *Performs a search using one of the configured search components and displays the results.*
 
-M v3.0
+Mobile3.0 [Integrated Scroll](https://community.rockrms.com/page/3516?slug=essentials%2fblocks#integrated-scroll)
 
 ## Getting Started
 
@@ -25,10 +25,10 @@ The good news is that if that *is* the intended functionality, it works right ou
 | Search Placeholder Text | The placeholder text within the search box. |
 | Results Separator Content | Content to display between the search input and the results. This content will show with the display of the results. |
 | Result Item Template | Content to display for each result item. The entity found in the search is passed in as the Item. |
-| Historical Result Item Template M v5.0 | Content to display for each historical result item. Merge fields are populated by the parameters in the AppendToSearchHistory command. |
+| Historical Result Item Template Mobile5.0 | Content to display for each historical result item. Merge fields are populated by the parameters in the AppendToSearchHistory command. |
 | Detail Navigation Action | The navigation action to perform when an item is tapped. The GUID of the item will be passed as the entity name and GUID, such as PersonGuid=value. |
-| Auto Focus Keyboard M v4.0 | When enabled, will auto focus someone into the search field when the page is attached. |
-| Stopped Typing Behavior Threshold M v5.0 | The amount of time in milliseconds for the user to stop typing to perform an auto-search. (0 to disable). |
+| Auto Focus Keyboard Mobile4.0 | When enabled, will auto focus someone into the search field when the page is attached. |
+| Stopped Typing Behavior Threshold Mobile5.0 | The amount of time in milliseconds for the user to stop typing to perform an auto-search. (0 to disable). |
 
 ## Styles
 
@@ -48,7 +48,7 @@ Since this is a XAML template, there’s no styling X-Ray available.
 | results-layout | Frame |
 | results-layout-inner | StackLayout |
 
-## Utilizing Search History M v5.0C v15.0
+## Utilizing Search History Mobile5.0  Core15.0
 
 You can utilize certain block settings to display a 'recently searched for' view that displays when the search field is empty. This is done through a combination of a few things, with the first being the `AppendToSearchHistory` command. This command is available on the Result Item Template. This command saves specific information about the entity to the shell.
 
