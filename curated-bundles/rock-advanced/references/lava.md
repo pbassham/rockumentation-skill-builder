@@ -5,13 +5,13 @@ sourceLabel: Lava
 ---
 > **Path:** Lava
 
-![](https://community.rockrms.com/Content/RockExternal/Lava/LavaLogoV2.svg?optimizer=image)
+![Lava](https://community.rockrms.com/Content/RockExternal/Lava/LavaLogoV2.svg?optimizer=image)
 
 #### Ending Support for DotLiquid Lava Engine
 
 Support for DotLiquid is coming to an end with the release of version v17. Don't miss out on the opportunity to experience the enhanced speed and innovative features of the new Fluid engine. Make the transition today!
 
-[Learn More](https://community.rockrms.com/connect/ending-support-for-dotliquid-lava-engine)
+[Read about ending DotLiquid support](https://community.rockrms.com/connect/ending-support-for-dotliquid-lava-engine)
 
 # What Is Lava
 
