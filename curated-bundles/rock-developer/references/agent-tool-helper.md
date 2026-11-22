@@ -1,5 +1,5 @@
 ---
-description: "Use when building Native Tools to validate inputs, handle errors consistently, and access Rock entities safely with standardized patterns"
+description: "Use when implementing Native Tools for AI agents and need guidance on validation, error handling, pagination, and standardized entity access patterns"
 source: "https://community.rockrms.com/developer/ai-agents"
 sourceLabel: AI Agents
 ---

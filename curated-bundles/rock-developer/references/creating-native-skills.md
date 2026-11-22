@@ -1,5 +1,5 @@
 ---
-description: "Use when creating native skills in Rock by writing C# classes that group related tools together for AI agents"
+description: "Use when creating custom skills in C# for Rock's AI agent system with tool registration and component structure"
 source: "https://community.rockrms.com/developer/ai-agents"
 sourceLabel: AI Agents
 ---

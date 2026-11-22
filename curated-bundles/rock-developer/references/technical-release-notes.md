@@ -1,5 +1,5 @@
 ---
-description: "Use when developers need to understand new features, bug fixes, and technical changes in recent Rock RMS releases"
+description: "Use when a developer needs to understand breaking changes, removed APIs, or migration requirements for Rock platform updates"
 source: "https://community.rockrms.com/developer/changelog"
 sourceLabel: Changelog
 ---
